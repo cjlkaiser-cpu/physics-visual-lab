@@ -31,9 +31,27 @@
             flex-direction: column;
             gap: 15px;
         }
-        #canvas {
+        .canvas-wrapper {
+            position: relative;
             width: 100%;
             height: 300px;
+        }
+        #glowCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            filter: blur(12px);
+            opacity: 0.6;
+            mix-blend-mode: screen;
+            pointer-events: none;
+            border-radius: 12px;
+        }
+        #canvas {
+            position: relative;
+            width: 100%;
+            height: 100%;
             background: #000;
             border-radius: 12px;
             border: 2px solid #333;
@@ -193,6 +211,15 @@
             border-color: #ec4899;
             color: #ec4899;
         }
+        .reset-btn {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: rgba(239, 68, 68, 0.3);
+            color: #ef4444;
+        }
+        .reset-btn:hover {
+            border-color: #ef4444;
+            background: rgba(239, 68, 68, 0.2);
+        }
     </style>
 </head>
 <body>
@@ -201,7 +228,10 @@
             <h1><span>Relatividad Especial</span></h1>
             <div class="subtitle">Efectos a velocidades cercanas a la luz (c = 299,792,458 m/s)</div>
             <div class="canvas-stack">
-                <canvas id="canvas"></canvas>
+                <div class="canvas-wrapper">
+                    <canvas id="glowCanvas"></canvas>
+                    <canvas id="canvas"></canvas>
+                </div>
                 <canvas id="graphCanvas"></canvas>
             </div>
         </div>
@@ -222,6 +252,7 @@
                     <button class="preset-btn" data-v="95">95% c</button>
                     <button class="preset-btn" data-v="99">99% c</button>
                     <button class="preset-btn" data-v="99.9">99.9% c</button>
+                    <button class="preset-btn reset-btn" id="resetTime">Reset</button>
                 </div>
             </div>
 
@@ -263,6 +294,8 @@
     <script>
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
+        const glowCanvas = document.getElementById('glowCanvas');
+        const glowCtx = glowCanvas.getContext('2d');
         const graphCanvas = document.getElementById('graphCanvas');
         const graphCtx = graphCanvas.getContext('2d');
 
@@ -271,13 +304,81 @@
         let time = 0;
         const c = 299792458; // Speed of light m/s
 
+        // Particle system for engine exhaust
+        let particles = [];
+
+        class Particle {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y + (Math.random() - 0.5) * 25;
+                this.vx = -8 - Math.random() * 15;
+                this.vy = (Math.random() - 0.5) * 3;
+                this.life = 1.0;
+                this.decay = 0.015 + Math.random() * 0.02;
+                this.size = 4 + Math.random() * 8;
+            }
+
+            update(v) {
+                this.x += this.vx * (0.3 + v * 0.7);
+                this.y += this.vy;
+                this.life -= this.decay;
+                this.size *= 0.97;
+            }
+
+            draw(context, forGlow = false) {
+                if (this.life <= 0) return;
+                // Color: white -> pink -> violet -> transparent
+                const hue = 300 + (1 - this.life) * 60;
+                const lightness = forGlow ? 70 : 50 + this.life * 30;
+                const alpha = forGlow ? this.life * 0.8 : this.life;
+                context.fillStyle = `hsla(${hue}, 100%, ${lightness}%, ${alpha})`;
+                context.beginPath();
+                context.arc(this.x, this.y, this.size * this.life * (forGlow ? 1.5 : 1), 0, Math.PI * 2);
+                context.fill();
+            }
+        }
+
+        // Star field with persistent positions and parallax layers
+        const stars = [];
+        const PARALLAX_LAYERS = 4; // Different depth layers
+
+        function initStars() {
+            for (let i = 0; i < 120; i++) {
+                // Assign to a depth layer (0 = far/slow, 3 = near/fast)
+                const layer = Math.floor(Math.random() * PARALLAX_LAYERS);
+                const depthFactor = 0.3 + (layer / PARALLAX_LAYERS) * 0.7; // 0.3 to 1.0
+
+                stars.push({
+                    baseX: Math.random() * 2500,
+                    baseY: Math.random(), // Store as 0-1 ratio
+                    brightness: (0.3 + Math.random() * 0.4) * depthFactor + 0.2,
+                    twinkleSpeed: 0.5 + Math.random() * 2,
+                    layer: layer,
+                    depthFactor: depthFactor, // Affects speed and size
+                    size: (1 + Math.random() * 1.5) * depthFactor
+                });
+            }
+            // Sort by layer so far stars draw first
+            stars.sort((a, b) => a.layer - b.layer);
+        }
+
+        // Time accumulators for twin paradox display
+        let earthTime = 0;  // Time passed on Earth (seconds of simulation)
+        let shipTime = 0;   // Proper time on ship (seconds of simulation)
+
         function resize() {
             const dpr = window.devicePixelRatio || 1;
-            W = canvas.clientWidth;
-            H = canvas.clientHeight;
+            const wrapper = canvas.parentElement;
+            W = wrapper.clientWidth;
+            H = wrapper.clientHeight;
+
             canvas.width = W * dpr;
             canvas.height = H * dpr;
             ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+            glowCanvas.width = W * dpr;
+            glowCanvas.height = H * dpr;
+            glowCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
             gW = graphCanvas.clientWidth;
             gH = graphCanvas.clientHeight;
@@ -291,45 +392,150 @@
             return 1 / Math.sqrt(1 - v * v);
         }
 
-        function draw() {
-            time += 0.016;
+        // Draw space-time grid that contracts with velocity
+        function drawSpaceGrid() {
+            const g = gamma(velocity);
+            const baseSpacing = 60;
+            const contractedSpacing = baseSpacing / g;
 
-            // Background with stars
-            ctx.fillStyle = '#000';
-            ctx.fillRect(0, 0, W, H);
+            // Grid opacity increases slightly with velocity to emphasize the effect
+            const opacity = 0.08 + velocity * 0.07;
+            ctx.strokeStyle = `rgba(100, 120, 255, ${opacity})`;
+            ctx.lineWidth = 1;
 
-            // Stars
-            for (let i = 0; i < 50; i++) {
-                const x = ((i * 73 + time * (20 + velocity * 200)) % W);
-                const y = (i * 47) % H;
-                const brightness = 0.3 + 0.3 * Math.sin(time + i);
-
-                // Stars stretch at high velocity
-                const stretch = 1 + velocity * 10;
-                ctx.fillStyle = `rgba(255, 255, 255, ${brightness})`;
+            // Vertical lines (contract in direction of motion)
+            const offset = (time * 50 * velocity) % contractedSpacing;
+            for (let x = -offset; x < W + contractedSpacing; x += contractedSpacing) {
                 ctx.beginPath();
-                ctx.ellipse(x, y, 1 * stretch, 1, 0, 0, Math.PI * 2);
-                ctx.fill();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, H);
+                ctx.stroke();
             }
 
+            // Horizontal lines (perpendicular to motion - no contraction)
+            for (let y = 0; y < H; y += baseSpacing) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(W, y);
+                ctx.stroke();
+            }
+        }
+
+        // Get star color based on Doppler shift
+        function getStarColor(v, brightness) {
+            // At low velocity: white/yellow. At high velocity: blue-violet (blueshift)
+            const hue = 60 - v * 120; // 60 (yellow) -> -60 (violet)
+            const saturation = v * 80; // 0% -> 80%
+            const lightness = 70 + brightness * 30;
+            return `hsla(${hue}, ${saturation}%, ${lightness}%, ${brightness})`;
+        }
+
+        function draw() {
+            const dt = 0.016;
+            time += dt;
+
+            // Update time accumulators (1 second simulation = 1 year for display)
             const g = gamma(velocity);
+            earthTime += dt;
+            shipTime += dt / g; // Proper time on ship passes slower
+
+            // Clear both canvases
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, W, H);
+            glowCtx.clearRect(0, 0, W, H);
+
+            // Draw space-time grid (behind everything)
+            drawSpaceGrid();
+
+            // Stars with parallax, warp speed streaks, and Doppler shift
+            for (let i = 0; i < stars.length; i++) {
+                const star = stars[i];
+
+                // Parallax: deeper stars move slower
+                const speedMultiplier = star.depthFactor;
+                const baseSpeed = 20 + velocity * 350 * speedMultiplier;
+
+                // Calculate position
+                const x = ((star.baseX + time * baseSpeed) % (W + 150)) - 75;
+                const y = star.baseY * H;
+
+                const twinkle = 0.7 + 0.3 * Math.sin(time * star.twinkleSpeed + i);
+                const brightness = star.brightness * twinkle;
+
+                // Streak length based on velocity and depth (closer stars = longer streaks)
+                const streakLength = (2 + velocity * 120) * star.depthFactor;
+
+                // Doppler shifted color
+                const starColor = getStarColor(velocity, brightness);
+
+                // Star size based on depth
+                const starSize = star.size * (0.8 + brightness * 0.4);
+
+                if (velocity > 0.3) {
+                    // Draw as horizontal streaks at high velocity
+                    ctx.strokeStyle = starColor;
+                    ctx.lineWidth = (1 + velocity * 0.5) * star.depthFactor;
+                    ctx.beginPath();
+                    ctx.moveTo(x, y);
+                    ctx.lineTo(x - streakLength, y);
+                    ctx.stroke();
+
+                    // Bright tip
+                    ctx.fillStyle = starColor;
+                    ctx.beginPath();
+                    ctx.arc(x, y, starSize, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    // Glow layer for bright/close stars
+                    if (brightness > 0.6 && star.layer >= 2) {
+                        glowCtx.strokeStyle = starColor;
+                        glowCtx.lineWidth = 2.5;
+                        glowCtx.beginPath();
+                        glowCtx.moveTo(x, y);
+                        glowCtx.lineTo(x - streakLength * 0.7, y);
+                        glowCtx.stroke();
+                    }
+                } else {
+                    // Draw as points at low velocity
+                    ctx.fillStyle = starColor;
+                    ctx.beginPath();
+                    ctx.arc(x, y, starSize, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
 
             // Spaceship (contracts at high velocity)
             const shipLength = 120 / g;
             const shipHeight = 40;
             const shipX = W / 2;
             const shipY = H / 2;
+            const engineX = shipX - shipLength / 2 - 10;
 
-            // Glow effect based on velocity
-            ctx.save();
-            ctx.shadowColor = `hsl(${330 - velocity * 60}, 100%, 50%)`;
-            ctx.shadowBlur = 20 + velocity * 30;
+            // Spawn particles from engine
+            if (velocity > 0.05) {
+                const spawnRate = Math.floor(velocity * 8);
+                for (let i = 0; i < spawnRate; i++) {
+                    particles.push(new Particle(engineX, shipY));
+                }
+            }
+
+            // Update and draw particles
+            particles = particles.filter(p => p.life > 0);
+            particles.forEach(p => {
+                p.update(velocity);
+                p.draw(ctx);
+                p.draw(glowCtx, true); // Draw to glow layer
+            });
 
             // Ship body (contracts in direction of motion)
+            ctx.save();
+
             const grad = ctx.createLinearGradient(shipX - shipLength / 2, 0, shipX + shipLength / 2, 0);
-            grad.addColorStop(0, '#666');
+            grad.addColorStop(0, '#555');
+            grad.addColorStop(0.3, '#888');
             grad.addColorStop(0.5, '#aaa');
-            grad.addColorStop(1, '#666');
+            grad.addColorStop(0.7, '#888');
+            grad.addColorStop(1, '#555');
             ctx.fillStyle = grad;
 
             ctx.beginPath();
@@ -347,21 +553,44 @@
             ctx.ellipse(shipX + shipLength / 4, shipY, shipLength / 8, shipHeight / 4, 0, 0, Math.PI * 2);
             ctx.fill();
 
+            // Cockpit glow
+            glowCtx.fillStyle = 'rgba(6, 182, 212, 0.8)';
+            glowCtx.beginPath();
+            glowCtx.ellipse(shipX + shipLength / 4, shipY, shipLength / 6, shipHeight / 3, 0, 0, Math.PI * 2);
+            glowCtx.fill();
+
             ctx.restore();
 
-            // Engine glow
+            // Engine core glow (to glow canvas)
             if (velocity > 0.1) {
-                const engineGrad = ctx.createRadialGradient(
-                    shipX - shipLength / 2 - 10, shipY, 0,
-                    shipX - shipLength / 2 - 10, shipY, 30 + velocity * 50
+                const coreSize = 15 + velocity * 35;
+                const engineGrad = glowCtx.createRadialGradient(
+                    engineX, shipY, 0,
+                    engineX, shipY, coreSize
                 );
-                engineGrad.addColorStop(0, `rgba(236, 72, 153, ${velocity})`);
-                engineGrad.addColorStop(0.5, `rgba(168, 85, 247, ${velocity * 0.5})`);
+                engineGrad.addColorStop(0, `rgba(255, 255, 255, ${velocity})`);
+                engineGrad.addColorStop(0.3, `rgba(236, 72, 153, ${velocity * 0.9})`);
+                engineGrad.addColorStop(0.6, `rgba(168, 85, 247, ${velocity * 0.5})`);
                 engineGrad.addColorStop(1, 'transparent');
-                ctx.fillStyle = engineGrad;
-                ctx.beginPath();
-                ctx.arc(shipX - shipLength / 2 - 10, shipY, 30 + velocity * 50, 0, Math.PI * 2);
-                ctx.fill();
+                glowCtx.fillStyle = engineGrad;
+                glowCtx.beginPath();
+                glowCtx.arc(engineX, shipY, coreSize, 0, Math.PI * 2);
+                glowCtx.fill();
+            }
+
+            // Chromatic aberration at extreme velocities (>90%c)
+            if (velocity > 0.9) {
+                const shift = (velocity - 0.9) * 30;
+                ctx.globalCompositeOperation = 'lighter';
+                ctx.globalAlpha = 0.15;
+
+                // Red shift to the right
+                ctx.drawImage(canvas, shift, 0);
+                // Blue shift to the left
+                ctx.drawImage(canvas, -shift, 0);
+
+                ctx.globalCompositeOperation = 'source-over';
+                ctx.globalAlpha = 1;
             }
 
             // Clocks comparison
@@ -372,6 +601,9 @@
 
             // Moving clock (right) - runs slower
             drawClock(W - 80, H - 60, clockRadius, time * 2 / g, 'Nave', '#f59e0b');
+
+            // Twin paradox time counter (center bottom)
+            drawTimeCounter();
 
             // Length comparison bar
             const barY = 40;
@@ -394,6 +626,75 @@
             ctx.font = '14px sans-serif';
             ctx.textAlign = 'left';
             ctx.fillText(`v = ${(velocity * 100).toFixed(1)}% c`, 20, 30);
+        }
+
+        function drawTimeCounter() {
+            // Convert simulation time to "years" (10 seconds = 1 year for display)
+            const earthYears = earthTime / 10;
+            const shipYears = shipTime / 10;
+
+            const boxX = W / 2;
+            const boxY = H - 35;
+
+            // Background box
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+            ctx.beginPath();
+            ctx.roundRect(boxX - 100, boxY - 22, 200, 44, 8);
+            ctx.fill();
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+
+            // Title
+            ctx.fillStyle = '#888';
+            ctx.font = '9px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('PARADOJA DE LOS GEMELOS', boxX, boxY - 10);
+
+            // Earth time (left)
+            ctx.fillStyle = '#4ade80';
+            ctx.font = 'bold 12px sans-serif';
+            ctx.textAlign = 'right';
+            ctx.fillText(`${earthYears.toFixed(1)}`, boxX - 25, boxY + 8);
+            ctx.fillStyle = '#4ade80';
+            ctx.font = '9px sans-serif';
+            ctx.fillText('años', boxX - 25, boxY + 18);
+
+            // Label Earth
+            ctx.fillStyle = '#666';
+            ctx.font = '8px sans-serif';
+            ctx.textAlign = 'right';
+            ctx.fillText('Tierra', boxX - 55, boxY + 5);
+
+            // Separator
+            ctx.fillStyle = '#444';
+            ctx.font = '14px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('/', boxX, boxY + 8);
+
+            // Ship time (right)
+            ctx.fillStyle = '#f59e0b';
+            ctx.font = 'bold 12px sans-serif';
+            ctx.textAlign = 'left';
+            ctx.fillText(`${shipYears.toFixed(1)}`, boxX + 25, boxY + 8);
+            ctx.fillStyle = '#f59e0b';
+            ctx.font = '9px sans-serif';
+            ctx.fillText('años', boxX + 25, boxY + 18);
+
+            // Label Ship
+            ctx.fillStyle = '#666';
+            ctx.font = '8px sans-serif';
+            ctx.textAlign = 'left';
+            ctx.fillText('Nave', boxX + 55, boxY + 5);
+
+            // Age difference indicator (when significant)
+            const diff = earthYears - shipYears;
+            if (diff > 0.5) {
+                ctx.fillStyle = '#ec4899';
+                ctx.font = '8px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText(`Δ ${diff.toFixed(1)} años`, boxX, boxY + 30);
+            }
         }
 
         function drawClock(x, y, r, angle, label, color) {
@@ -454,6 +755,7 @@
             // Labels
             graphCtx.fillStyle = '#666';
             graphCtx.font = '10px sans-serif';
+            graphCtx.textAlign = 'left';
             graphCtx.fillText('γ', 20, 25);
             graphCtx.fillText('v/c', gW - 30, gH - margin + 15);
             graphCtx.fillText('0', margin - 10, gH - margin + 12);
@@ -534,7 +836,7 @@
         };
 
         // Preset buttons
-        document.querySelectorAll('.preset-btn').forEach(btn => {
+        document.querySelectorAll('.preset-btn[data-v]').forEach(btn => {
             btn.onclick = function() {
                 velocity = parseFloat(this.dataset.v) / 100;
                 document.getElementById('velocitySlider').value = this.dataset.v;
@@ -542,8 +844,16 @@
             };
         });
 
+        // Reset time button
+        document.getElementById('resetTime').onclick = function() {
+            earthTime = 0;
+            shipTime = 0;
+            time = 0;
+        };
+
         // Init
         window.onload = function() {
+            initStars();
             resize();
             updateInfo();
             animate();
