@@ -1,0 +1,1551 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Physics Visual Lab - Simulaciones Físicas</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(96, 165, 250, 0.15);
+        }
+        .card-link {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+        .card:hover .card-border {
+            opacity: 1;
+        }
+        .card-border {
+            position: absolute;
+            inset: 0;
+            border-radius: 1rem;
+            padding: 2px;
+            background: linear-gradient(135deg, #60a5fa, #3b82f6, #60a5fa);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .preview-canvas {
+            border-radius: 0.5rem;
+        }
+        .equation {
+            font-family: 'Times New Roman', serif;
+            font-style: italic;
+        }
+        .category-tag {
+            font-size: 0.65rem;
+            padding: 2px 8px;
+            border-radius: 9999px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+    </style>
+</head>
+<body class="bg-gray-950 text-gray-100 min-h-screen">
+    <!-- Header -->
+    <header class="border-b border-gray-800 bg-gray-900/50 backdrop-blur-sm sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-6 py-4">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h1 class="text-2xl font-light">
+                        <span class="text-blue-400 font-medium">Physics</span> Visual Lab
+                    </h1>
+                    <p class="text-gray-500 text-sm">Simulaciones Físicas Interactivas</p>
+                </div>
+                <a href="https://github.com/cjlkaiser-cpu" target="_blank" class="text-gray-400 hover:text-white transition">
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-6 py-12">
+        <!-- Hero -->
+        <section class="text-center mb-16">
+            <h2 class="text-4xl font-light mb-4">
+                Física <span class="text-blue-400 font-medium">visual</span>
+            </h2>
+            <p class="text-gray-400 max-w-2xl mx-auto">
+                18 simulaciones interactivas que dan vida a las ecuaciones de la física.
+                Desde mecánica clásica hasta relatividad especial.
+            </p>
+        </section>
+
+        <!-- Grid de Simulaciones -->
+        <section class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
+
+            <!-- Proyectil -->
+            <a href="proyectil.html" class="card-link">
+                <div class="card relative bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden">
+                    <div class="card-border"></div>
+                    <div class="p-4">
+                        <canvas id="preview-proyectil" class="preview-canvas w-full h-40 bg-gray-950 mb-4"></canvas>
+                        <span class="category-tag bg-green-500/20 text-green-400">Cinemática</span>
+                        <h3 class="text-lg font-medium mb-1 mt-2">Movimiento Proyectil</h3>
+                        <p class="text-gray-400 text-sm mb-3">Balística con gravedad variable. Incluye presets de planetas (Luna, Marte, Tierra, Júpiter), resistencia del aire opcional y trayectoria ideal comparativa. Fondo nocturno estrellado.</p>
+                        <div class="equation text-blue-400/70 text-sm mb-4">y = v₀sin(θ)t - ½gt²</div>
+                        <span class="block w-full text-center py-2 bg-blue-500/10 text-blue-400 rounded-lg hover:bg-blue-500/20 transition text-sm font-medium">
+                            Abrir Simulación →
+                        </span>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Colisiones -->
+            <a href="colisiones.html" class="card-link">
+                <div class="card relative bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden">
+                    <div class="card-border"></div>
+                    <div class="p-4">
+                        <canvas id="preview-colisiones" class="preview-canvas w-full h-40 bg-gray-950 mb-4"></canvas>
+                        <span class="category-tag bg-green-500/20 text-green-400">Dinámica</span>
+                        <h3 class="text-lg font-medium mb-1 mt-2">Colisiones 2D</h3>
+                        <p class="text-gray-400 text-sm mb-3">Colisiones elásticas, inelásticas y perfectamente inelásticas en el plano. Conservación de momento y energía con trayectorias predichas. Arrastra las bolas para posicionarlas.</p>
+                        <div class="equation text-blue-400/70 text-sm mb-4">p₁ + p₂ = p₁' + p₂'</div>
+                        <span class="block w-full text-center py-2 bg-blue-500/10 text-blue-400 rounded-lg hover:bg-blue-500/20 transition text-sm font-medium">
+                            Abrir Simulación →
+                        </span>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Péndulo Simple -->
+            <a href="pendulo-simple.html" class="card-link">
+                <div class="card relative bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden">
+                    <div class="card-border"></div>
+                    <div class="p-4">
+                        <canvas id="preview-pendulo" class="preview-canvas w-full h-40 bg-gray-950 mb-4"></canvas>
+                        <span class="category-tag bg-purple-500/20 text-purple-400">Oscilaciones</span>
+                        <h3 class="text-lg font-medium mb-1 mt-2">Péndulo Simple</h3>
+                        <p class="text-gray-400 text-sm mb-3">Péndulo con ecuación no lineal completa. Integración RK4 que captura el comportamiento donde el período depende de la amplitud, superando la aproximación de ángulos pequeños.</p>
+                        <div class="equation text-blue-400/70 text-sm mb-4">θ'' + (g/L)sin(θ) = 0</div>
+                        <span class="block w-full text-center py-2 bg-blue-500/10 text-blue-400 rounded-lg hover:bg-blue-500/20 transition text-sm font-medium">
+                            Abrir Simulación →
+                        </span>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Péndulos Desacoplados -->
+            <a href="pendulos-desacoplados.html" class="card-link">
+                <div class="card relative bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden">
+                    <div class="card-border"></div>
+                    <div class="p-4">
+                        <canvas id="preview-desacoplados" class="preview-canvas w-full h-40 bg-gray-950 mb-4"></canvas>
+                        <span class="category-tag bg-purple-500/20 text-purple-400">Oscilaciones</span>
+                        <h3 class="text-lg font-medium mb-1 mt-2">Péndulos Desacoplados</h3>
+                        <p class="text-gray-400 text-sm mb-3">Comparación de péndulos con diferentes longitudes. Visualiza cómo el período T = 2π√(L/g) varía con la longitud, creando desfases progresivos y patrones de sincronización.</p>
+                        <div class="equation text-blue-400/70 text-sm mb-4">T = 2π√(L/g)</div>
+                        <span class="block w-full text-center py-2 bg-blue-500/10 text-blue-400 rounded-lg hover:bg-blue-500/20 transition text-sm font-medium">
+                            Abrir Simulación →
+                        </span>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Mecánica Lagrangiana -->
+            <a href="mecanica-lagrangiana.html" class="card-link">
+                <div class="card relative bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden">
+                    <div class="card-border"></div>
+                    <div class="p-4">
+                        <canvas id="preview-lagrange" class="preview-canvas w-full h-40 bg-gray-950 mb-4"></canvas>
+                        <span class="category-tag bg-amber-500/20 text-amber-400">Física Teórica</span>
+                        <h3 class="text-lg font-medium mb-1 mt-2">Mecánica Lagrangiana</h3>
+                        <p class="text-gray-400 text-sm mb-3">Demostración del formalismo lagrangiano aplicado a sistemas mecánicos. Ecuaciones de Euler-Lagrange derivadas del principio de mínima acción.</p>
+                        <div class="equation text-blue-400/70 text-sm mb-4">L = T - V, d/dt(∂L/∂q̇) - ∂L/∂q = 0</div>
+                        <span class="block w-full text-center py-2 bg-blue-500/10 text-blue-400 rounded-lg hover:bg-blue-500/20 transition text-sm font-medium">
+                            Abrir Simulación →
+                        </span>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Efecto Doppler -->
+            <a href="efecto-doppler.html" class="card-link">
+                <div class="card relative bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden">
+                    <div class="card-border"></div>
+                    <div class="p-4">
+                        <canvas id="preview-doppler" class="preview-canvas w-full h-40 bg-gray-950 mb-4"></canvas>
+                        <span class="category-tag bg-cyan-500/20 text-cyan-400">Ondas</span>
+                        <h3 class="text-lg font-medium mb-1 mt-2">Efecto Doppler</h3>
+                        <p class="text-gray-400 text-sm mb-3">Cambio de frecuencia por movimiento relativo. Visualiza la compresión y expansión de frentes de onda. Incluye sonificación del cambio de tono en tiempo real.</p>
+                        <div class="equation text-blue-400/70 text-sm mb-4">f' = f(v ± v_obs)/(v ∓ v_src)</div>
+                        <span class="block w-full text-center py-2 bg-blue-500/10 text-blue-400 rounded-lg hover:bg-blue-500/20 transition text-sm font-medium">
+                            Abrir Simulación →
+                        </span>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Interferencia -->
+            <a href="interferencia.html" class="card-link">
+                <div class="card relative bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden">
+                    <div class="card-border"></div>
+                    <div class="p-4">
+                        <canvas id="preview-interferencia" class="preview-canvas w-full h-40 bg-gray-950 mb-4"></canvas>
+                        <span class="category-tag bg-cyan-500/20 text-cyan-400">Ondas</span>
+                        <h3 class="text-lg font-medium mb-1 mt-2">Interferencia de Ondas</h3>
+                        <p class="text-gray-400 text-sm mb-3">Patrón de interferencia tipo experimento de Young. Ondas circulares desde fuentes coherentes crean máximos y mínimos según la diferencia de camino óptico.</p>
+                        <div class="equation text-blue-400/70 text-sm mb-4">d·sin(θ) = nλ</div>
+                        <span class="block w-full text-center py-2 bg-blue-500/10 text-blue-400 rounded-lg hover:bg-blue-500/20 transition text-sm font-medium">
+                            Abrir Simulación →
+                        </span>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Fourier -->
+            <a href="fourier.html" class="card-link">
+                <div class="card relative bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden">
+                    <div class="card-border"></div>
+                    <div class="p-4">
+                        <canvas id="preview-fourier" class="preview-canvas w-full h-40 bg-gray-950 mb-4"></canvas>
+                        <span class="category-tag bg-cyan-500/20 text-cyan-400">Ondas</span>
+                        <h3 class="text-lg font-medium mb-1 mt-2">Transformada de Fourier</h3>
+                        <p class="text-gray-400 text-sm mb-3">Síntesis aditiva visual y sonora. Construye ondas cuadrada, triangular y diente de sierra sumando armónicos. Escucha cómo cada armónico contribuye al timbre.</p>
+                        <div class="equation text-blue-400/70 text-sm mb-4">f(t) = Σ aₙsin(nωt + φₙ)</div>
+                        <span class="block w-full text-center py-2 bg-blue-500/10 text-blue-400 rounded-lg hover:bg-blue-500/20 transition text-sm font-medium">
+                            Abrir Simulación →
+                        </span>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Campo Eléctrico -->
+            <a href="campo-electrico.html" class="card-link">
+                <div class="card relative bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden">
+                    <div class="card-border"></div>
+                    <div class="p-4">
+                        <canvas id="preview-campo" class="preview-canvas w-full h-40 bg-gray-950 mb-4"></canvas>
+                        <span class="category-tag bg-red-500/20 text-red-400">Electromagnetismo</span>
+                        <h3 class="text-lg font-medium mb-1 mt-2">Campo Eléctrico</h3>
+                        <p class="text-gray-400 text-sm mb-3">Visualización de líneas de campo y potencial eléctrico. Coloca cargas positivas y negativas, observa dipolos, cuadrupolos y configuraciones personalizadas.</p>
+                        <div class="equation text-blue-400/70 text-sm mb-4">E = kq/r², V = kq/r</div>
+                        <span class="block w-full text-center py-2 bg-blue-500/10 text-blue-400 rounded-lg hover:bg-blue-500/20 transition text-sm font-medium">
+                            Abrir Simulación →
+                        </span>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Difusión del Calor -->
+            <a href="difusion-calor.html" class="card-link">
+                <div class="card relative bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden">
+                    <div class="card-border"></div>
+                    <div class="p-4">
+                        <canvas id="preview-calor" class="preview-canvas w-full h-40 bg-gray-950 mb-4"></canvas>
+                        <span class="category-tag bg-orange-500/20 text-orange-400">Termodinámica</span>
+                        <h3 class="text-lg font-medium mb-1 mt-2">Difusión del Calor</h3>
+                        <p class="text-gray-400 text-sm mb-3">Ecuación del calor en 2D resuelta por diferencias finitas. Observa cómo la temperatura se difunde desde fuentes calientes hacia regiones frías siguiendo la ley de Fourier.</p>
+                        <div class="equation text-blue-400/70 text-sm mb-4">∂T/∂t = α∇²T</div>
+                        <span class="block w-full text-center py-2 bg-blue-500/10 text-blue-400 rounded-lg hover:bg-blue-500/20 transition text-sm font-medium">
+                            Abrir Simulación →
+                        </span>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Sistema Solar -->
+            <a href="sistema-solar.html" class="card-link">
+                <div class="card relative bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden">
+                    <div class="card-border"></div>
+                    <div class="p-4">
+                        <canvas id="preview-solar" class="preview-canvas w-full h-40 bg-gray-950 mb-4"></canvas>
+                        <span class="category-tag bg-indigo-500/20 text-indigo-400">Astrofísica</span>
+                        <h3 class="text-lg font-medium mb-1 mt-2">Sistema Solar</h3>
+                        <p class="text-gray-400 text-sm mb-3">Los 8 planetas orbitando el Sol con períodos proporcionales a los reales. Escalas ajustadas para visualización. Incluye datos orbitales y comparación de velocidades.</p>
+                        <div class="equation text-blue-400/70 text-sm mb-4">F = GMm/r²</div>
+                        <span class="block w-full text-center py-2 bg-blue-500/10 text-blue-400 rounded-lg hover:bg-blue-500/20 transition text-sm font-medium">
+                            Abrir Simulación →
+                        </span>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Órbitas de Kepler -->
+            <a href="orbitas-kepler.html" class="card-link">
+                <div class="card relative bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden">
+                    <div class="card-border"></div>
+                    <div class="p-4">
+                        <canvas id="preview-kepler" class="preview-canvas w-full h-40 bg-gray-950 mb-4"></canvas>
+                        <span class="category-tag bg-indigo-500/20 text-indigo-400">Astrofísica</span>
+                        <h3 class="text-lg font-medium mb-1 mt-2">Órbitas de Kepler</h3>
+                        <p class="text-gray-400 text-sm mb-3">Las tres leyes de Kepler demostradas. Órbitas elípticas, áreas iguales en tiempos iguales, y la relación T² ∝ a³. Ecuación de Kepler resuelta con Newton-Raphson.</p>
+                        <div class="equation text-blue-400/70 text-sm mb-4">T² = (4π²/GM)a³</div>
+                        <span class="block w-full text-center py-2 bg-blue-500/10 text-blue-400 rounded-lg hover:bg-blue-500/20 transition text-sm font-medium">
+                            Abrir Simulación →
+                        </span>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Gas Ideal -->
+            <a href="gas-ideal.html" class="card-link">
+                <div class="card relative bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden">
+                    <div class="card-border"></div>
+                    <div class="p-4">
+                        <canvas id="preview-gas" class="preview-canvas w-full h-40 bg-gray-950 mb-4"></canvas>
+                        <span class="category-tag bg-orange-500/20 text-orange-400">Termodinámica</span>
+                        <h3 class="text-lg font-medium mb-1 mt-2">Gas Ideal</h3>
+                        <p class="text-gray-400 text-sm mb-3">Teoría cinética con partículas en una caja. Distribución de Maxwell-Boltzmann en tiempo real. Controla temperatura, volumen y número de partículas.</p>
+                        <div class="equation text-blue-400/70 text-sm mb-4">PV = NkT, ½mv² = 3/2 kT</div>
+                        <span class="block w-full text-center py-2 bg-blue-500/10 text-blue-400 rounded-lg hover:bg-blue-500/20 transition text-sm font-medium">
+                            Abrir Simulación →
+                        </span>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Oscilador Forzado -->
+            <a href="oscilador-forzado.html" class="card-link">
+                <div class="card relative bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden">
+                    <div class="card-border"></div>
+                    <div class="p-4">
+                        <canvas id="preview-forzado" class="preview-canvas w-full h-40 bg-gray-950 mb-4"></canvas>
+                        <span class="category-tag bg-purple-500/20 text-purple-400">Oscilaciones</span>
+                        <h3 class="text-lg font-medium mb-1 mt-2">Oscilador Forzado</h3>
+                        <p class="text-gray-400 text-sm mb-3">Resonancia y oscilaciones amortiguadas. Curva de respuesta en frecuencia con pico de resonancia. Visualización del fenómeno cuando ω = ω₀.</p>
+                        <div class="equation text-blue-400/70 text-sm mb-4">mẍ + γẋ + kx = F₀cos(ωt)</div>
+                        <span class="block w-full text-center py-2 bg-blue-500/10 text-blue-400 rounded-lg hover:bg-blue-500/20 transition text-sm font-medium">
+                            Abrir Simulación →
+                        </span>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Óptica (Snell) -->
+            <a href="optica.html" class="card-link">
+                <div class="card relative bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden">
+                    <div class="card-border"></div>
+                    <div class="p-4">
+                        <canvas id="preview-optica" class="preview-canvas w-full h-40 bg-gray-950 mb-4"></canvas>
+                        <span class="category-tag bg-cyan-500/20 text-cyan-400">Óptica</span>
+                        <h3 class="text-lg font-medium mb-1 mt-2">Ley de Snell</h3>
+                        <p class="text-gray-400 text-sm mb-3">Reflexión y refracción de la luz. Presets de materiales (aire, agua, vidrio, diamante). Detecta reflexión total interna en el ángulo crítico.</p>
+                        <div class="equation text-blue-400/70 text-sm mb-4">n₁sin(θ₁) = n₂sin(θ₂)</div>
+                        <span class="block w-full text-center py-2 bg-blue-500/10 text-blue-400 rounded-lg hover:bg-blue-500/20 transition text-sm font-medium">
+                            Abrir Simulación →
+                        </span>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Relatividad -->
+            <a href="relatividad.html" class="card-link">
+                <div class="card relative bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden">
+                    <div class="card-border"></div>
+                    <div class="p-4">
+                        <canvas id="preview-relatividad" class="preview-canvas w-full h-40 bg-gray-950 mb-4"></canvas>
+                        <span class="category-tag bg-amber-500/20 text-amber-400">Física Moderna</span>
+                        <h3 class="text-lg font-medium mb-1 mt-2">Relatividad Especial</h3>
+                        <p class="text-gray-400 text-sm mb-3">Dilatación temporal y contracción de longitud. Gráfica del factor de Lorentz γ. Nave espacial con efectos relativistas y comparación de relojes.</p>
+                        <div class="equation text-blue-400/70 text-sm mb-4">γ = 1/√(1 - v²/c²)</div>
+                        <span class="block w-full text-center py-2 bg-blue-500/10 text-blue-400 rounded-lg hover:bg-blue-500/20 transition text-sm font-medium">
+                            Abrir Simulación →
+                        </span>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Atractor Multi-Cuerpo -->
+            <a href="atractor-multicuerpo.html" class="card-link">
+                <div class="card relative bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden">
+                    <div class="card-border"></div>
+                    <div class="p-4">
+                        <canvas id="preview-atractor" class="preview-canvas w-full h-40 bg-gray-950 mb-4"></canvas>
+                        <span class="category-tag bg-amber-500/20 text-amber-400">Física Teórica</span>
+                        <h3 class="text-lg font-medium mb-1 mt-2">Atractor Multi-Cuerpo</h3>
+                        <p class="text-gray-400 text-sm mb-3">Caos determinista con múltiples atractores. Partícula bajo campos 1/rⁿ, sensibilidad a condiciones iniciales. Integración RK4 de alta precisión.</p>
+                        <div class="equation text-blue-400/70 text-sm mb-4">F = Σ K(rᵢ - r) / |rᵢ - r|ⁿ</div>
+                        <span class="block w-full text-center py-2 bg-blue-500/10 text-blue-400 rounded-lg hover:bg-blue-500/20 transition text-sm font-medium">
+                            Abrir Simulación →
+                        </span>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Orbifold Walker 3D -->
+            <a href="orbifold-3d.html" class="card-link">
+                <div class="card relative bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden">
+                    <div class="card-border"></div>
+                    <div class="p-4">
+                        <canvas id="preview-orbifold" class="preview-canvas w-full h-40 bg-gray-950 mb-4"></canvas>
+                        <span class="category-tag bg-violet-500/20 text-violet-400">Teoría Musical</span>
+                        <h3 class="text-lg font-medium mb-1 mt-2">Orbifold Walker 3D</h3>
+                        <p class="text-gray-400 text-sm mb-3">Espacio de tríadas de Tymoczko. Partícula navegando el orbifold T³/S₃ donde cada punto es un voicing. Visualización Three.js con attractores en acordes consonantes.</p>
+                        <div class="equation text-blue-400/70 text-sm mb-4">T³/S₃ : (p₁, p₂, p₃) ↔ (x, y, z)</div>
+                        <span class="block w-full text-center py-2 bg-blue-500/10 text-blue-400 rounded-lg hover:bg-blue-500/20 transition text-sm font-medium">
+                            Abrir Simulación →
+                        </span>
+                    </div>
+                </div>
+            </a>
+
+        </section>
+
+        <!-- Tech Stack -->
+        <section class="text-center">
+            <h3 class="text-lg font-medium mb-4 text-gray-400">Tecnologías</h3>
+            <div class="flex flex-wrap justify-center gap-3">
+                <span class="px-3 py-1.5 bg-gray-800 rounded-full text-sm text-gray-300">Canvas 2D</span>
+                <span class="px-3 py-1.5 bg-gray-800 rounded-full text-sm text-gray-300">Three.js</span>
+                <span class="px-3 py-1.5 bg-gray-800 rounded-full text-sm text-gray-300">Web Audio API</span>
+                <span class="px-3 py-1.5 bg-gray-800 rounded-full text-sm text-gray-300">Runge-Kutta 4</span>
+                <span class="px-3 py-1.5 bg-gray-800 rounded-full text-sm text-gray-300">Diferencias Finitas</span>
+                <span class="px-3 py-1.5 bg-gray-800 rounded-full text-sm text-gray-300">Newton-Raphson</span>
+                <span class="px-3 py-1.5 bg-gray-800 rounded-full text-sm text-gray-300">Maxwell-Boltzmann</span>
+                <span class="px-3 py-1.5 bg-gray-800 rounded-full text-sm text-gray-300">Ley de Snell</span>
+                <span class="px-3 py-1.5 bg-gray-800 rounded-full text-sm text-gray-300">Lorentz γ</span>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-gray-800 py-6 mt-12">
+        <div class="max-w-6xl mx-auto px-6 text-center text-gray-500 text-sm">
+            Physics Visual Lab · Simulaciones donde las ecuaciones cobran vida
+        </div>
+    </footer>
+
+    <script>
+        // Mini simulaciones para previews
+        const previews = {};
+        let time = 0;
+
+        function initPreviews() {
+            // Proyectil
+            const proyectil = document.getElementById('preview-proyectil');
+            if (proyectil) {
+                previews.proyectil = {
+                    ctx: proyectil.getContext('2d'),
+                    w: proyectil.width = proyectil.offsetWidth * 2,
+                    h: proyectil.height = proyectil.offsetHeight * 2,
+                    t: 0, trail: []
+                };
+            }
+
+            // Colisiones
+            const colisiones = document.getElementById('preview-colisiones');
+            if (colisiones) {
+                previews.colisiones = {
+                    ctx: colisiones.getContext('2d'),
+                    w: colisiones.width = colisiones.offsetWidth * 2,
+                    h: colisiones.height = colisiones.offsetHeight * 2,
+                    b1: { x: 0.3, y: 0.5, vx: 0.015, vy: 0.005 },
+                    b2: { x: 0.7, y: 0.5, vx: -0.01, vy: -0.003 }
+                };
+            }
+
+            // Péndulo
+            const pendulo = document.getElementById('preview-pendulo');
+            if (pendulo) {
+                previews.pendulo = {
+                    ctx: pendulo.getContext('2d'),
+                    w: pendulo.width = pendulo.offsetWidth * 2,
+                    h: pendulo.height = pendulo.offsetHeight * 2,
+                    theta: Math.PI / 4, omega: 0
+                };
+            }
+
+            // Péndulos Desacoplados
+            const desacoplados = document.getElementById('preview-desacoplados');
+            if (desacoplados) {
+                previews.desacoplados = {
+                    ctx: desacoplados.getContext('2d'),
+                    w: desacoplados.width = desacoplados.offsetWidth * 2,
+                    h: desacoplados.height = desacoplados.offsetHeight * 2,
+                    thetas: [Math.PI/5, Math.PI/5, Math.PI/5, Math.PI/5, Math.PI/5],
+                    omegas: [0, 0, 0, 0, 0]
+                };
+            }
+
+            // Lagrange
+            const lagrange = document.getElementById('preview-lagrange');
+            if (lagrange) {
+                previews.lagrange = {
+                    ctx: lagrange.getContext('2d'),
+                    w: lagrange.width = lagrange.offsetWidth * 2,
+                    h: lagrange.height = lagrange.offsetHeight * 2,
+                    theta: Math.PI / 6, omega: 0
+                };
+            }
+
+            // Doppler
+            const doppler = document.getElementById('preview-doppler');
+            if (doppler) {
+                previews.doppler = {
+                    ctx: doppler.getContext('2d'),
+                    w: doppler.width = doppler.offsetWidth * 2,
+                    h: doppler.height = doppler.offsetHeight * 2,
+                    x: 0, waves: []
+                };
+            }
+
+            // Interferencia
+            const interferencia = document.getElementById('preview-interferencia');
+            if (interferencia) {
+                previews.interferencia = {
+                    ctx: interferencia.getContext('2d'),
+                    w: interferencia.width = interferencia.offsetWidth * 2,
+                    h: interferencia.height = interferencia.offsetHeight * 2
+                };
+            }
+
+            // Fourier
+            const fourier = document.getElementById('preview-fourier');
+            if (fourier) {
+                previews.fourier = {
+                    ctx: fourier.getContext('2d'),
+                    w: fourier.width = fourier.offsetWidth * 2,
+                    h: fourier.height = fourier.offsetHeight * 2
+                };
+            }
+
+            // Campo Eléctrico
+            const campo = document.getElementById('preview-campo');
+            if (campo) {
+                previews.campo = {
+                    ctx: campo.getContext('2d'),
+                    w: campo.width = campo.offsetWidth * 2,
+                    h: campo.height = campo.offsetHeight * 2
+                };
+            }
+
+            // Difusión Calor
+            const calor = document.getElementById('preview-calor');
+            if (calor) {
+                previews.calor = {
+                    ctx: calor.getContext('2d'),
+                    w: calor.width = calor.offsetWidth * 2,
+                    h: calor.height = calor.offsetHeight * 2,
+                    grid: null
+                };
+                // Init grid
+                const size = 30;
+                previews.calor.grid = [];
+                for (let i = 0; i < size; i++) {
+                    previews.calor.grid[i] = [];
+                    for (let j = 0; j < size; j++) {
+                        previews.calor.grid[i][j] = 0;
+                    }
+                }
+                // Hot spot
+                previews.calor.grid[15][15] = 1;
+            }
+
+            // Sistema Solar
+            const solar = document.getElementById('preview-solar');
+            if (solar) {
+                previews.solar = {
+                    ctx: solar.getContext('2d'),
+                    w: solar.width = solar.offsetWidth * 2,
+                    h: solar.height = solar.offsetHeight * 2
+                };
+            }
+
+            // Kepler
+            const kepler = document.getElementById('preview-kepler');
+            if (kepler) {
+                previews.kepler = {
+                    ctx: kepler.getContext('2d'),
+                    w: kepler.width = kepler.offsetWidth * 2,
+                    h: kepler.height = kepler.offsetHeight * 2
+                };
+            }
+
+            // Gas Ideal
+            const gas = document.getElementById('preview-gas');
+            if (gas) {
+                const particles = [];
+                for (let i = 0; i < 40; i++) {
+                    particles.push({
+                        x: Math.random(),
+                        y: Math.random(),
+                        vx: (Math.random() - 0.5) * 0.03,
+                        vy: (Math.random() - 0.5) * 0.03
+                    });
+                }
+                previews.gas = {
+                    ctx: gas.getContext('2d'),
+                    w: gas.width = gas.offsetWidth * 2,
+                    h: gas.height = gas.offsetHeight * 2,
+                    particles: particles
+                };
+            }
+
+            // Oscilador Forzado
+            const forzado = document.getElementById('preview-forzado');
+            if (forzado) {
+                previews.forzado = {
+                    ctx: forzado.getContext('2d'),
+                    w: forzado.width = forzado.offsetWidth * 2,
+                    h: forzado.height = forzado.offsetHeight * 2,
+                    x: 0, v: 0, trail: []
+                };
+            }
+
+            // Óptica
+            const optica = document.getElementById('preview-optica');
+            if (optica) {
+                previews.optica = {
+                    ctx: optica.getContext('2d'),
+                    w: optica.width = optica.offsetWidth * 2,
+                    h: optica.height = optica.offsetHeight * 2
+                };
+            }
+
+            // Relatividad
+            const relatividad = document.getElementById('preview-relatividad');
+            if (relatividad) {
+                previews.relatividad = {
+                    ctx: relatividad.getContext('2d'),
+                    w: relatividad.width = relatividad.offsetWidth * 2,
+                    h: relatividad.height = relatividad.offsetHeight * 2
+                };
+            }
+
+            // Orbifold Walker 3D
+            const orbifold = document.getElementById('preview-orbifold');
+            if (orbifold) {
+                previews.orbifold = {
+                    ctx: orbifold.getContext('2d'),
+                    w: orbifold.width = orbifold.offsetWidth * 2,
+                    h: orbifold.height = orbifold.offsetHeight * 2,
+                    particle: { x: 0.3, y: 0.5, z: 0.5, vx: 0.01, vy: 0.005, vz: -0.003 },
+                    trail: []
+                };
+            }
+
+            // Atractor Multi-Cuerpo
+            const atractor = document.getElementById('preview-atractor');
+            if (atractor) {
+                const numAtt = 5;
+                const attractors = [];
+                const cx = atractor.offsetWidth;
+                const cy = atractor.offsetHeight;
+                const radius = Math.min(cx, cy) * 0.6;
+                for (let i = 0; i < numAtt; i++) {
+                    const angle = (i / numAtt) * Math.PI * 2 - Math.PI / 2;
+                    attractors.push({
+                        x: cx + radius * Math.cos(angle),
+                        y: cy + radius * Math.sin(angle),
+                        color: `hsl(${(i / numAtt) * 360 + 30}, 70%, 55%)`
+                    });
+                }
+                previews.atractor = {
+                    ctx: atractor.getContext('2d'),
+                    w: atractor.width = atractor.offsetWidth * 2,
+                    h: atractor.height = atractor.offsetHeight * 2,
+                    attractors: attractors,
+                    particle: {
+                        x: cx + 30,
+                        y: cy + 20,
+                        vx: 3,
+                        vy: 2
+                    },
+                    trail: []
+                };
+            }
+        }
+
+        function animate() {
+            time += 0.02;
+
+            // Proyectil
+            if (previews.proyectil) {
+                const p = previews.proyectil;
+                p.ctx.fillStyle = '#030712';
+                p.ctx.fillRect(0, 0, p.w, p.h);
+
+                // Stars
+                for (let i = 0; i < 20; i++) {
+                    const sx = (i * 73) % p.w;
+                    const sy = (i * 47) % (p.h * 0.7);
+                    p.ctx.fillStyle = `rgba(255,255,255,${0.3 + 0.3 * Math.sin(time + i)})`;
+                    p.ctx.beginPath();
+                    p.ctx.arc(sx, sy, 1, 0, Math.PI * 2);
+                    p.ctx.fill();
+                }
+
+                // Ground
+                p.ctx.fillStyle = '#1a3a1a';
+                p.ctx.fillRect(0, p.h * 0.85, p.w, p.h * 0.15);
+
+                // Trajectory
+                const v0 = 120, angle = Math.PI / 4, g = 200;
+                p.t += 0.03;
+                if (p.t > 2) { p.t = 0; p.trail = []; }
+
+                const px = 40 + v0 * Math.cos(angle) * p.t;
+                const py = p.h * 0.85 - (v0 * Math.sin(angle) * p.t - 0.5 * g * p.t * p.t);
+
+                p.trail.push({x: px, y: py});
+                if (p.trail.length > 50) p.trail.shift();
+
+                // Draw trail
+                p.ctx.strokeStyle = '#fbbf24';
+                p.ctx.lineWidth = 2;
+                p.ctx.setLineDash([4, 4]);
+                p.ctx.beginPath();
+                p.trail.forEach((pt, i) => {
+                    if (i === 0) p.ctx.moveTo(pt.x, pt.y);
+                    else p.ctx.lineTo(pt.x, pt.y);
+                });
+                p.ctx.stroke();
+                p.ctx.setLineDash([]);
+
+                // Ball
+                p.ctx.fillStyle = '#ef4444';
+                p.ctx.beginPath();
+                p.ctx.arc(px, Math.min(py, p.h * 0.85 - 10), 8, 0, Math.PI * 2);
+                p.ctx.fill();
+            }
+
+            // Colisiones
+            if (previews.colisiones) {
+                const c = previews.colisiones;
+                c.ctx.fillStyle = '#0a0a1a';
+                c.ctx.fillRect(0, 0, c.w, c.h);
+
+                // Move balls
+                c.b1.x += c.b1.vx; c.b1.y += c.b1.vy;
+                c.b2.x += c.b2.vx; c.b2.y += c.b2.vy;
+
+                // Wall bounce
+                if (c.b1.x < 0.1 || c.b1.x > 0.9) c.b1.vx *= -1;
+                if (c.b1.y < 0.15 || c.b1.y > 0.85) c.b1.vy *= -1;
+                if (c.b2.x < 0.1 || c.b2.x > 0.9) c.b2.vx *= -1;
+                if (c.b2.y < 0.15 || c.b2.y > 0.85) c.b2.vy *= -1;
+
+                // Ball collision
+                const dx = c.b2.x - c.b1.x, dy = c.b2.y - c.b1.y;
+                const dist = Math.sqrt(dx*dx + dy*dy);
+                if (dist < 0.15) {
+                    c.b1.vx *= -1; c.b1.vy *= -1;
+                    c.b2.vx *= -1; c.b2.vy *= -1;
+                }
+
+                // Draw predicted paths
+                c.ctx.setLineDash([6, 4]);
+                c.ctx.strokeStyle = 'rgba(251,191,36,0.3)';
+                c.ctx.beginPath();
+                c.ctx.moveTo(c.b1.x * c.w, c.b1.y * c.h);
+                c.ctx.lineTo((c.b1.x + c.b1.vx * 30) * c.w, (c.b1.y + c.b1.vy * 30) * c.h);
+                c.ctx.stroke();
+
+                c.ctx.strokeStyle = 'rgba(96,165,250,0.3)';
+                c.ctx.beginPath();
+                c.ctx.moveTo(c.b2.x * c.w, c.b2.y * c.h);
+                c.ctx.lineTo((c.b2.x + c.b2.vx * 30) * c.w, (c.b2.y + c.b2.vy * 30) * c.h);
+                c.ctx.stroke();
+                c.ctx.setLineDash([]);
+
+                // Ball 1
+                c.ctx.fillStyle = '#fbbf24';
+                c.ctx.beginPath();
+                c.ctx.arc(c.b1.x * c.w, c.b1.y * c.h, 18, 0, Math.PI * 2);
+                c.ctx.fill();
+
+                // Ball 2
+                c.ctx.fillStyle = '#60a5fa';
+                c.ctx.beginPath();
+                c.ctx.arc(c.b2.x * c.w, c.b2.y * c.h, 18, 0, Math.PI * 2);
+                c.ctx.fill();
+            }
+
+            // Péndulo Simple
+            if (previews.pendulo) {
+                const p = previews.pendulo;
+                const dt = 0.05, g = 9.8, L = 1;
+                p.omega += -g/L * Math.sin(p.theta) * dt;
+                p.theta += p.omega * dt;
+                p.omega *= 0.999;
+
+                p.ctx.fillStyle = '#030712';
+                p.ctx.fillRect(0, 0, p.w, p.h);
+
+                const cx = p.w / 2, cy = 30;
+                const bobX = cx + Math.sin(p.theta) * 100;
+                const bobY = cy + Math.cos(p.theta) * 100;
+
+                p.ctx.strokeStyle = '#60a5fa';
+                p.ctx.lineWidth = 3;
+                p.ctx.beginPath();
+                p.ctx.moveTo(cx, cy);
+                p.ctx.lineTo(bobX, bobY);
+                p.ctx.stroke();
+
+                p.ctx.fillStyle = '#60a5fa';
+                p.ctx.beginPath();
+                p.ctx.arc(bobX, bobY, 15, 0, Math.PI * 2);
+                p.ctx.fill();
+            }
+
+            // Péndulos Desacoplados
+            if (previews.desacoplados) {
+                const d = previews.desacoplados;
+                const dt = 0.05, g = 9.8;
+                const lengths = [0.6, 0.75, 0.9, 1.05, 1.2];
+
+                d.ctx.fillStyle = '#030712';
+                d.ctx.fillRect(0, 0, d.w, d.h);
+
+                for (let i = 0; i < 5; i++) {
+                    d.omegas[i] += -g/lengths[i] * Math.sin(d.thetas[i]) * dt;
+                    d.thetas[i] += d.omegas[i] * dt;
+                    d.omegas[i] *= 0.999;
+
+                    const cx = 50 + i * (d.w - 100) / 4;
+                    const cy = 25;
+                    const len = 40 + lengths[i] * 40;
+                    const bobX = cx + Math.sin(d.thetas[i]) * len;
+                    const bobY = cy + Math.cos(d.thetas[i]) * len;
+
+                    const hue = 200 + i * 20;
+                    d.ctx.strokeStyle = `hsl(${hue}, 70%, 60%)`;
+                    d.ctx.lineWidth = 2;
+                    d.ctx.beginPath();
+                    d.ctx.moveTo(cx, cy);
+                    d.ctx.lineTo(bobX, bobY);
+                    d.ctx.stroke();
+
+                    d.ctx.fillStyle = `hsl(${hue}, 70%, 60%)`;
+                    d.ctx.beginPath();
+                    d.ctx.arc(bobX, bobY, 8, 0, Math.PI * 2);
+                    d.ctx.fill();
+                }
+            }
+
+            // Mecánica Lagrangiana (péndulo con energías)
+            if (previews.lagrange) {
+                const l = previews.lagrange;
+                const dt = 0.05, g = 9.8, L = 1;
+                l.omega += -g/L * Math.sin(l.theta) * dt;
+                l.theta += l.omega * dt;
+                l.omega *= 0.999;
+
+                l.ctx.fillStyle = '#030712';
+                l.ctx.fillRect(0, 0, l.w, l.h);
+
+                const cx = l.w / 2, cy = 40;
+                const bobX = cx + Math.sin(l.theta) * 80;
+                const bobY = cy + Math.cos(l.theta) * 80;
+
+                // Energy bars
+                const T = 0.5 * l.omega * l.omega;
+                const V = g/L * (1 - Math.cos(l.theta));
+                const maxE = g/L * 2;
+
+                l.ctx.fillStyle = '#ef4444';
+                l.ctx.fillRect(20, l.h - 40, (T/maxE) * 80, 15);
+                l.ctx.fillStyle = '#22c55e';
+                l.ctx.fillRect(20, l.h - 20, (V/maxE) * 80, 15);
+
+                l.ctx.font = '10px Inter';
+                l.ctx.fillStyle = '#888';
+                l.ctx.fillText('T', 8, l.h - 30);
+                l.ctx.fillText('V', 8, l.h - 10);
+
+                l.ctx.strokeStyle = '#f59e0b';
+                l.ctx.lineWidth = 3;
+                l.ctx.beginPath();
+                l.ctx.moveTo(cx, cy);
+                l.ctx.lineTo(bobX, bobY);
+                l.ctx.stroke();
+
+                l.ctx.fillStyle = '#f59e0b';
+                l.ctx.beginPath();
+                l.ctx.arc(bobX, bobY, 12, 0, Math.PI * 2);
+                l.ctx.fill();
+            }
+
+            // Doppler
+            if (previews.doppler) {
+                const d = previews.doppler;
+                d.ctx.fillStyle = '#030712';
+                d.ctx.fillRect(0, 0, d.w, d.h);
+
+                d.x = (d.x + 0.015) % 1;
+                const srcX = d.x * d.w;
+                const srcY = d.h / 2;
+
+                // Emit wave every few frames
+                if (Math.floor(time * 10) % 3 === 0 && d.waves.length < 15) {
+                    d.waves.push({ x: srcX, r: 0 });
+                }
+
+                // Draw waves
+                d.waves.forEach((w, i) => {
+                    w.r += 3;
+                    const alpha = 1 - w.r / 150;
+                    if (alpha > 0) {
+                        d.ctx.strokeStyle = `rgba(96, 165, 250, ${alpha})`;
+                        d.ctx.lineWidth = 2;
+                        d.ctx.beginPath();
+                        d.ctx.arc(w.x, srcY, w.r, 0, Math.PI * 2);
+                        d.ctx.stroke();
+                    }
+                });
+                d.waves = d.waves.filter(w => w.r < 150);
+
+                // Source
+                d.ctx.fillStyle = '#ef4444';
+                d.ctx.beginPath();
+                d.ctx.arc(srcX, srcY, 10, 0, Math.PI * 2);
+                d.ctx.fill();
+            }
+
+            // Interferencia
+            if (previews.interferencia) {
+                const i = previews.interferencia;
+                const imgData = i.ctx.createImageData(i.w, i.h);
+                const s1 = { x: i.w * 0.35, y: i.h / 2 };
+                const s2 = { x: i.w * 0.65, y: i.h / 2 };
+                const lambda = 30;
+                const k = 2 * Math.PI / lambda;
+
+                for (let y = 0; y < i.h; y += 4) {
+                    for (let x = 0; x < i.w; x += 4) {
+                        const d1 = Math.sqrt((x - s1.x) ** 2 + (y - s1.y) ** 2);
+                        const d2 = Math.sqrt((x - s2.x) ** 2 + (y - s2.y) ** 2);
+                        const amp = Math.sin(k * d1 - time * 3) + Math.sin(k * d2 - time * 3);
+                        const intensity = (amp + 2) / 4;
+
+                        for (let dy = 0; dy < 4; dy++) {
+                            for (let dx = 0; dx < 4; dx++) {
+                                const idx = ((y + dy) * i.w + (x + dx)) * 4;
+                                imgData.data[idx] = intensity * 60;
+                                imgData.data[idx + 1] = intensity * 165;
+                                imgData.data[idx + 2] = intensity * 250;
+                                imgData.data[idx + 3] = 255;
+                            }
+                        }
+                    }
+                }
+                i.ctx.putImageData(imgData, 0, 0);
+
+                // Sources
+                i.ctx.fillStyle = '#fff';
+                i.ctx.beginPath();
+                i.ctx.arc(s1.x, s1.y, 5, 0, Math.PI * 2);
+                i.ctx.arc(s2.x, s2.y, 5, 0, Math.PI * 2);
+                i.ctx.fill();
+            }
+
+            // Fourier (onda cuadrada)
+            if (previews.fourier) {
+                const f = previews.fourier;
+                f.ctx.fillStyle = '#030712';
+                f.ctx.fillRect(0, 0, f.w, f.h);
+
+                const cy = f.h / 2;
+                const harmonics = 7;
+
+                // Draw component waves faintly
+                for (let n = 1; n <= harmonics; n += 2) {
+                    f.ctx.strokeStyle = `rgba(96, 165, 250, 0.2)`;
+                    f.ctx.lineWidth = 1;
+                    f.ctx.beginPath();
+                    for (let x = 0; x < f.w; x++) {
+                        const t = x / f.w * 4 * Math.PI + time;
+                        const y = cy + (40 / n) * Math.sin(n * t);
+                        if (x === 0) f.ctx.moveTo(x, y);
+                        else f.ctx.lineTo(x, y);
+                    }
+                    f.ctx.stroke();
+                }
+
+                // Sum
+                f.ctx.strokeStyle = '#fbbf24';
+                f.ctx.lineWidth = 3;
+                f.ctx.beginPath();
+                for (let x = 0; x < f.w; x++) {
+                    const t = x / f.w * 4 * Math.PI + time;
+                    let y = 0;
+                    for (let n = 1; n <= harmonics; n += 2) {
+                        y += (1 / n) * Math.sin(n * t);
+                    }
+                    y = cy + y * 50;
+                    if (x === 0) f.ctx.moveTo(x, y);
+                    else f.ctx.lineTo(x, y);
+                }
+                f.ctx.stroke();
+            }
+
+            // Campo Eléctrico
+            if (previews.campo) {
+                const c = previews.campo;
+                c.ctx.fillStyle = '#030712';
+                c.ctx.fillRect(0, 0, c.w, c.h);
+
+                const charges = [
+                    { x: c.w * 0.35, y: c.h / 2, q: 1 },
+                    { x: c.w * 0.65, y: c.h / 2, q: -1 }
+                ];
+
+                // Field lines
+                const numLines = 12;
+                for (let i = 0; i < numLines; i++) {
+                    const angle = (i / numLines) * Math.PI * 2;
+                    let px = charges[0].x + 15 * Math.cos(angle);
+                    let py = charges[0].y + 15 * Math.sin(angle);
+
+                    c.ctx.strokeStyle = 'rgba(239, 68, 68, 0.5)';
+                    c.ctx.lineWidth = 1;
+                    c.ctx.beginPath();
+                    c.ctx.moveTo(px, py);
+
+                    for (let step = 0; step < 50; step++) {
+                        let Ex = 0, Ey = 0;
+                        for (const ch of charges) {
+                            const dx = px - ch.x, dy = py - ch.y;
+                            const r = Math.sqrt(dx*dx + dy*dy);
+                            if (r < 10) break;
+                            const E = ch.q / (r * r);
+                            Ex += E * dx / r;
+                            Ey += E * dy / r;
+                        }
+                        const mag = Math.sqrt(Ex*Ex + Ey*Ey);
+                        if (mag < 0.001) break;
+                        px += (Ex / mag) * 5;
+                        py += (Ey / mag) * 5;
+                        c.ctx.lineTo(px, py);
+                    }
+                    c.ctx.stroke();
+                }
+
+                // Charges
+                c.ctx.fillStyle = '#ef4444';
+                c.ctx.beginPath();
+                c.ctx.arc(charges[0].x, charges[0].y, 12, 0, Math.PI * 2);
+                c.ctx.fill();
+                c.ctx.fillStyle = '#fff';
+                c.ctx.font = 'bold 14px Inter';
+                c.ctx.textAlign = 'center';
+                c.ctx.textBaseline = 'middle';
+                c.ctx.fillText('+', charges[0].x, charges[0].y);
+
+                c.ctx.fillStyle = '#3b82f6';
+                c.ctx.beginPath();
+                c.ctx.arc(charges[1].x, charges[1].y, 12, 0, Math.PI * 2);
+                c.ctx.fill();
+                c.ctx.fillStyle = '#fff';
+                c.ctx.fillText('−', charges[1].x, charges[1].y);
+            }
+
+            // Difusión Calor
+            if (previews.calor && previews.calor.grid) {
+                const h = previews.calor;
+                const size = 30;
+                const alpha = 0.2;
+
+                // Diffusion step
+                const newGrid = [];
+                for (let i = 0; i < size; i++) {
+                    newGrid[i] = [];
+                    for (let j = 0; j < size; j++) {
+                        const up = i > 0 ? h.grid[i-1][j] : 0;
+                        const down = i < size-1 ? h.grid[i+1][j] : 0;
+                        const left = j > 0 ? h.grid[i][j-1] : 0;
+                        const right = j < size-1 ? h.grid[i][j+1] : 0;
+                        newGrid[i][j] = h.grid[i][j] + alpha * (up + down + left + right - 4 * h.grid[i][j]);
+                    }
+                }
+                // Keep heat source
+                newGrid[15][15] = 1;
+                h.grid = newGrid;
+
+                // Draw
+                const cellW = h.w / size, cellH = h.h / size;
+                for (let i = 0; i < size; i++) {
+                    for (let j = 0; j < size; j++) {
+                        const t = h.grid[i][j];
+                        const r = Math.min(255, t * 255 * 2);
+                        const g = Math.min(255, t * 100);
+                        const b = Math.min(255, (1-t) * 50);
+                        h.ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
+                        h.ctx.fillRect(j * cellW, i * cellH, cellW + 1, cellH + 1);
+                    }
+                }
+            }
+
+            // Sistema Solar
+            if (previews.solar) {
+                const s = previews.solar;
+                s.ctx.fillStyle = '#030712';
+                s.ctx.fillRect(0, 0, s.w, s.h);
+
+                const cx = s.w / 2, cy = s.h / 2;
+
+                // Sun
+                const sunGrad = s.ctx.createRadialGradient(cx, cy, 0, cx, cy, 15);
+                sunGrad.addColorStop(0, '#fff');
+                sunGrad.addColorStop(0.5, '#fbbf24');
+                sunGrad.addColorStop(1, '#f59e0b');
+                s.ctx.fillStyle = sunGrad;
+                s.ctx.beginPath();
+                s.ctx.arc(cx, cy, 12, 0, Math.PI * 2);
+                s.ctx.fill();
+
+                const planets = [
+                    { r: 25, speed: 4.5, color: '#a0a0a0', size: 2 },
+                    { r: 38, speed: 3.5, color: '#e6c87a', size: 3 },
+                    { r: 52, speed: 3, color: '#6b93d6', size: 3 },
+                    { r: 68, speed: 2.4, color: '#c1440e', size: 2.5 },
+                    { r: 90, speed: 1.2, color: '#d8ca9d', size: 6 },
+                    { r: 115, speed: 0.8, color: '#f4d59e', size: 5 }
+                ];
+
+                planets.forEach(p => {
+                    s.ctx.strokeStyle = p.color + '20';
+                    s.ctx.lineWidth = 1;
+                    s.ctx.beginPath();
+                    s.ctx.arc(cx, cy, p.r, 0, Math.PI * 2);
+                    s.ctx.stroke();
+
+                    const angle = time * p.speed;
+                    const px = cx + p.r * Math.cos(angle);
+                    const py = cy + p.r * Math.sin(angle);
+
+                    s.ctx.fillStyle = p.color;
+                    s.ctx.beginPath();
+                    s.ctx.arc(px, py, p.size, 0, Math.PI * 2);
+                    s.ctx.fill();
+                });
+            }
+
+            // Kepler (órbita elíptica)
+            if (previews.kepler) {
+                const k = previews.kepler;
+                k.ctx.fillStyle = '#030712';
+                k.ctx.fillRect(0, 0, k.w, k.h);
+
+                const cx = k.w / 2, cy = k.h / 2;
+                const a = 90, e = 0.6;
+                const b = a * Math.sqrt(1 - e * e);
+                const focus = a * e;
+
+                // Orbit
+                k.ctx.strokeStyle = '#4b556340';
+                k.ctx.lineWidth = 2;
+                k.ctx.beginPath();
+                k.ctx.ellipse(cx + focus * 0.3, cy, a, b, 0, 0, Math.PI * 2);
+                k.ctx.stroke();
+
+                // Sun at focus
+                k.ctx.fillStyle = '#fbbf24';
+                k.ctx.beginPath();
+                k.ctx.arc(cx, cy, 10, 0, Math.PI * 2);
+                k.ctx.fill();
+
+                // Planet
+                const theta = time * 1.5;
+                const r = a * (1 - e * e) / (1 + e * Math.cos(theta));
+                const px = cx + r * Math.cos(theta);
+                const py = cy + r * Math.sin(theta) * (b / a);
+
+                k.ctx.fillStyle = '#60a5fa';
+                k.ctx.beginPath();
+                k.ctx.arc(px, py, 7, 0, Math.PI * 2);
+                k.ctx.fill();
+
+                // Swept area hint
+                k.ctx.fillStyle = 'rgba(96, 165, 250, 0.1)';
+                k.ctx.beginPath();
+                k.ctx.moveTo(cx, cy);
+                for (let t = theta - 0.5; t <= theta; t += 0.05) {
+                    const rt = a * (1 - e * e) / (1 + e * Math.cos(t));
+                    k.ctx.lineTo(cx + rt * Math.cos(t), cy + rt * Math.sin(t) * (b / a));
+                }
+                k.ctx.closePath();
+                k.ctx.fill();
+            }
+
+            // Gas Ideal
+            if (previews.gas) {
+                const g = previews.gas;
+                g.ctx.fillStyle = '#030712';
+                g.ctx.fillRect(0, 0, g.w, g.h);
+
+                // Box
+                const margin = 0.1;
+                g.ctx.strokeStyle = '#f9731640';
+                g.ctx.lineWidth = 2;
+                g.ctx.strokeRect(g.w * margin, g.h * margin, g.w * (1 - 2 * margin), g.h * (1 - 2 * margin));
+
+                // Particles
+                g.particles.forEach(p => {
+                    p.x += p.vx;
+                    p.y += p.vy;
+
+                    if (p.x < margin || p.x > 1 - margin) p.vx *= -1;
+                    if (p.y < margin || p.y > 1 - margin) p.vy *= -1;
+
+                    const speed = Math.sqrt(p.vx * p.vx + p.vy * p.vy);
+                    const hue = Math.min(60, speed * 2000);
+                    g.ctx.fillStyle = `hsl(${hue}, 80%, 60%)`;
+                    g.ctx.beginPath();
+                    g.ctx.arc(p.x * g.w, p.y * g.h, 4, 0, Math.PI * 2);
+                    g.ctx.fill();
+                });
+            }
+
+            // Oscilador Forzado
+            if (previews.forzado) {
+                const f = previews.forzado;
+                const omega0 = 3, omega = 2.8, gamma = 0.2, F0 = 1;
+                const dt = 0.05;
+
+                const force = F0 * Math.cos(omega * time);
+                const acc = force - 2 * gamma * f.v - omega0 * omega0 * f.x;
+                f.v += acc * dt;
+                f.x += f.v * dt;
+
+                f.trail.push(f.x);
+                if (f.trail.length > 100) f.trail.shift();
+
+                f.ctx.fillStyle = '#030712';
+                f.ctx.fillRect(0, 0, f.w, f.h);
+
+                // Draw trail
+                f.ctx.strokeStyle = '#a855f7';
+                f.ctx.lineWidth = 2;
+                f.ctx.beginPath();
+                f.trail.forEach((x, i) => {
+                    const px = (i / 100) * f.w;
+                    const py = f.h / 2 + x * 50;
+                    if (i === 0) f.ctx.moveTo(px, py);
+                    else f.ctx.lineTo(px, py);
+                });
+                f.ctx.stroke();
+
+                // Mass
+                const massX = f.w * 0.85;
+                const massY = f.h / 2 + f.x * 50;
+                f.ctx.fillStyle = '#a855f7';
+                f.ctx.beginPath();
+                f.ctx.arc(massX, massY, 12, 0, Math.PI * 2);
+                f.ctx.fill();
+
+                // Spring
+                f.ctx.strokeStyle = '#666';
+                f.ctx.lineWidth = 2;
+                f.ctx.beginPath();
+                f.ctx.moveTo(20, f.h / 2);
+                for (let i = 0; i < 8; i++) {
+                    const px = 20 + (i / 8) * (massX - 32);
+                    const py = f.h / 2 + (i % 2 === 0 ? 10 : -10);
+                    f.ctx.lineTo(px, py);
+                }
+                f.ctx.lineTo(massX - 12, f.h / 2);
+                f.ctx.stroke();
+            }
+
+            // Óptica (Snell)
+            if (previews.optica) {
+                const o = previews.optica;
+                o.ctx.fillStyle = '#030712';
+                o.ctx.fillRect(0, 0, o.w, o.h);
+
+                // Two media
+                o.ctx.fillStyle = '#0c1929';
+                o.ctx.fillRect(0, 0, o.w, o.h / 2);
+                o.ctx.fillStyle = '#1e3a5f';
+                o.ctx.fillRect(0, o.h / 2, o.w, o.h / 2);
+
+                // Interface line
+                o.ctx.strokeStyle = '#ffffff20';
+                o.ctx.lineWidth = 1;
+                o.ctx.beginPath();
+                o.ctx.moveTo(0, o.h / 2);
+                o.ctx.lineTo(o.w, o.h / 2);
+                o.ctx.stroke();
+
+                // Normal
+                o.ctx.setLineDash([4, 4]);
+                o.ctx.strokeStyle = '#ffffff30';
+                o.ctx.beginPath();
+                o.ctx.moveTo(o.w / 2, 0);
+                o.ctx.lineTo(o.w / 2, o.h);
+                o.ctx.stroke();
+                o.ctx.setLineDash([]);
+
+                const n1 = 1.0, n2 = 1.5;
+                const theta1 = Math.PI / 6 + Math.sin(time * 0.5) * 0.2;
+                const theta2 = Math.asin((n1 / n2) * Math.sin(theta1));
+
+                const cx = o.w / 2, cy = o.h / 2;
+                const rayLen = 80;
+
+                // Incident ray
+                o.ctx.strokeStyle = '#fbbf24';
+                o.ctx.lineWidth = 3;
+                o.ctx.beginPath();
+                o.ctx.moveTo(cx - rayLen * Math.sin(theta1), cy - rayLen * Math.cos(theta1));
+                o.ctx.lineTo(cx, cy);
+                o.ctx.stroke();
+
+                // Refracted ray
+                o.ctx.strokeStyle = '#60a5fa';
+                o.ctx.beginPath();
+                o.ctx.moveTo(cx, cy);
+                o.ctx.lineTo(cx + rayLen * Math.sin(theta2), cy + rayLen * Math.cos(theta2));
+                o.ctx.stroke();
+
+                // Reflected ray
+                o.ctx.strokeStyle = '#fbbf2480';
+                o.ctx.lineWidth = 2;
+                o.ctx.beginPath();
+                o.ctx.moveTo(cx, cy);
+                o.ctx.lineTo(cx + rayLen * 0.5 * Math.sin(theta1), cy - rayLen * 0.5 * Math.cos(theta1));
+                o.ctx.stroke();
+            }
+
+            // Relatividad
+            if (previews.relatividad) {
+                const r = previews.relatividad;
+                r.ctx.fillStyle = '#030712';
+                r.ctx.fillRect(0, 0, r.w, r.h);
+
+                // Stars
+                for (let i = 0; i < 30; i++) {
+                    const sx = (i * 73 + time * 50) % r.w;
+                    const sy = (i * 47) % r.h;
+                    r.ctx.fillStyle = `rgba(255,255,255,${0.3 + 0.2 * Math.sin(time + i)})`;
+                    r.ctx.beginPath();
+                    r.ctx.arc(sx, sy, 1, 0, Math.PI * 2);
+                    r.ctx.fill();
+                }
+
+                const v = 0.5 + 0.4 * Math.sin(time * 0.3);
+                const gamma = 1 / Math.sqrt(1 - v * v);
+                const contraction = 1 / gamma;
+
+                // Spaceship (contracted)
+                const shipX = r.w / 2;
+                const shipY = r.h / 2;
+                const shipLen = 60 * contraction;
+                const shipH = 20;
+
+                r.ctx.fillStyle = '#60a5fa';
+                r.ctx.beginPath();
+                r.ctx.moveTo(shipX - shipLen / 2, shipY);
+                r.ctx.lineTo(shipX + shipLen / 2, shipY - shipH / 2);
+                r.ctx.lineTo(shipX + shipLen / 2, shipY + shipH / 2);
+                r.ctx.closePath();
+                r.ctx.fill();
+
+                // Gamma display
+                r.ctx.fillStyle = '#fbbf24';
+                r.ctx.font = 'bold 14px Inter';
+                r.ctx.textAlign = 'center';
+                r.ctx.fillText(`γ = ${gamma.toFixed(2)}`, r.w / 2, r.h - 20);
+                r.ctx.fillStyle = '#888';
+                r.ctx.font = '12px Inter';
+                r.ctx.fillText(`v = ${(v * 100).toFixed(0)}% c`, r.w / 2, r.h - 40);
+            }
+
+            // Orbifold Walker 3D
+            if (previews.orbifold) {
+                const o = previews.orbifold;
+                const p = o.particle;
+
+                o.ctx.fillStyle = '#0a0a12';
+                o.ctx.fillRect(0, 0, o.w, o.h);
+
+                // Simple 3D projection of a cube (orbifold space)
+                const cx = o.w / 2, cy = o.h / 2;
+                const scale = 60;
+                const rotY = time * 0.3;
+
+                // Project 3D to 2D (simple rotation around Y)
+                function project(x, y, z) {
+                    const rx = x * Math.cos(rotY) - z * Math.sin(rotY);
+                    const rz = x * Math.sin(rotY) + z * Math.cos(rotY);
+                    return {
+                        px: cx + rx * scale,
+                        py: cy - y * scale + rz * scale * 0.3
+                    };
+                }
+
+                // Draw cube edges
+                o.ctx.strokeStyle = '#8b5cf640';
+                o.ctx.lineWidth = 1;
+                const corners = [
+                    [0,0,0], [1,0,0], [1,1,0], [0,1,0],
+                    [0,0,1], [1,0,1], [1,1,1], [0,1,1]
+                ];
+                const edges = [
+                    [0,1],[1,2],[2,3],[3,0],
+                    [4,5],[5,6],[6,7],[7,4],
+                    [0,4],[1,5],[2,6],[3,7]
+                ];
+                for (const [i, j] of edges) {
+                    const a = project(corners[i][0]-0.5, corners[i][1]-0.5, corners[i][2]-0.5);
+                    const b = project(corners[j][0]-0.5, corners[j][1]-0.5, corners[j][2]-0.5);
+                    o.ctx.beginPath();
+                    o.ctx.moveTo(a.px, a.py);
+                    o.ctx.lineTo(b.px, b.py);
+                    o.ctx.stroke();
+                }
+
+                // Draw attractors (chord types)
+                const attractors = [
+                    { x: 0.3, y: 0.6, z: 0.4, color: '#22c55e' },
+                    { x: 0.7, y: 0.4, z: 0.6, color: '#3b82f6' },
+                    { x: 0.5, y: 0.4, z: 0.4, color: '#ef4444' },
+                    { x: 0.2, y: 0.6, z: 0.6, color: '#f59e0b' }
+                ];
+
+                // Physics
+                for (const att of attractors) {
+                    const dx = att.x - p.x, dy = att.y - p.y, dz = att.z - p.z;
+                    const dist = Math.sqrt(dx*dx + dy*dy + dz*dz);
+                    const force = 0.0003 / (dist * dist + 0.01);
+                    p.vx += force * dx; p.vy += force * dy; p.vz += force * dz;
+                }
+                p.vx *= 0.99; p.vy *= 0.99; p.vz *= 0.99;
+                p.x += p.vx; p.y += p.vy; p.z += p.vz;
+
+                // Wrap
+                if (p.x < 0 || p.x > 1) p.vx *= -1;
+                if (p.y < 0 || p.y > 1) p.vy *= -1;
+                if (p.z < 0 || p.z > 1) p.vz *= -1;
+                p.x = Math.max(0, Math.min(1, p.x));
+                p.y = Math.max(0, Math.min(1, p.y));
+                p.z = Math.max(0, Math.min(1, p.z));
+
+                // Trail
+                o.trail.push({ x: p.x, y: p.y, z: p.z });
+                if (o.trail.length > 60) o.trail.shift();
+
+                // Draw trail
+                if (o.trail.length > 1) {
+                    o.ctx.beginPath();
+                    for (let i = 0; i < o.trail.length; i++) {
+                        const pt = project(o.trail[i].x - 0.5, o.trail[i].y - 0.5, o.trail[i].z - 0.5);
+                        if (i === 0) o.ctx.moveTo(pt.px, pt.py);
+                        else o.ctx.lineTo(pt.px, pt.py);
+                    }
+                    o.ctx.strokeStyle = '#8b5cf6';
+                    o.ctx.lineWidth = 2;
+                    o.ctx.stroke();
+                }
+
+                // Draw attractors
+                for (const att of attractors) {
+                    const pt = project(att.x - 0.5, att.y - 0.5, att.z - 0.5);
+                    o.ctx.fillStyle = att.color;
+                    o.ctx.beginPath();
+                    o.ctx.arc(pt.px, pt.py, 5, 0, Math.PI * 2);
+                    o.ctx.fill();
+                }
+
+                // Draw particle
+                const pp = project(p.x - 0.5, p.y - 0.5, p.z - 0.5);
+                o.ctx.fillStyle = '#fff';
+                o.ctx.beginPath();
+                o.ctx.arc(pp.px, pp.py, 6, 0, Math.PI * 2);
+                o.ctx.fill();
+            }
+
+            // Atractor Multi-Cuerpo
+            if (previews.atractor) {
+                const a = previews.atractor;
+                const p = a.particle;
+                const dt = 0.016;
+
+                a.ctx.fillStyle = '#030712';
+                a.ctx.fillRect(0, 0, a.w, a.h);
+
+                // Physics: compute acceleration from all attractors
+                let ax = 0, ay = 0;
+                for (const att of a.attractors) {
+                    const dx = att.x * 2 - p.x;
+                    const dy = att.y * 2 - p.y;
+                    const distSq = dx * dx + dy * dy;
+                    const dist = Math.sqrt(distSq);
+                    const safeDist = Math.max(dist, 15);
+                    const forceMag = 80000 / (safeDist * safeDist * safeDist);
+                    ax += forceMag * dx / dist;
+                    ay += forceMag * dy / dist;
+                }
+                ax -= 0.003 * p.vx;
+                ay -= 0.003 * p.vy;
+
+                p.vx += ax * dt;
+                p.vy += ay * dt;
+                p.x += p.vx * dt;
+                p.y += p.vy * dt;
+
+                // Bounds
+                if (p.x < 20 || p.x > a.w - 20) p.vx *= -0.5;
+                if (p.y < 20 || p.y > a.h - 20) p.vy *= -0.5;
+                p.x = Math.max(20, Math.min(a.w - 20, p.x));
+                p.y = Math.max(20, Math.min(a.h - 20, p.y));
+
+                // Trail
+                a.trail.push({ x: p.x, y: p.y });
+                if (a.trail.length > 100) a.trail.shift();
+
+                // Draw trail
+                if (a.trail.length > 1) {
+                    a.ctx.beginPath();
+                    a.ctx.moveTo(a.trail[0].x, a.trail[0].y);
+                    for (let i = 1; i < a.trail.length; i++) {
+                        a.ctx.lineTo(a.trail[i].x, a.trail[i].y);
+                    }
+                    const gradient = a.ctx.createLinearGradient(
+                        a.trail[0].x, a.trail[0].y, p.x, p.y
+                    );
+                    gradient.addColorStop(0, 'rgba(34, 197, 94, 0)');
+                    gradient.addColorStop(1, 'rgba(34, 197, 94, 0.7)');
+                    a.ctx.strokeStyle = gradient;
+                    a.ctx.lineWidth = 2;
+                    a.ctx.stroke();
+                }
+
+                // Draw attractors
+                for (const att of a.attractors) {
+                    a.ctx.beginPath();
+                    a.ctx.arc(att.x * 2, att.y * 2, 8, 0, Math.PI * 2);
+                    a.ctx.fillStyle = att.color;
+                    a.ctx.fill();
+                    a.ctx.strokeStyle = '#fff';
+                    a.ctx.lineWidth = 1;
+                    a.ctx.stroke();
+                }
+
+                // Draw particle
+                a.ctx.beginPath();
+                a.ctx.arc(p.x, p.y, 5, 0, Math.PI * 2);
+                a.ctx.fillStyle = '#22c55e';
+                a.ctx.fill();
+                a.ctx.strokeStyle = '#fff';
+                a.ctx.lineWidth = 1;
+                a.ctx.stroke();
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        window.addEventListener('load', () => {
+            initPreviews();
+            animate();
+        });
+
+        window.addEventListener('resize', initPreviews);
+    </script>
+</body>
+</html>

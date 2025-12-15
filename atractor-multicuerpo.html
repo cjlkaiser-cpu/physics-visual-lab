@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Atractor Multi-Cuerpo - Physics Visual Lab</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: #0a0a0f;
+            color: #e0e0e0;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+
+        header {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #333;
+            margin-bottom: 10px;
+        }
+
+        header h1 {
+            font-size: 1.5rem;
+            font-weight: 400;
+        }
+
+        header h1 span { color: #f59e0b; font-weight: 600; }
+
+        .back-link {
+            color: #888;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover { color: #f59e0b; }
+
+        .canvas-section {
+            flex: 1;
+            min-width: 600px;
+        }
+
+        #canvas {
+            width: 100%;
+            background: #111118;
+            border-radius: 12px;
+            border: 1px solid #333;
+            cursor: crosshair;
+        }
+
+        .controls {
+            width: 340px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .control-group {
+            background: #1a1a24;
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #2a2a3a;
+        }
+
+        .control-group h3 {
+            font-size: 0.75rem;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+        }
+
+        .slider-row {
+            margin-bottom: 12px;
+        }
+
+        .slider-row:last-child { margin-bottom: 0; }
+
+        .slider-row label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            margin-bottom: 6px;
+        }
+
+        .slider-row label span { color: #f59e0b; font-weight: 500; }
+
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            -webkit-appearance: none;
+            background: #333;
+            border-radius: 3px;
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            background: #f59e0b;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .button-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            flex: 1;
+            min-width: 80px;
+            padding: 10px 12px;
+            border: none;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        button.primary {
+            background: #f59e0b;
+            color: #000;
+        }
+
+        button.primary:hover { background: #fbbf24; }
+
+        button.secondary {
+            background: #2a2a3a;
+            color: #e0e0e0;
+        }
+
+        button.secondary:hover { background: #3a3a4a; }
+
+        button.active {
+            background: #22c55e;
+            color: #000;
+        }
+
+        .preset-buttons {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 6px;
+        }
+
+        .preset-buttons button {
+            min-width: auto;
+            padding: 8px;
+            font-size: 0.8rem;
+        }
+
+        .info-panel {
+            background: #1a1a24;
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #2a2a3a;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            padding: 5px 0;
+            border-bottom: 1px solid #2a2a3a;
+        }
+
+        .info-row:last-child { border-bottom: none; }
+
+        .info-row .label { color: #888; }
+        .info-row .value { color: #f59e0b; font-weight: 500; font-family: 'SF Mono', monospace; }
+
+        .theory-box {
+            background: #1a1a24;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 3px solid #f59e0b;
+        }
+
+        .theory-box h3 {
+            color: #f59e0b;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+        }
+
+        .theory-box p {
+            font-size: 0.8rem;
+            color: #888;
+            line-height: 1.5;
+        }
+
+        .equation {
+            font-family: 'Times New Roman', serif;
+            font-style: italic;
+            color: #60a5fa;
+            font-size: 1.1rem;
+            text-align: center;
+            padding: 10px;
+            background: #0a0a0f;
+            border-radius: 6px;
+            margin-top: 10px;
+        }
+
+        .legend {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.75rem;
+            color: #888;
+        }
+
+        .legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .checkbox-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.85rem;
+            padding: 8px 0;
+        }
+
+        .checkbox-row input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #f59e0b;
+        }
+
+        @media (max-width: 1000px) {
+            .container { flex-direction: column; }
+            .canvas-section { min-width: 100%; }
+            .controls { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><span>Atractor</span> Multi-Cuerpo</h1>
+            <a href="index.html" class="back-link">← Volver al laboratorio</a>
+        </header>
+
+        <div class="canvas-section">
+            <canvas id="canvas" width="900" height="550"></canvas>
+        </div>
+
+        <div class="controls">
+            <div class="control-group">
+                <h3>Parámetros Físicos</h3>
+                <div class="slider-row">
+                    <label>Fuerza (K) <span id="forceVal">100</span></label>
+                    <input type="range" id="force" min="20" max="300" value="100">
+                </div>
+                <div class="slider-row">
+                    <label>Fricción (γ) <span id="frictionVal">0.003</span></label>
+                    <input type="range" id="friction" min="0" max="50" value="3">
+                </div>
+                <div class="slider-row">
+                    <label>Exponente (n) <span id="exponentVal">3</span></label>
+                    <input type="range" id="exponent" min="2" max="4" value="3" step="0.5">
+                </div>
+                <div class="slider-row">
+                    <label>Velocidad Inicial <span id="velocityVal">5</span></label>
+                    <input type="range" id="velocity" min="1" max="15" value="5">
+                </div>
+            </div>
+
+            <div class="control-group">
+                <h3>Configuración de Atractores</h3>
+                <div class="preset-buttons">
+                    <button class="secondary" data-n="3">3</button>
+                    <button class="secondary" data-n="4">4</button>
+                    <button class="secondary active" data-n="5">5</button>
+                    <button class="secondary" data-n="6">6</button>
+                    <button class="secondary" data-n="7">7</button>
+                    <button class="secondary" data-n="8">8</button>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <h3>Visualización</h3>
+                <div class="checkbox-row">
+                    <input type="checkbox" id="showField" checked>
+                    <label for="showField">Mostrar campo de potencial</label>
+                </div>
+                <div class="checkbox-row">
+                    <input type="checkbox" id="showVectors">
+                    <label for="showVectors">Mostrar vectores (v, a)</label>
+                </div>
+                <div class="checkbox-row">
+                    <input type="checkbox" id="dualParticle">
+                    <label for="dualParticle">Dos partículas (divergencia caótica)</label>
+                </div>
+                <div class="slider-row">
+                    <label>Longitud del trail <span id="trailVal">400</span></label>
+                    <input type="range" id="trail" min="50" max="800" value="400">
+                </div>
+            </div>
+
+            <div class="control-group">
+                <h3>Control</h3>
+                <div class="button-row">
+                    <button class="primary" id="resetBtn">Reset</button>
+                    <button class="secondary" id="pauseBtn">Pausar</button>
+                    <button class="secondary" id="clearBtn">Limpiar Trail</button>
+                </div>
+            </div>
+
+            <div class="info-panel">
+                <div class="info-row">
+                    <span class="label">Partícula 1</span>
+                    <span class="value" id="info1">v = 0.00</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Partícula 2</span>
+                    <span class="value" id="info2">-</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Divergencia</span>
+                    <span class="value" id="divergence">-</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Energía Total</span>
+                    <span class="value" id="energy">E = 0.00</span>
+                </div>
+            </div>
+
+            <div class="theory-box">
+                <h3>Caos Determinista</h3>
+                <p>
+                    Una partícula bajo la influencia de múltiples atractores fijos
+                    exhibe <strong>caos determinista</strong>: trayectorias completamente
+                    predecibles por las ecuaciones, pero extremadamente sensibles a
+                    condiciones iniciales. Activa "dos partículas" para ver cómo
+                    diferencias infinitesimales divergen exponencialmente.
+                </p>
+                <div class="equation">F = Σ K(rᵢ - r) / |rᵢ - r|ⁿ - γv</div>
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-dot" style="background: #22c55e;"></div>
+                        Partícula 1
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-dot" style="background: #ef4444;"></div>
+                        Partícula 2
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-dot" style="background: #f59e0b;"></div>
+                        Atractores
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // === CANVAS SETUP ===
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const W = canvas.width;
+        const H = canvas.height;
+
+        // === PARÁMETROS ===
+        let params = {
+            force: 100,
+            friction: 0.003,
+            exponent: 3,
+            initialVelocity: 5,
+            trailLength: 400,
+            numAttractors: 5
+        };
+
+        let showField = true;
+        let showVectors = false;
+        let dualParticle = false;
+        let paused = false;
+        let isDragging = false;
+        let dragTarget = null;
+
+        // Colores para atractores
+        const ATTRACTOR_COLORS = [
+            '#ef4444', '#f97316', '#fbbf24', '#22c55e',
+            '#06b6d4', '#3b82f6', '#8b5cf6', '#ec4899'
+        ];
+
+        // === ATRACTORES ===
+        let attractors = [];
+
+        function createAttractors(n) {
+            attractors = [];
+            const cx = W / 2;
+            const cy = H / 2;
+            const radius = Math.min(W, H) * 0.32;
+
+            for (let i = 0; i < n; i++) {
+                const angle = (i / n) * Math.PI * 2 - Math.PI / 2;
+                attractors.push({
+                    x: cx + radius * Math.cos(angle),
+                    y: cy + radius * Math.sin(angle),
+                    color: ATTRACTOR_COLORS[i % ATTRACTOR_COLORS.length]
+                });
+            }
+            calculateField();
+        }
+
+        // === PARTÍCULAS ===
+        let particle1 = { x: 0, y: 0, vx: 0, vy: 0, trail: [] };
+        let particle2 = { x: 0, y: 0, vx: 0, vy: 0, trail: [] };
+
+        function resetParticles() {
+            const cx = W / 2;
+            const cy = H / 2;
+            const offset = 50 + Math.random() * 30;
+            const angle = Math.random() * Math.PI * 2;
+
+            particle1.x = cx + offset * Math.cos(angle);
+            particle1.y = cy + offset * Math.sin(angle);
+
+            const velAngle = Math.random() * Math.PI * 2;
+            particle1.vx = params.initialVelocity * Math.cos(velAngle);
+            particle1.vy = params.initialVelocity * Math.sin(velAngle);
+            particle1.trail = [];
+
+            particle2.x = particle1.x + 0.1;
+            particle2.y = particle1.y + 0.1;
+            particle2.vx = particle1.vx;
+            particle2.vy = particle1.vy;
+            particle2.trail = [];
+        }
+
+        // === FÍSICA: RK4 ===
+        function computeAcceleration(x, y, vx, vy) {
+            let ax = 0, ay = 0;
+
+            for (const att of attractors) {
+                const dx = att.x - x;
+                const dy = att.y - y;
+                const distSq = dx * dx + dy * dy;
+                const dist = Math.sqrt(distSq);
+                const safeDist = Math.max(dist, 20);
+
+                const forceMag = params.force * 10000 / Math.pow(safeDist, params.exponent);
+                ax += forceMag * dx / dist;
+                ay += forceMag * dy / dist;
+            }
+
+            ax -= params.friction * vx;
+            ay -= params.friction * vy;
+
+            return { ax, ay };
+        }
+
+        function rk4Step(p, dt) {
+            const a1 = computeAcceleration(p.x, p.y, p.vx, p.vy);
+            const k1_vx = a1.ax, k1_vy = a1.ay;
+            const k1_x = p.vx, k1_y = p.vy;
+
+            const a2 = computeAcceleration(
+                p.x + 0.5 * dt * k1_x, p.y + 0.5 * dt * k1_y,
+                p.vx + 0.5 * dt * k1_vx, p.vy + 0.5 * dt * k1_vy
+            );
+            const k2_vx = a2.ax, k2_vy = a2.ay;
+            const k2_x = p.vx + 0.5 * dt * k1_vx, k2_y = p.vy + 0.5 * dt * k1_vy;
+
+            const a3 = computeAcceleration(
+                p.x + 0.5 * dt * k2_x, p.y + 0.5 * dt * k2_y,
+                p.vx + 0.5 * dt * k2_vx, p.vy + 0.5 * dt * k2_vy
+            );
+            const k3_vx = a3.ax, k3_vy = a3.ay;
+            const k3_x = p.vx + 0.5 * dt * k2_vx, k3_y = p.vy + 0.5 * dt * k2_vy;
+
+            const a4 = computeAcceleration(
+                p.x + dt * k3_x, p.y + dt * k3_y,
+                p.vx + dt * k3_vx, p.vy + dt * k3_vy
+            );
+            const k4_vx = a4.ax, k4_vy = a4.ay;
+            const k4_x = p.vx + dt * k3_vx, k4_y = p.vy + dt * k3_vy;
+
+            p.x += (dt / 6) * (k1_x + 2 * k2_x + 2 * k3_x + k4_x);
+            p.y += (dt / 6) * (k1_y + 2 * k2_y + 2 * k3_y + k4_y);
+            p.vx += (dt / 6) * (k1_vx + 2 * k2_vx + 2 * k3_vx + k4_vx);
+            p.vy += (dt / 6) * (k1_vy + 2 * k2_vy + 2 * k3_vy + k4_vy);
+        }
+
+        function updatePhysics(dt) {
+            if (paused || isDragging) return;
+
+            const steps = 8;
+            const subDt = dt / steps;
+
+            for (let i = 0; i < steps; i++) {
+                rk4Step(particle1, subDt);
+                if (dualParticle) {
+                    rk4Step(particle2, subDt);
+                }
+            }
+
+            particle1.trail.push({ x: particle1.x, y: particle1.y });
+            if (particle1.trail.length > params.trailLength) particle1.trail.shift();
+
+            if (dualParticle) {
+                particle2.trail.push({ x: particle2.x, y: particle2.y });
+                if (particle2.trail.length > params.trailLength) particle2.trail.shift();
+            }
+
+            // Bounds
+            const margin = 30;
+            const bounce = -0.5;
+            [particle1, particle2].forEach(p => {
+                if (p.x < margin) { p.x = margin; p.vx *= bounce; }
+                if (p.x > W - margin) { p.x = W - margin; p.vx *= bounce; }
+                if (p.y < margin) { p.y = margin; p.vy *= bounce; }
+                if (p.y > H - margin) { p.y = H - margin; p.vy *= bounce; }
+            });
+        }
+
+        // === CAMPO DE POTENCIAL ===
+        let fieldImageData = null;
+
+        function calculateField() {
+            const resolution = 10;
+            fieldImageData = ctx.createImageData(W, H);
+
+            for (let y = 0; y < H; y += resolution) {
+                for (let x = 0; x < W; x += resolution) {
+                    let potential = 0;
+
+                    for (const att of attractors) {
+                        const dx = att.x - x;
+                        const dy = att.y - y;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+                        const safeDist = Math.max(dist, 20);
+                        potential += -1 / Math.pow(safeDist, params.exponent - 1);
+                    }
+
+                    const normalized = Math.min(1, Math.max(0, (-potential - 0.00001) / 0.0003));
+                    const r = Math.floor(17 + normalized * 60);
+                    const g = Math.floor(17 + normalized * 50);
+                    const b = Math.floor(24 + normalized * 40);
+
+                    for (let py = y; py < Math.min(y + resolution, H); py++) {
+                        for (let px = x; px < Math.min(x + resolution, W); px++) {
+                            const idx = (py * W + px) * 4;
+                            fieldImageData.data[idx] = r;
+                            fieldImageData.data[idx + 1] = g;
+                            fieldImageData.data[idx + 2] = b;
+                            fieldImageData.data[idx + 3] = 255;
+                        }
+                    }
+                }
+            }
+        }
+
+        // === ENERGÍA ===
+        function calculateEnergy(p) {
+            const KE = 0.5 * (p.vx * p.vx + p.vy * p.vy);
+            let PE = 0;
+            for (const att of attractors) {
+                const dx = att.x - p.x;
+                const dy = att.y - p.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                const safeDist = Math.max(dist, 20);
+                PE += -params.force * 10000 / ((params.exponent - 1) * Math.pow(safeDist, params.exponent - 1));
+            }
+            return { KE, PE, total: KE + PE };
+        }
+
+        // === RENDERIZADO ===
+        function draw() {
+            // Fondo / Campo
+            if (showField && fieldImageData) {
+                ctx.putImageData(fieldImageData, 0, 0);
+            } else {
+                ctx.fillStyle = '#111118';
+                ctx.fillRect(0, 0, W, H);
+            }
+
+            // Trail partícula 1
+            if (particle1.trail.length > 1) {
+                ctx.beginPath();
+                ctx.moveTo(particle1.trail[0].x, particle1.trail[0].y);
+                for (let i = 1; i < particle1.trail.length; i++) {
+                    ctx.lineTo(particle1.trail[i].x, particle1.trail[i].y);
+                }
+                ctx.strokeStyle = '#22c55e';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            }
+
+            // Trail partícula 2
+            if (dualParticle && particle2.trail.length > 1) {
+                ctx.beginPath();
+                ctx.moveTo(particle2.trail[0].x, particle2.trail[0].y);
+                for (let i = 1; i < particle2.trail.length; i++) {
+                    ctx.lineTo(particle2.trail[i].x, particle2.trail[i].y);
+                }
+                ctx.strokeStyle = '#ef4444';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            }
+
+            // Atractores
+            for (const att of attractors) {
+                // Glow
+                const gradient = ctx.createRadialGradient(att.x, att.y, 0, att.x, att.y, 50);
+                gradient.addColorStop(0, att.color + '80');
+                gradient.addColorStop(1, 'transparent');
+                ctx.fillStyle = gradient;
+                ctx.beginPath();
+                ctx.arc(att.x, att.y, 50, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Círculo
+                ctx.beginPath();
+                ctx.arc(att.x, att.y, 14, 0, Math.PI * 2);
+                ctx.fillStyle = att.color;
+                ctx.fill();
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            }
+
+            // Partícula 1
+            drawParticle(particle1, '#22c55e');
+
+            // Partícula 2
+            if (dualParticle) {
+                drawParticle(particle2, '#ef4444');
+            }
+
+            updateInfo();
+        }
+
+        function drawParticle(p, color) {
+            // Partícula
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, 8, 0, Math.PI * 2);
+            ctx.fillStyle = color;
+            ctx.fill();
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            if (showVectors) {
+                // Vector velocidad (amarillo)
+                const velScale = 8;
+                ctx.beginPath();
+                ctx.moveTo(p.x, p.y);
+                ctx.lineTo(p.x + p.vx * velScale, p.y + p.vy * velScale);
+                ctx.strokeStyle = '#fbbf24';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                // Vector aceleración (cyan)
+                const acc = computeAcceleration(p.x, p.y, p.vx, p.vy);
+                const accScale = 0.3;
+                ctx.beginPath();
+                ctx.moveTo(p.x, p.y);
+                ctx.lineTo(p.x + acc.ax * accScale, p.y + acc.ay * accScale);
+                ctx.strokeStyle = '#06b6d4';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            }
+        }
+
+        function updateInfo() {
+            const speed1 = Math.sqrt(particle1.vx * particle1.vx + particle1.vy * particle1.vy);
+            document.getElementById('info1').textContent = `v = ${speed1.toFixed(2)}`;
+
+            if (dualParticle) {
+                const speed2 = Math.sqrt(particle2.vx * particle2.vx + particle2.vy * particle2.vy);
+                document.getElementById('info2').textContent = `v = ${speed2.toFixed(2)}`;
+
+                const dx = particle2.x - particle1.x;
+                const dy = particle2.y - particle1.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                document.getElementById('divergence').textContent = `Δr = ${dist.toFixed(1)} px`;
+            } else {
+                document.getElementById('info2').textContent = '-';
+                document.getElementById('divergence').textContent = '-';
+            }
+
+            const { total } = calculateEnergy(particle1);
+            document.getElementById('energy').textContent = `E = ${(total / 1000).toFixed(2)}`;
+        }
+
+        // === LOOP ===
+        let lastTime = 0;
+
+        function loop(currentTime) {
+            const dt = Math.min((currentTime - lastTime) / 1000, 0.05);
+            lastTime = currentTime;
+
+            updatePhysics(dt);
+            draw();
+
+            requestAnimationFrame(loop);
+        }
+
+        // === CONTROLES ===
+        document.getElementById('force').addEventListener('input', (e) => {
+            params.force = parseFloat(e.target.value);
+            document.getElementById('forceVal').textContent = params.force;
+            calculateField();
+        });
+
+        document.getElementById('friction').addEventListener('input', (e) => {
+            params.friction = parseFloat(e.target.value) / 1000;
+            document.getElementById('frictionVal').textContent = params.friction.toFixed(3);
+        });
+
+        document.getElementById('exponent').addEventListener('input', (e) => {
+            params.exponent = parseFloat(e.target.value);
+            document.getElementById('exponentVal').textContent = params.exponent;
+            calculateField();
+        });
+
+        document.getElementById('velocity').addEventListener('input', (e) => {
+            params.initialVelocity = parseFloat(e.target.value);
+            document.getElementById('velocityVal').textContent = params.initialVelocity;
+        });
+
+        document.getElementById('trail').addEventListener('input', (e) => {
+            params.trailLength = parseInt(e.target.value);
+            document.getElementById('trailVal').textContent = params.trailLength;
+        });
+
+        document.getElementById('showField').addEventListener('change', (e) => {
+            showField = e.target.checked;
+        });
+
+        document.getElementById('showVectors').addEventListener('change', (e) => {
+            showVectors = e.target.checked;
+        });
+
+        document.getElementById('dualParticle').addEventListener('change', (e) => {
+            dualParticle = e.target.checked;
+            if (dualParticle) {
+                particle2.x = particle1.x + 0.1;
+                particle2.y = particle1.y + 0.1;
+                particle2.vx = particle1.vx;
+                particle2.vy = particle1.vy;
+                particle2.trail = [];
+            }
+        });
+
+        document.getElementById('resetBtn').addEventListener('click', resetParticles);
+
+        document.getElementById('pauseBtn').addEventListener('click', () => {
+            paused = !paused;
+            document.getElementById('pauseBtn').textContent = paused ? 'Reanudar' : 'Pausar';
+        });
+
+        document.getElementById('clearBtn').addEventListener('click', () => {
+            particle1.trail = [];
+            particle2.trail = [];
+        });
+
+        // Preset buttons
+        document.querySelectorAll('.preset-buttons button').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.preset-buttons button').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                params.numAttractors = parseInt(btn.dataset.n);
+                createAttractors(params.numAttractors);
+                resetParticles();
+            });
+        });
+
+        // Mouse interaction
+        canvas.addEventListener('mousedown', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = W / rect.width;
+            const scaleY = H / rect.height;
+            const mx = (e.clientX - rect.left) * scaleX;
+            const my = (e.clientY - rect.top) * scaleY;
+
+            const dx1 = mx - particle1.x;
+            const dy1 = my - particle1.y;
+            if (Math.sqrt(dx1 * dx1 + dy1 * dy1) < 20) {
+                isDragging = true;
+                dragTarget = particle1;
+                return;
+            }
+
+            if (dualParticle) {
+                const dx2 = mx - particle2.x;
+                const dy2 = my - particle2.y;
+                if (Math.sqrt(dx2 * dx2 + dy2 * dy2) < 20) {
+                    isDragging = true;
+                    dragTarget = particle2;
+                    return;
+                }
+            }
+
+            particle1.x = mx;
+            particle1.y = my;
+            particle1.vx = 0;
+            particle1.vy = 0;
+            particle1.trail = [];
+
+            if (dualParticle) {
+                particle2.x = mx + 0.1;
+                particle2.y = my + 0.1;
+                particle2.vx = 0;
+                particle2.vy = 0;
+                particle2.trail = [];
+            }
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+            if (!isDragging || !dragTarget) return;
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = W / rect.width;
+            const scaleY = H / rect.height;
+            dragTarget.x = (e.clientX - rect.left) * scaleX;
+            dragTarget.y = (e.clientY - rect.top) * scaleY;
+        });
+
+        canvas.addEventListener('mouseup', () => {
+            isDragging = false;
+            dragTarget = null;
+        });
+
+        canvas.addEventListener('mouseleave', () => {
+            isDragging = false;
+            dragTarget = null;
+        });
+
+        // === INICIALIZACIÓN ===
+        createAttractors(params.numAttractors);
+        resetParticles();
+        requestAnimationFrame(loop);
+    </script>
+</body>
+</html>

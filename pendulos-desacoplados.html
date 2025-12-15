@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dos Péndulos Simples Desacoplados</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Covered+By+Your+Grace&family=Inter:wght@300;400;500&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #0a0a0a;
+            font-family: 'Inter', sans-serif;
+            padding: 20px;
+        }
+
+        .container {
+            display: flex;
+            gap: 30px;
+            align-items: flex-start;
+        }
+
+        .pizarra {
+            background: #1a1a1a;
+            background-image:
+                radial-gradient(ellipse at 20% 30%, rgba(30,30,30,1) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 70%, rgba(25,25,25,1) 0%, transparent 45%);
+            border: 10px solid #2a2a2a;
+            box-shadow:
+                inset 0 0 60px rgba(0,0,0,0.5),
+                0 10px 40px rgba(0,0,0,0.8);
+            width: 700px;
+            height: 650px;
+            position: relative;
+        }
+
+        .titulo {
+            position: absolute;
+            top: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: 'Covered By Your Grace', cursive;
+            font-size: 2rem;
+            color: rgba(255,255,255,0.9);
+            text-decoration: underline;
+            text-underline-offset: 5px;
+        }
+
+        #canvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        .panel {
+            background: #1a1a1a;
+            border: 2px solid #333;
+            border-radius: 10px;
+            padding: 20px;
+            width: 340px;
+            color: #fff;
+            max-height: 650px;
+            overflow-y: auto;
+        }
+
+        .panel h2 {
+            font-family: 'Covered By Your Grace', cursive;
+            font-size: 1.6rem;
+            margin-bottom: 15px;
+            color: rgba(255,255,255,0.9);
+            border-bottom: 1px solid #333;
+            padding-bottom: 8px;
+        }
+
+        .panel h3 {
+            font-family: 'Covered By Your Grace', cursive;
+            font-size: 1.3rem;
+            margin: 15px 0 10px 0;
+            padding-top: 10px;
+            border-top: 1px solid #333;
+        }
+
+        .pendulo-1 h3 { color: #fbbf24; }
+        .pendulo-2 h3 { color: #60a5fa; }
+
+        .control-group {
+            margin-bottom: 12px;
+        }
+
+        .control-group label {
+            display: block;
+            font-size: 0.85rem;
+            color: #aaa;
+            margin-bottom: 5px;
+        }
+
+        .control-group .value {
+            font-family: 'Covered By Your Grace', cursive;
+            font-size: 1.2rem;
+            color: #fff;
+            margin-left: 8px;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 5px;
+            background: #333;
+            border-radius: 3px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            background: #fff;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .pendulo-1 input[type="range"]::-webkit-slider-thumb {
+            background: #fbbf24;
+        }
+
+        .pendulo-2 input[type="range"]::-webkit-slider-thumb {
+            background: #60a5fa;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 8px;
+            margin-top: 15px;
+        }
+
+        button {
+            flex: 1;
+            padding: 10px;
+            font-size: 0.9rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .btn-play { background: #4ade80; color: #000; }
+        .btn-pause { background: #fbbf24; color: #000; }
+        .btn-reset { background: #f87171; color: #000; }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .checkbox-group input {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+
+        .checkbox-group label {
+            font-size: 0.85rem;
+            color: #aaa;
+            cursor: pointer;
+        }
+
+        .info {
+            margin-top: 15px;
+            padding-top: 10px;
+            border-top: 1px solid #333;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 0.8rem;
+        }
+
+        .info-row span:first-child { color: #666; }
+        .info-row span:last-child {
+            font-family: 'Covered By Your Grace', cursive;
+            font-size: 1.1rem;
+        }
+
+        .info-row.p1 span:last-child { color: #fbbf24; }
+        .info-row.p2 span:last-child { color: #60a5fa; }
+
+        .energia-bars {
+            margin-top: 10px;
+        }
+
+        .energia-bar-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+            font-size: 0.75rem;
+        }
+
+        .energia-bar-row span:first-child {
+            width: 25px;
+            color: #888;
+        }
+
+        .energia-bar {
+            flex: 1;
+            height: 8px;
+            background: #2a2a2a;
+            border-radius: 4px;
+            overflow: hidden;
+            display: flex;
+        }
+
+        .ke-fill-1 { background: rgba(251, 191, 36, 0.8); height: 100%; }
+        .pe-fill-1 { background: rgba(251, 191, 36, 0.4); height: 100%; }
+        .ke-fill-2 { background: rgba(96, 165, 250, 0.8); height: 100%; }
+        .pe-fill-2 { background: rgba(96, 165, 250, 0.4); height: 100%; }
+
+        .ecuacion {
+            margin-top: 15px;
+            padding: 10px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 6px;
+            font-family: 'Covered By Your Grace', cursive;
+            font-size: 1.1rem;
+            color: rgba(255,255,255,0.7);
+            text-align: center;
+        }
+
+        .sync-indicator {
+            margin-top: 10px;
+            padding: 8px;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 0.85rem;
+        }
+
+        .in-phase { background: rgba(74, 222, 128, 0.2); color: #4ade80; }
+        .out-phase { background: rgba(248, 113, 113, 0.2); color: #f87171; }
+        .partial-phase { background: rgba(251, 191, 36, 0.2); color: #fbbf24; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="pizarra">
+            <span class="titulo">Dos Péndulos Desacoplados</span>
+            <canvas id="canvas"></canvas>
+        </div>
+
+        <div class="panel">
+            <h2>Controles</h2>
+
+            <!-- Péndulo 1 -->
+            <div class="pendulo-1">
+                <h3>Péndulo 1 (amarillo)</h3>
+                <div class="control-group">
+                    <label>Longitud (m)<span class="value" id="l1Value">2.0</span></label>
+                    <input type="range" id="l1" min="0.5" max="4" step="0.1" value="2">
+                </div>
+                <div class="control-group">
+                    <label>Ángulo inicial (°)<span class="value" id="a1Value">45</span></label>
+                    <input type="range" id="a1" min="-90" max="90" step="1" value="45">
+                </div>
+                <div class="control-group">
+                    <label>Velocidad inicial (rad/s)<span class="value" id="v1Value">0.0</span></label>
+                    <input type="range" id="v1" min="-5" max="5" step="0.1" value="0">
+                </div>
+            </div>
+
+            <!-- Péndulo 2 -->
+            <div class="pendulo-2">
+                <h3>Péndulo 2 (azul)</h3>
+                <div class="control-group">
+                    <label>Longitud (m)<span class="value" id="l2Value">2.0</span></label>
+                    <input type="range" id="l2" min="0.5" max="4" step="0.1" value="2">
+                </div>
+                <div class="control-group">
+                    <label>Ángulo inicial (°)<span class="value" id="a2Value">-30</span></label>
+                    <input type="range" id="a2" min="-90" max="90" step="1" value="-30">
+                </div>
+                <div class="control-group">
+                    <label>Velocidad inicial (rad/s)<span class="value" id="v2Value">0.0</span></label>
+                    <input type="range" id="v2" min="-5" max="5" step="0.1" value="0">
+                </div>
+            </div>
+
+            <!-- Global -->
+            <div class="control-group" style="margin-top: 15px;">
+                <label>Gravedad (m/s²)<span class="value" id="gValue">9.8</span></label>
+                <input type="range" id="gravity" min="1" max="20" step="0.1" value="9.8">
+            </div>
+
+            <div class="checkbox-group">
+                <input type="checkbox" id="showTrail" checked>
+                <label for="showTrail">Mostrar trayectorias</label>
+            </div>
+
+            <div class="buttons">
+                <button class="btn-play" id="playBtn">▶ Play</button>
+                <button class="btn-pause" id="pauseBtn">⏸ Pausa</button>
+                <button class="btn-reset" id="resetBtn">↺ Reset</button>
+            </div>
+
+            <!-- Info -->
+            <div class="info">
+                <div class="info-row p1">
+                    <span>θ₁:</span>
+                    <span id="theta1">45.0°</span>
+                </div>
+                <div class="info-row p1">
+                    <span>T₁ (período):</span>
+                    <span id="period1">--</span>
+                </div>
+                <div class="info-row p2">
+                    <span>θ₂:</span>
+                    <span id="theta2">-30.0°</span>
+                </div>
+                <div class="info-row p2">
+                    <span>T₂ (período):</span>
+                    <span id="period2">--</span>
+                </div>
+
+                <!-- Barras de energía -->
+                <div class="energia-bars">
+                    <div class="energia-bar-row">
+                        <span>E₁:</span>
+                        <div class="energia-bar">
+                            <div class="ke-fill-1" id="ke1Bar"></div>
+                            <div class="pe-fill-1" id="pe1Bar"></div>
+                        </div>
+                    </div>
+                    <div class="energia-bar-row">
+                        <span>E₂:</span>
+                        <div class="energia-bar">
+                            <div class="ke-fill-2" id="ke2Bar"></div>
+                            <div class="pe-fill-2" id="pe2Bar"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sync-indicator partial-phase" id="syncIndicator">
+                    Diferencia de fase: --
+                </div>
+            </div>
+
+            <div class="ecuacion">
+                θ̈₁ + (g/l₁)·sin(θ₁) = 0<br>
+                θ̈₂ + (g/l₂)·sin(θ₂) = 0<br>
+                <small style="opacity: 0.6;">(independientes)</small>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        function setupCanvas() {
+            const rect = canvas.getBoundingClientRect();
+            const dpr = window.devicePixelRatio || 1;
+            canvas.width = rect.width * dpr;
+            canvas.height = rect.height * dpr;
+            ctx.scale(dpr, dpr);
+        }
+        setupCanvas();
+
+        // Parámetros
+        let gravity = 9.8;
+
+        // Péndulo 1
+        let l1 = 2.0, theta1 = Math.PI / 4, omega1 = 0;
+        let initTheta1 = theta1, initOmega1 = omega1;
+
+        // Péndulo 2
+        let l2 = 2.0, theta2 = -Math.PI / 6, omega2 = 0;
+        let initTheta2 = theta2, initOmega2 = omega2;
+
+        // Estado
+        let running = false;
+        let lastTime = 0;
+        let trail1 = [], trail2 = [];
+        let showTrail = true;
+
+        // Visualización
+        const pivot1X = 250, pivot2X = 450;
+        const pivotY = 100;
+        const scale = 70;
+
+        // Controles Péndulo 1
+        document.getElementById('l1').addEventListener('input', (e) => {
+            l1 = parseFloat(e.target.value);
+            document.getElementById('l1Value').textContent = l1.toFixed(1);
+            updatePeriods();
+            if (!running) draw();
+        });
+
+        document.getElementById('a1').addEventListener('input', (e) => {
+            initTheta1 = parseFloat(e.target.value) * Math.PI / 180;
+            document.getElementById('a1Value').textContent = e.target.value;
+            if (!running) { theta1 = initTheta1; draw(); }
+        });
+
+        document.getElementById('v1').addEventListener('input', (e) => {
+            initOmega1 = parseFloat(e.target.value);
+            document.getElementById('v1Value').textContent = initOmega1.toFixed(1);
+            if (!running) { omega1 = initOmega1; draw(); }
+        });
+
+        // Controles Péndulo 2
+        document.getElementById('l2').addEventListener('input', (e) => {
+            l2 = parseFloat(e.target.value);
+            document.getElementById('l2Value').textContent = l2.toFixed(1);
+            updatePeriods();
+            if (!running) draw();
+        });
+
+        document.getElementById('a2').addEventListener('input', (e) => {
+            initTheta2 = parseFloat(e.target.value) * Math.PI / 180;
+            document.getElementById('a2Value').textContent = e.target.value;
+            if (!running) { theta2 = initTheta2; draw(); }
+        });
+
+        document.getElementById('v2').addEventListener('input', (e) => {
+            initOmega2 = parseFloat(e.target.value);
+            document.getElementById('v2Value').textContent = initOmega2.toFixed(1);
+            if (!running) { omega2 = initOmega2; draw(); }
+        });
+
+        // Gravedad
+        document.getElementById('gravity').addEventListener('input', (e) => {
+            gravity = parseFloat(e.target.value);
+            document.getElementById('gValue').textContent = gravity.toFixed(1);
+            updatePeriods();
+            if (!running) draw();
+        });
+
+        document.getElementById('showTrail').addEventListener('change', (e) => {
+            showTrail = e.target.checked;
+            if (!showTrail) { trail1 = []; trail2 = []; }
+            if (!running) draw();
+        });
+
+        document.getElementById('playBtn').addEventListener('click', () => {
+            if (!running) {
+                running = true;
+                lastTime = performance.now();
+                requestAnimationFrame(simulate);
+            }
+        });
+
+        document.getElementById('pauseBtn').addEventListener('click', () => {
+            running = false;
+        });
+
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            running = false;
+            theta1 = initTheta1; omega1 = initOmega1;
+            theta2 = initTheta2; omega2 = initOmega2;
+            trail1 = []; trail2 = [];
+            updateInfo();
+            draw();
+        });
+
+        function updatePeriods() {
+            const T1 = 2 * Math.PI * Math.sqrt(l1 / gravity);
+            const T2 = 2 * Math.PI * Math.sqrt(l2 / gravity);
+            document.getElementById('period1').textContent = T1.toFixed(2) + ' s';
+            document.getElementById('period2').textContent = T2.toFixed(2) + ' s';
+        }
+
+        function rk4Step(theta, omega, l, dt) {
+            const f = (th) => -(gravity / l) * Math.sin(th);
+
+            const k1_theta = omega;
+            const k1_omega = f(theta);
+
+            const k2_theta = omega + 0.5 * dt * k1_omega;
+            const k2_omega = f(theta + 0.5 * dt * k1_theta);
+
+            const k3_theta = omega + 0.5 * dt * k2_omega;
+            const k3_omega = f(theta + 0.5 * dt * k2_theta);
+
+            const k4_theta = omega + dt * k3_omega;
+            const k4_omega = f(theta + dt * k3_theta);
+
+            const newTheta = theta + (dt / 6) * (k1_theta + 2*k2_theta + 2*k3_theta + k4_theta);
+            const newOmega = omega + (dt / 6) * (k1_omega + 2*k2_omega + 2*k3_omega + k4_omega);
+
+            return { theta: newTheta, omega: newOmega };
+        }
+
+        function updateInfo() {
+            document.getElementById('theta1').textContent = (theta1 * 180 / Math.PI).toFixed(1) + '°';
+            document.getElementById('theta2').textContent = (theta2 * 180 / Math.PI).toFixed(1) + '°';
+
+            // Energías
+            const ke1 = 0.5 * l1 * l1 * omega1 * omega1;
+            const pe1 = gravity * l1 * (1 - Math.cos(theta1));
+            const ke2 = 0.5 * l2 * l2 * omega2 * omega2;
+            const pe2 = gravity * l2 * (1 - Math.cos(theta2));
+
+            const total1 = ke1 + pe1;
+            const total2 = ke2 + pe2;
+            const maxE = Math.max(total1, total2, 0.1);
+
+            document.getElementById('ke1Bar').style.width = (ke1 / maxE * 50) + '%';
+            document.getElementById('pe1Bar').style.width = (pe1 / maxE * 50) + '%';
+            document.getElementById('ke2Bar').style.width = (ke2 / maxE * 50) + '%';
+            document.getElementById('pe2Bar').style.width = (pe2 / maxE * 50) + '%';
+
+            // Diferencia de fase
+            let phaseDiff = Math.abs(theta1 - theta2) * 180 / Math.PI;
+            phaseDiff = phaseDiff % 360;
+            if (phaseDiff > 180) phaseDiff = 360 - phaseDiff;
+
+            const indicator = document.getElementById('syncIndicator');
+            indicator.textContent = `Δφ = ${phaseDiff.toFixed(1)}°`;
+
+            if (phaseDiff < 15) {
+                indicator.className = 'sync-indicator in-phase';
+                indicator.textContent += ' (en fase)';
+            } else if (phaseDiff > 165) {
+                indicator.className = 'sync-indicator out-phase';
+                indicator.textContent += ' (oposición)';
+            } else {
+                indicator.className = 'sync-indicator partial-phase';
+            }
+        }
+
+        function simulate(currentTime) {
+            if (!running) return;
+
+            const dt = Math.min((currentTime - lastTime) / 1000, 0.05);
+            lastTime = currentTime;
+
+            // Integrar ambos péndulos independientemente
+            const result1 = rk4Step(theta1, omega1, l1, dt);
+            theta1 = result1.theta;
+            omega1 = result1.omega;
+
+            const result2 = rk4Step(theta2, omega2, l2, dt);
+            theta2 = result2.theta;
+            omega2 = result2.omega;
+
+            draw();
+            updateInfo();
+            requestAnimationFrame(simulate);
+        }
+
+        function draw() {
+            const width = canvas.width / (window.devicePixelRatio || 1);
+            const height = canvas.height / (window.devicePixelRatio || 1);
+
+            ctx.fillStyle = '#1a1a1a';
+            ctx.fillRect(0, 0, width, height);
+
+            // Posiciones
+            const bob1X = pivot1X + l1 * scale * Math.sin(theta1);
+            const bob1Y = pivotY + l1 * scale * Math.cos(theta1);
+            const bob2X = pivot2X + l2 * scale * Math.sin(theta2);
+            const bob2Y = pivotY + l2 * scale * Math.cos(theta2);
+
+            // Guardar trayectorias con energía
+            if (showTrail && running) {
+                const ke1 = 0.5 * l1 * l1 * omega1 * omega1;
+                const pe1 = gravity * l1 * (1 - Math.cos(theta1));
+                const ke2 = 0.5 * l2 * l2 * omega2 * omega2;
+                const pe2 = gravity * l2 * (1 - Math.cos(theta2));
+
+                trail1.push({ x: bob1X, y: bob1Y, ke: ke1, pe: pe1, total: ke1 + pe1 });
+                trail2.push({ x: bob2X, y: bob2Y, ke: ke2, pe: pe2, total: ke2 + pe2 });
+
+                if (trail1.length > 400) trail1.shift();
+                if (trail2.length > 400) trail2.shift();
+            }
+
+            // Dibujar trayectorias coloreadas
+            if (showTrail) {
+                // Trail 1 (amarillo)
+                if (trail1.length > 1) {
+                    for (let i = 1; i < trail1.length; i++) {
+                        const p = trail1[i], prev = trail1[i-1];
+                        const ratio = p.total > 0 ? p.ke / p.total : 0;
+                        const alpha = 0.3 + ratio * 0.5;
+                        ctx.beginPath();
+                        ctx.moveTo(prev.x, prev.y);
+                        ctx.lineTo(p.x, p.y);
+                        ctx.strokeStyle = `rgba(251, 191, 36, ${alpha})`;
+                        ctx.lineWidth = 2;
+                        ctx.stroke();
+                    }
+                }
+
+                // Trail 2 (azul)
+                if (trail2.length > 1) {
+                    for (let i = 1; i < trail2.length; i++) {
+                        const p = trail2[i], prev = trail2[i-1];
+                        const ratio = p.total > 0 ? p.ke / p.total : 0;
+                        const alpha = 0.3 + ratio * 0.5;
+                        ctx.beginPath();
+                        ctx.moveTo(prev.x, prev.y);
+                        ctx.lineTo(p.x, p.y);
+                        ctx.strokeStyle = `rgba(96, 165, 250, ${alpha})`;
+                        ctx.lineWidth = 2;
+                        ctx.stroke();
+                    }
+                }
+            }
+
+            // Líneas verticales de referencia
+            ctx.setLineDash([4, 4]);
+            ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(pivot1X, pivotY);
+            ctx.lineTo(pivot1X, pivotY + Math.max(l1, l2) * scale + 50);
+            ctx.moveTo(pivot2X, pivotY);
+            ctx.lineTo(pivot2X, pivotY + Math.max(l1, l2) * scale + 50);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // Soporte común
+            ctx.beginPath();
+            ctx.moveTo(pivot1X - 30, pivotY);
+            ctx.lineTo(pivot2X + 30, pivotY);
+            ctx.strokeStyle = 'rgba(255,255,255,0.7)';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+
+            // Péndulo 1
+            // Cuerda
+            ctx.beginPath();
+            ctx.moveTo(pivot1X, pivotY);
+            ctx.lineTo(bob1X, bob1Y);
+            ctx.strokeStyle = 'rgba(251, 191, 36, 0.9)';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            // Pivote
+            ctx.beginPath();
+            ctx.arc(pivot1X, pivotY, 5, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(251, 191, 36, 0.9)';
+            ctx.fill();
+
+            // Masa
+            ctx.beginPath();
+            ctx.arc(bob1X, bob1Y, 18, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(251, 191, 36, 0.2)';
+            ctx.fill();
+            ctx.strokeStyle = 'rgba(251, 191, 36, 0.9)';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            // Label
+            ctx.font = "16px 'Covered By Your Grace'";
+            ctx.fillStyle = 'rgba(251, 191, 36, 0.9)';
+            ctx.fillText('m₁', bob1X - 10, bob1Y + 5);
+
+            // Péndulo 2
+            // Cuerda
+            ctx.beginPath();
+            ctx.moveTo(pivot2X, pivotY);
+            ctx.lineTo(bob2X, bob2Y);
+            ctx.strokeStyle = 'rgba(96, 165, 250, 0.9)';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            // Pivote
+            ctx.beginPath();
+            ctx.arc(pivot2X, pivotY, 5, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(96, 165, 250, 0.9)';
+            ctx.fill();
+
+            // Masa
+            ctx.beginPath();
+            ctx.arc(bob2X, bob2Y, 18, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(96, 165, 250, 0.2)';
+            ctx.fill();
+            ctx.strokeStyle = 'rgba(96, 165, 250, 0.9)';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            // Label
+            ctx.fillStyle = 'rgba(96, 165, 250, 0.9)';
+            ctx.fillText('m₂', bob2X - 10, bob2Y + 5);
+
+            // Etiquetas de longitud
+            ctx.font = "14px 'Covered By Your Grace'";
+            ctx.fillStyle = 'rgba(251, 191, 36, 0.7)';
+            ctx.fillText(`l₁=${l1.toFixed(1)}m`, (pivot1X + bob1X)/2 - 30, (pivotY + bob1Y)/2);
+            ctx.fillStyle = 'rgba(96, 165, 250, 0.7)';
+            ctx.fillText(`l₂=${l2.toFixed(1)}m`, (pivot2X + bob2X)/2 + 10, (pivotY + bob2Y)/2);
+
+            // Leyenda
+            if (showTrail) {
+                ctx.font = "13px 'Covered By Your Grace'";
+                ctx.fillStyle = 'rgba(255,255,255,0.6)';
+                ctx.fillText('Brillo = energía cinética', 20, height - 20);
+            }
+        }
+
+        // Init
+        updatePeriods();
+        updateInfo();
+        draw();
+    </script>
+</body>
+</html>

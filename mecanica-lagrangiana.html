@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mecánica Lagrangiana</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Covered+By+Your+Grace&family=Caveat:wght@400;600&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #000;
+            padding: 20px;
+        }
+
+        .pizarra {
+            background: #1a1a1a;
+            background-image:
+                radial-gradient(ellipse at 20% 30%, rgba(30,30,30,1) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 70%, rgba(25,25,25,1) 0%, transparent 45%),
+                radial-gradient(ellipse at 50% 50%, rgba(35,35,35,0.5) 0%, transparent 60%);
+            border: 12px solid #2a2a2a;
+            box-shadow:
+                inset 0 0 80px rgba(0,0,0,0.6),
+                0 10px 40px rgba(0,0,0,0.8);
+            width: 1200px;
+            height: 850px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .pizarra::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%' height='100%' filter='url(%23noise)'/%3E%3C/svg%3E");
+            opacity: 0.03;
+            pointer-events: none;
+        }
+
+        .chalk {
+            position: absolute;
+            font-family: 'Covered By Your Grace', cursive;
+            color: rgba(255, 255, 255, 0.92);
+            text-shadow:
+                0 0 1px rgba(255,255,255,0.3),
+                0 0 2px rgba(255,255,255,0.1);
+            letter-spacing: 1px;
+        }
+
+        /* ===== TÍTULO ===== */
+        .titulo {
+            top: 3%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2.6rem;
+            text-decoration: underline;
+            text-underline-offset: 6px;
+            text-decoration-thickness: 1px;
+        }
+
+        .subtitulo {
+            top: 8%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.3rem;
+            opacity: 0.7;
+            font-family: 'Caveat', cursive;
+        }
+
+        /* ===== DEFINICIÓN LAGRANGIANO ===== */
+        .seccion1 {
+            top: 13%;
+            left: 5%;
+            font-size: 1.4rem;
+        }
+
+        .lagrangiano-def {
+            top: 17%;
+            left: 5%;
+            font-size: 2.4rem;
+        }
+
+        .lagrangiano-exp {
+            top: 23%;
+            left: 5%;
+            font-size: 1.2rem;
+            line-height: 1.7;
+            opacity: 0.85;
+        }
+
+        /* ===== ECUACIONES DE EULER-LAGRANGE ===== */
+        .seccion2 {
+            top: 13%;
+            right: 5%;
+            font-size: 1.4rem;
+            text-align: right;
+        }
+
+        .euler-lagrange {
+            top: 18%;
+            right: 5%;
+            font-size: 2rem;
+            text-align: right;
+        }
+
+        .euler-exp {
+            top: 26%;
+            right: 5%;
+            font-size: 1.1rem;
+            text-align: right;
+            opacity: 0.85;
+            line-height: 1.6;
+        }
+
+        /* ===== EJEMPLO: PÉNDULO SIMPLE ===== */
+        .ejemplo-titulo {
+            top: 35%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.6rem;
+            text-decoration: underline;
+            text-underline-offset: 5px;
+        }
+
+        /* Dibujo del péndulo */
+        .pendulo-svg {
+            position: absolute;
+            top: 40%;
+            left: 8%;
+            width: 150px;
+            height: 180px;
+        }
+
+        .pendulo-svg svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .pendulo-svg svg line, .pendulo-svg svg circle {
+            stroke: rgba(255, 255, 255, 0.85);
+            stroke-width: 2;
+            fill: none;
+        }
+
+        .pendulo-svg svg .masa {
+            fill: rgba(255, 255, 255, 0.3);
+            stroke: rgba(255, 255, 255, 0.9);
+        }
+
+        .pendulo-svg svg text {
+            font-family: 'Covered By Your Grace', cursive;
+            font-size: 16px;
+            fill: rgba(255, 255, 255, 0.9);
+        }
+
+        .pendulo-svg svg .dashed {
+            stroke-dasharray: 4,4;
+            opacity: 0.5;
+        }
+
+        /* Paso 1: Coordenadas */
+        .paso1-titulo {
+            top: 40%;
+            left: 25%;
+            font-size: 1.3rem;
+        }
+
+        .paso1-texto {
+            top: 44%;
+            left: 25%;
+            font-size: 1.15rem;
+            line-height: 1.8;
+        }
+
+        /* Paso 2: Energías */
+        .paso2-titulo {
+            top: 40%;
+            right: 5%;
+            font-size: 1.3rem;
+            text-align: right;
+        }
+
+        .paso2-texto {
+            top: 44%;
+            right: 5%;
+            font-size: 1.15rem;
+            line-height: 1.8;
+            text-align: right;
+        }
+
+        /* Paso 3: Lagrangiano */
+        .paso3-titulo {
+            top: 58%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.3rem;
+        }
+
+        .paso3-formula {
+            top: 62%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.8rem;
+        }
+
+        /* Paso 4: Derivadas parciales */
+        .paso4-titulo {
+            top: 69%;
+            left: 8%;
+            font-size: 1.2rem;
+        }
+
+        .derivadas {
+            top: 73%;
+            left: 8%;
+            font-size: 1.3rem;
+            line-height: 2;
+        }
+
+        /* Paso 5: Ecuación de movimiento */
+        .paso5-titulo {
+            top: 69%;
+            right: 8%;
+            font-size: 1.2rem;
+            text-align: right;
+        }
+
+        .ecuacion-mov {
+            top: 73%;
+            right: 8%;
+            font-size: 1.3rem;
+            line-height: 2;
+            text-align: right;
+        }
+
+        /* ===== RESULTADO FINAL ===== */
+        .resultado-box {
+            position: absolute;
+            bottom: 8%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 2px solid rgba(255,255,255,0.5);
+            border-radius: 5px;
+            padding: 12px 30px;
+        }
+
+        .resultado {
+            font-size: 2.2rem;
+        }
+
+        .resultado-nota {
+            bottom: 4%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.1rem;
+            opacity: 0.7;
+            font-family: 'Caveat', cursive;
+        }
+
+        /* ===== DECORACIÓN ===== */
+        .deco {
+            opacity: 0.35;
+            font-size: 1rem;
+        }
+
+        .d1 { bottom: 20%; left: 3%; }
+        .d2 { bottom: 15%; right: 3%; }
+        .d3 { top: 33%; left: 3%; font-size: 0.95rem; }
+        .d4 { top: 33%; right: 3%; }
+    </style>
+</head>
+<body>
+    <div class="pizarra">
+
+        <!-- Título -->
+        <span class="chalk titulo">Mecánica Lagrangiana</span>
+        <span class="chalk subtitulo">De Newton a Lagrange: una formulación más elegante</span>
+
+        <!-- Sección 1: Definición del Lagrangiano -->
+        <span class="chalk seccion1">El Lagrangiano:</span>
+        <span class="chalk lagrangiano-def">L = T - V</span>
+        <span class="chalk lagrangiano-exp">
+            T = energía cinética<br>
+            V = energía potencial<br>
+            L = L(q, q̇, t)
+        </span>
+
+        <!-- Sección 2: Ecuaciones de Euler-Lagrange -->
+        <span class="chalk seccion2">Ecuaciones de Euler-Lagrange:</span>
+        <span class="chalk euler-lagrange">d/dt(∂L/∂q̇) - ∂L/∂q = 0</span>
+        <span class="chalk euler-exp">
+            q = coordenada generalizada<br>
+            q̇ = velocidad generalizada<br>
+            (una ecuación por cada q)
+        </span>
+
+        <!-- Ejemplo: Péndulo Simple -->
+        <span class="chalk ejemplo-titulo">Ejemplo: Péndulo Simple</span>
+
+        <!-- Dibujo del péndulo -->
+        <div class="pendulo-svg">
+            <svg viewBox="0 0 150 180">
+                <!-- Punto de suspensión -->
+                <line x1="60" y1="10" x2="90" y2="10"/>
+                <circle cx="75" cy="10" r="3" fill="rgba(255,255,255,0.9)"/>
+
+                <!-- Línea vertical (referencia) -->
+                <line class="dashed" x1="75" y1="10" x2="75" y2="140"/>
+
+                <!-- Cuerda del péndulo -->
+                <line x1="75" y1="10" x2="120" y2="120"/>
+
+                <!-- Masa -->
+                <circle class="masa" cx="120" cy="120" r="12"/>
+
+                <!-- Ángulo θ -->
+                <path d="M 75 40 Q 85 45 90 55" stroke="rgba(255,255,255,0.7)" stroke-width="1.5" fill="none"/>
+                <text x="88" y="50">θ</text>
+
+                <!-- Etiquetas -->
+                <text x="100" y="70">l</text>
+                <text x="130" y="125">m</text>
+                <text x="78" y="155">g ↓</text>
+            </svg>
+        </div>
+
+        <!-- Paso 1 -->
+        <span class="chalk paso1-titulo">① Coordenada generalizada:</span>
+        <span class="chalk paso1-texto">
+            q = θ  (ángulo)<br>
+            x = l·sin(θ)<br>
+            y = -l·cos(θ)
+        </span>
+
+        <!-- Paso 2 -->
+        <span class="chalk paso2-titulo">② Energías:</span>
+        <span class="chalk paso2-texto">
+            T = ½m(ẋ² + ẏ²) = ½ml²θ̇²<br>
+            V = mgy = -mgl·cos(θ)
+        </span>
+
+        <!-- Paso 3 -->
+        <span class="chalk paso3-titulo">③ Lagrangiano:</span>
+        <span class="chalk paso3-formula">L = ½ml²θ̇² + mgl·cos(θ)</span>
+
+        <!-- Paso 4 -->
+        <span class="chalk paso4-titulo">④ Derivadas parciales:</span>
+        <span class="chalk derivadas">
+            ∂L/∂θ̇ = ml²θ̇<br>
+            ∂L/∂θ = -mgl·sin(θ)
+        </span>
+
+        <!-- Paso 5 -->
+        <span class="chalk paso5-titulo">⑤ Euler-Lagrange:</span>
+        <span class="chalk ecuacion-mov">
+            d/dt(ml²θ̇) - (-mgl·sin(θ)) = 0<br>
+            ml²θ̈ + mgl·sin(θ) = 0
+        </span>
+
+        <!-- Resultado -->
+        <div class="resultado-box">
+            <span class="chalk resultado">θ̈ + (g/l)·sin(θ) = 0</span>
+        </div>
+        <span class="chalk resultado-nota">Ecuación del péndulo simple (no lineal)</span>
+
+        <!-- Decoración -->
+        <span class="chalk deco d1">S = ∫L dt</span>
+        <span class="chalk deco d2">δS = 0</span>
+        <span class="chalk deco d3">Hamilton</span>
+        <span class="chalk deco d4">∇</span>
+
+    </div>
+</body>
+</html>

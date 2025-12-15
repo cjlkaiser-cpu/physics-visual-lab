@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Óptica - Reflexión y Refracción</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: linear-gradient(135deg, #0a0a1a 0%, #1a1a2e 100%);
+            min-height: 100vh;
+            color: #fff;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            gap: 20px;
+        }
+        @media (max-width: 900px) {
+            .container { grid-template-columns: 1fr; }
+        }
+        h1 { font-size: 1.5rem; font-weight: 300; margin-bottom: 5px; }
+        h1 span { color: #06b6d4; font-weight: 600; }
+        .subtitle { color: #666; font-size: 0.8rem; margin-bottom: 15px; }
+        #canvas {
+            width: 100%;
+            height: 550px;
+            background: #000;
+            border-radius: 12px;
+            border: 2px solid #333;
+            cursor: crosshair;
+        }
+        .controls {
+            background: #111;
+            border-radius: 12px;
+            padding: 20px;
+        }
+        .section { margin-bottom: 20px; }
+        .section-title {
+            font-size: 0.7rem;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+        .slider-group { margin-bottom: 15px; }
+        .slider-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+        .slider-label { font-size: 0.8rem; color: #888; }
+        .slider-value { font-size: 0.9rem; color: #06b6d4; font-weight: 600; }
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            background: #333;
+            border-radius: 3px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            background: #06b6d4;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        .info-card {
+            background: rgba(255,255,255,0.03);
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .info-card .label { font-size: 0.65rem; color: #666; margin-bottom: 4px; }
+        .info-card .value { font-size: 1rem; font-weight: 600; }
+        .info-card .value.cyan { color: #06b6d4; }
+        .info-card .value.yellow { color: #fbbf24; }
+        .info-card .value.green { color: #4ade80; }
+        .info-card .value.red { color: #f87171; }
+        .material-btns {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+        .material-btn {
+            padding: 10px;
+            background: rgba(255,255,255,0.05);
+            border: 2px solid #333;
+            border-radius: 8px;
+            color: #888;
+            font-size: 0.75rem;
+            cursor: pointer;
+            text-align: center;
+        }
+        .material-btn.active {
+            border-color: #06b6d4;
+            color: #06b6d4;
+            background: rgba(6, 182, 212, 0.1);
+        }
+        .material-btn .n-value {
+            font-size: 0.65rem;
+            color: #666;
+            margin-top: 2px;
+        }
+        .tir-warning {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.5);
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+            color: #f87171;
+            font-size: 0.85rem;
+            margin-bottom: 15px;
+            display: none;
+        }
+        .tir-warning.show { display: block; }
+        .equations {
+            background: rgba(6, 182, 212, 0.1);
+            border: 1px solid rgba(6, 182, 212, 0.3);
+            border-radius: 8px;
+            padding: 12px;
+            font-family: 'Times New Roman', serif;
+            font-style: italic;
+            font-size: 0.85rem;
+            color: #06b6d4;
+            line-height: 1.8;
+        }
+        .instructions {
+            font-size: 0.75rem;
+            color: #666;
+            margin-top: 15px;
+            padding: 10px;
+            background: rgba(255,255,255,0.02);
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="main">
+            <h1><span>Óptica</span> - Reflexión y Refracción</h1>
+            <div class="subtitle">Ley de Snell: n₁sin(θ₁) = n₂sin(θ₂)</div>
+            <canvas id="canvas"></canvas>
+        </div>
+        <div class="controls">
+            <div class="tir-warning" id="tirWarning">
+                ⚠ Reflexión Total Interna<br>
+                <small>θ > θ_crítico</small>
+            </div>
+
+            <div class="section">
+                <div class="section-title">Ángulo de incidencia</div>
+                <div class="slider-group">
+                    <div class="slider-header">
+                        <span class="slider-label">θ₁</span>
+                        <span class="slider-value" id="angleDisplay">45°</span>
+                    </div>
+                    <input type="range" id="angleSlider" min="0" max="89" value="45">
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">Medio superior (n₁)</div>
+                <div class="material-btns" id="material1Btns">
+                    <button class="material-btn active" data-n="1.0">Aire<div class="n-value">n = 1.00</div></button>
+                    <button class="material-btn" data-n="1.33">Agua<div class="n-value">n = 1.33</div></button>
+                    <button class="material-btn" data-n="1.5">Vidrio<div class="n-value">n = 1.50</div></button>
+                    <button class="material-btn" data-n="2.42">Diamante<div class="n-value">n = 2.42</div></button>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">Medio inferior (n₂)</div>
+                <div class="material-btns" id="material2Btns">
+                    <button class="material-btn" data-n="1.0">Aire<div class="n-value">n = 1.00</div></button>
+                    <button class="material-btn" data-n="1.33">Agua<div class="n-value">n = 1.33</div></button>
+                    <button class="material-btn active" data-n="1.5">Vidrio<div class="n-value">n = 1.50</div></button>
+                    <button class="material-btn" data-n="2.42">Diamante<div class="n-value">n = 2.42</div></button>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">Ángulos</div>
+                <div class="info-grid">
+                    <div class="info-card">
+                        <div class="label">Incidencia θ₁</div>
+                        <div class="value cyan" id="theta1Val">45°</div>
+                    </div>
+                    <div class="info-card">
+                        <div class="label">Reflexión θᵣ</div>
+                        <div class="value yellow" id="thetaRVal">45°</div>
+                    </div>
+                    <div class="info-card">
+                        <div class="label">Refracción θ₂</div>
+                        <div class="value green" id="theta2Val">--</div>
+                    </div>
+                    <div class="info-card">
+                        <div class="label">Ángulo crítico</div>
+                        <div class="value red" id="criticalVal">--</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="equations">
+                n₁ sin(θ₁) = n₂ sin(θ₂)<br>
+                θᵣ = θ₁ (reflexión)<br>
+                θc = arcsin(n₂/n₁)
+            </div>
+
+            <div class="instructions">
+                Arrastra en el canvas para cambiar el ángulo de incidencia
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        let W, H;
+        let n1 = 1.0;  // Air
+        let n2 = 1.5;  // Glass
+        let theta1 = 45 * Math.PI / 180;
+
+        function resize() {
+            const dpr = window.devicePixelRatio || 1;
+            W = canvas.clientWidth;
+            H = canvas.clientHeight;
+            canvas.width = W * dpr;
+            canvas.height = H * dpr;
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        }
+
+        function snellLaw(n1, n2, theta1) {
+            const sinTheta2 = (n1 / n2) * Math.sin(theta1);
+            if (Math.abs(sinTheta2) > 1) {
+                return null; // Total internal reflection
+            }
+            return Math.asin(sinTheta2);
+        }
+
+        function criticalAngle(n1, n2) {
+            if (n1 <= n2) return null; // No critical angle
+            return Math.asin(n2 / n1);
+        }
+
+        function draw() {
+            // Background
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, W, H);
+
+            const centerX = W / 2;
+            const centerY = H / 2;
+            const rayLength = 250;
+
+            // Upper medium (n1)
+            const upperColor = n1 < 1.2 ? 'rgba(135, 206, 250, 0.1)' :
+                              n1 < 1.4 ? 'rgba(64, 164, 223, 0.2)' :
+                              n1 < 2 ? 'rgba(100, 149, 237, 0.3)' :
+                              'rgba(185, 242, 255, 0.4)';
+            ctx.fillStyle = upperColor;
+            ctx.fillRect(0, 0, W, centerY);
+
+            // Lower medium (n2)
+            const lowerColor = n2 < 1.2 ? 'rgba(135, 206, 250, 0.1)' :
+                              n2 < 1.4 ? 'rgba(64, 164, 223, 0.2)' :
+                              n2 < 2 ? 'rgba(100, 149, 237, 0.3)' :
+                              'rgba(185, 242, 255, 0.4)';
+            ctx.fillStyle = lowerColor;
+            ctx.fillRect(0, centerY, W, H / 2);
+
+            // Interface line
+            ctx.strokeStyle = '#444';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(0, centerY);
+            ctx.lineTo(W, centerY);
+            ctx.stroke();
+
+            // Normal line (dashed)
+            ctx.strokeStyle = '#666';
+            ctx.lineWidth = 1;
+            ctx.setLineDash([8, 8]);
+            ctx.beginPath();
+            ctx.moveTo(centerX, centerY - 200);
+            ctx.lineTo(centerX, centerY + 200);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // Calculate angles
+            const theta2 = snellLaw(n1, n2, theta1);
+            const thetaCritical = criticalAngle(n1, n2);
+            const isTIR = theta2 === null;
+
+            // Incident ray (cyan)
+            const incidentEndX = centerX - rayLength * Math.sin(theta1);
+            const incidentEndY = centerY - rayLength * Math.cos(theta1);
+
+            ctx.strokeStyle = '#06b6d4';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(incidentEndX, incidentEndY);
+            ctx.lineTo(centerX, centerY);
+            ctx.stroke();
+
+            // Arrow on incident ray
+            drawArrow(incidentEndX, incidentEndY, centerX, centerY, '#06b6d4');
+
+            // Reflected ray (yellow)
+            const reflectedEndX = centerX + rayLength * Math.sin(theta1);
+            const reflectedEndY = centerY - rayLength * Math.cos(theta1);
+
+            // Reflected ray intensity depends on TIR
+            const reflectAlpha = isTIR ? 1 : 0.5;
+            ctx.strokeStyle = `rgba(251, 191, 36, ${reflectAlpha})`;
+            ctx.lineWidth = isTIR ? 3 : 2;
+            ctx.beginPath();
+            ctx.moveTo(centerX, centerY);
+            ctx.lineTo(reflectedEndX, reflectedEndY);
+            ctx.stroke();
+
+            drawArrow(centerX, centerY, reflectedEndX, reflectedEndY, `rgba(251, 191, 36, ${reflectAlpha})`);
+
+            // Refracted ray (green) - only if no TIR
+            if (!isTIR) {
+                const refractedEndX = centerX + rayLength * Math.sin(theta2);
+                const refractedEndY = centerY + rayLength * Math.cos(theta2);
+
+                ctx.strokeStyle = '#4ade80';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.moveTo(centerX, centerY);
+                ctx.lineTo(refractedEndX, refractedEndY);
+                ctx.stroke();
+
+                drawArrow(centerX, centerY, refractedEndX, refractedEndY, '#4ade80');
+
+                // Angle arc for refracted ray
+                ctx.strokeStyle = '#4ade80';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, 50, Math.PI / 2, Math.PI / 2 + theta2);
+                ctx.stroke();
+                ctx.fillStyle = '#4ade80';
+                ctx.font = '14px sans-serif';
+                ctx.fillText('θ₂', centerX + 55 * Math.sin(theta2 / 2), centerY + 55 * Math.cos(theta2 / 2));
+            }
+
+            // Angle arc for incident ray
+            ctx.strokeStyle = '#06b6d4';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, 40, -Math.PI / 2, -Math.PI / 2 + theta1);
+            ctx.stroke();
+            ctx.fillStyle = '#06b6d4';
+            ctx.font = '14px sans-serif';
+            const labelX = centerX - 45 * Math.sin(theta1 / 2) - 15;
+            const labelY = centerY - 45 * Math.cos(theta1 / 2);
+            ctx.fillText('θ₁', labelX, labelY);
+
+            // Angle arc for reflected ray
+            ctx.strokeStyle = '#fbbf24';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, 35, -Math.PI / 2 - theta1, -Math.PI / 2);
+            ctx.stroke();
+
+            // Labels for media
+            ctx.fillStyle = '#888';
+            ctx.font = '14px sans-serif';
+            ctx.fillText(`n₁ = ${n1.toFixed(2)}`, 20, 30);
+            ctx.fillText(`n₂ = ${n2.toFixed(2)}`, 20, centerY + 30);
+
+            // Critical angle indicator (if applicable)
+            if (thetaCritical !== null && n1 > n2) {
+                ctx.strokeStyle = 'rgba(239, 68, 68, 0.5)';
+                ctx.lineWidth = 1;
+                ctx.setLineDash([4, 4]);
+                ctx.beginPath();
+                ctx.moveTo(centerX, centerY);
+                ctx.lineTo(centerX - 150 * Math.sin(thetaCritical), centerY - 150 * Math.cos(thetaCritical));
+                ctx.stroke();
+                ctx.setLineDash([]);
+                ctx.fillStyle = '#f87171';
+                ctx.font = '11px sans-serif';
+                ctx.fillText('θc', centerX - 80 * Math.sin(thetaCritical) - 15, centerY - 80 * Math.cos(thetaCritical));
+            }
+
+            // Update info
+            updateInfo(theta2, thetaCritical, isTIR);
+        }
+
+        function drawArrow(x1, y1, x2, y2, color) {
+            const angle = Math.atan2(y2 - y1, x2 - x1);
+            const headLen = 12;
+
+            // Draw at 70% of the way
+            const midX = x1 + (x2 - x1) * 0.7;
+            const midY = y1 + (y2 - y1) * 0.7;
+
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.moveTo(midX, midY);
+            ctx.lineTo(midX - headLen * Math.cos(angle - 0.4), midY - headLen * Math.sin(angle - 0.4));
+            ctx.lineTo(midX - headLen * Math.cos(angle + 0.4), midY - headLen * Math.sin(angle + 0.4));
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        function updateInfo(theta2, thetaCritical, isTIR) {
+            const theta1Deg = theta1 * 180 / Math.PI;
+
+            document.getElementById('theta1Val').textContent = theta1Deg.toFixed(1) + '°';
+            document.getElementById('thetaRVal').textContent = theta1Deg.toFixed(1) + '°';
+
+            if (isTIR) {
+                document.getElementById('theta2Val').textContent = 'TIR';
+                document.getElementById('tirWarning').classList.add('show');
+            } else {
+                document.getElementById('theta2Val').textContent = (theta2 * 180 / Math.PI).toFixed(1) + '°';
+                document.getElementById('tirWarning').classList.remove('show');
+            }
+
+            if (thetaCritical !== null) {
+                document.getElementById('criticalVal').textContent = (thetaCritical * 180 / Math.PI).toFixed(1) + '°';
+            } else {
+                document.getElementById('criticalVal').textContent = 'N/A';
+            }
+
+            document.getElementById('angleDisplay').textContent = theta1Deg.toFixed(0) + '°';
+            document.getElementById('angleSlider').value = theta1Deg;
+        }
+
+        // Angle slider
+        document.getElementById('angleSlider').oninput = function() {
+            theta1 = parseFloat(this.value) * Math.PI / 180;
+            draw();
+        };
+
+        // Material buttons
+        document.getElementById('material1Btns').querySelectorAll('.material-btn').forEach(btn => {
+            btn.onclick = function() {
+                document.getElementById('material1Btns').querySelectorAll('.material-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                n1 = parseFloat(this.dataset.n);
+                draw();
+            };
+        });
+
+        document.getElementById('material2Btns').querySelectorAll('.material-btn').forEach(btn => {
+            btn.onclick = function() {
+                document.getElementById('material2Btns').querySelectorAll('.material-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                n2 = parseFloat(this.dataset.n);
+                draw();
+            };
+        });
+
+        // Mouse drag to change angle
+        let dragging = false;
+        canvas.onmousedown = () => dragging = true;
+        canvas.onmouseup = () => dragging = false;
+        canvas.onmouseleave = () => dragging = false;
+        canvas.onmousemove = function(e) {
+            if (!dragging) return;
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left - W / 2;
+            const y = e.clientY - rect.top - H / 2;
+
+            if (y < 0) { // Only in upper half
+                const angle = Math.atan2(-x, -y);
+                theta1 = Math.max(0, Math.min(89 * Math.PI / 180, Math.abs(angle)));
+                draw();
+            }
+        };
+
+        // Init
+        window.onload = function() {
+            resize();
+            draw();
+        };
+        window.onresize = function() {
+            resize();
+            draw();
+        };
+    </script>
+</body>
+</html>

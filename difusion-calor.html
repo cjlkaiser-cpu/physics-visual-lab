@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Difusión del Calor en Habitación Cerrada</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Covered+By+Your+Grace&family=Inter:wght@300;400;500&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #0a0a0a;
+            font-family: 'Inter', sans-serif;
+            padding: 20px;
+        }
+
+        .container {
+            display: flex;
+            gap: 25px;
+            align-items: flex-start;
+        }
+
+        .simulacion {
+            background: #1a1a1a;
+            border: 8px solid #2a2a2a;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+        }
+
+        .titulo {
+            font-family: 'Covered By Your Grace', cursive;
+            font-size: 1.8rem;
+            color: rgba(255,255,255,0.9);
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        #canvas {
+            display: block;
+            border: 2px solid #333;
+            border-radius: 4px;
+        }
+
+        .escala-color {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 10px;
+            gap: 10px;
+        }
+
+        .gradiente {
+            width: 200px;
+            height: 15px;
+            background: linear-gradient(90deg, #0000ff, #00ffff, #00ff00, #ffff00, #ff0000);
+            border-radius: 3px;
+        }
+
+        .escala-labels {
+            display: flex;
+            justify-content: space-between;
+            width: 200px;
+            font-size: 0.75rem;
+            color: #888;
+            margin-top: 3px;
+        }
+
+        .panel {
+            background: #1a1a1a;
+            border: 2px solid #333;
+            border-radius: 10px;
+            padding: 20px;
+            width: 320px;
+            color: #fff;
+            max-height: 680px;
+            overflow-y: auto;
+        }
+
+        .panel h2 {
+            font-family: 'Covered By Your Grace', cursive;
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: rgba(255,255,255,0.9);
+            border-bottom: 1px solid #333;
+            padding-bottom: 8px;
+        }
+
+        .panel h3 {
+            font-family: 'Covered By Your Grace', cursive;
+            font-size: 1.2rem;
+            margin: 15px 0 10px 0;
+            color: rgba(255,255,255,0.8);
+        }
+
+        .control-group {
+            margin-bottom: 12px;
+        }
+
+        .control-group label {
+            display: block;
+            font-size: 0.8rem;
+            color: #aaa;
+            margin-bottom: 5px;
+        }
+
+        .control-group .value {
+            font-family: 'Covered By Your Grace', cursive;
+            font-size: 1.1rem;
+            color: #fff;
+            margin-left: 8px;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 5px;
+            background: #333;
+            border-radius: 3px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 14px;
+            height: 14px;
+            background: #fff;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 8px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            flex: 1;
+            min-width: 70px;
+            padding: 10px 8px;
+            font-size: 0.85rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: opacity 0.2s;
+        }
+
+        button:hover { opacity: 0.85; }
+
+        .btn-play { background: #4ade80; color: #000; }
+        .btn-pause { background: #fbbf24; color: #000; }
+        .btn-reset { background: #f87171; color: #000; }
+
+        .fuentes-btns {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        .fuentes-btns button {
+            flex: none;
+            padding: 8px 12px;
+            font-size: 0.75rem;
+        }
+
+        .btn-radiador { background: #ef4444; color: #fff; }
+        .btn-ventana { background: #3b82f6; color: #fff; }
+        .btn-clear { background: #6b7280; color: #fff; }
+
+        .info {
+            margin-top: 15px;
+            padding-top: 10px;
+            border-top: 1px solid #333;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 0.8rem;
+        }
+
+        .info-row span:first-child { color: #888; }
+        .info-row span:last-child {
+            font-family: 'Covered By Your Grace', cursive;
+            font-size: 1.1rem;
+            color: #fff;
+        }
+
+        .ecuacion {
+            margin-top: 15px;
+            padding: 12px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 6px;
+            font-family: 'Covered By Your Grace', cursive;
+            text-align: center;
+        }
+
+        .ecuacion-main {
+            font-size: 1.4rem;
+            color: rgba(255,255,255,0.9);
+        }
+
+        .ecuacion-desc {
+            font-size: 0.9rem;
+            color: rgba(255,255,255,0.5);
+            margin-top: 5px;
+        }
+
+        .instrucciones {
+            margin-top: 15px;
+            padding: 10px;
+            background: rgba(59, 130, 246, 0.1);
+            border-radius: 6px;
+            font-size: 0.75rem;
+            color: #60a5fa;
+            line-height: 1.5;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .checkbox-group input {
+            width: 14px;
+            height: 14px;
+        }
+
+        .checkbox-group label {
+            font-size: 0.8rem;
+            color: #aaa;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="simulacion">
+            <div class="titulo">Difusión del Calor - Habitación 2D</div>
+            <canvas id="canvas" width="500" height="500"></canvas>
+            <div class="escala-color">
+                <span style="color: #3b82f6; font-size: 0.8rem;">Frío</span>
+                <div>
+                    <div class="gradiente"></div>
+                    <div class="escala-labels">
+                        <span id="minTemp">0°C</span>
+                        <span id="maxTemp">100°C</span>
+                    </div>
+                </div>
+                <span style="color: #ef4444; font-size: 0.8rem;">Caliente</span>
+            </div>
+        </div>
+
+        <div class="panel">
+            <h2>Controles</h2>
+
+            <div class="control-group">
+                <label>Difusividad térmica (α)<span class="value" id="alphaValue">0.25</span></label>
+                <input type="range" id="alpha" min="0.05" max="0.5" step="0.01" value="0.25">
+            </div>
+
+            <div class="control-group">
+                <label>Temperatura ambiente (°C)<span class="value" id="ambientValue">20</span></label>
+                <input type="range" id="ambient" min="0" max="40" step="1" value="20">
+            </div>
+
+            <div class="control-group">
+                <label>Temp. radiador (°C)<span class="value" id="hotValue">80</span></label>
+                <input type="range" id="hot" min="40" max="100" step="1" value="80">
+            </div>
+
+            <div class="control-group">
+                <label>Temp. ventana fría (°C)<span class="value" id="coldValue">5</span></label>
+                <input type="range" id="cold" min="-10" max="20" step="1" value="5">
+            </div>
+
+            <div class="control-group">
+                <label>Velocidad simulación<span class="value" id="speedValue">5</span></label>
+                <input type="range" id="speed" min="1" max="20" step="1" value="5">
+            </div>
+
+            <div class="checkbox-group">
+                <input type="checkbox" id="showFlow">
+                <label for="showFlow">Mostrar flujo de calor</label>
+            </div>
+
+            <h3>Fuentes de calor</h3>
+            <div class="fuentes-btns">
+                <button class="btn-radiador" id="addHot">🔥 Radiador</button>
+                <button class="btn-ventana" id="addCold">❄️ Ventana</button>
+                <button class="btn-clear" id="clearSources">Limpiar</button>
+            </div>
+
+            <div class="buttons">
+                <button class="btn-play" id="playBtn">▶ Play</button>
+                <button class="btn-pause" id="pauseBtn">⏸ Pausa</button>
+                <button class="btn-reset" id="resetBtn">↺ Reset</button>
+            </div>
+
+            <div class="info">
+                <div class="info-row">
+                    <span>Tiempo simulado:</span>
+                    <span id="time">0.0 s</span>
+                </div>
+                <div class="info-row">
+                    <span>Temp. media:</span>
+                    <span id="avgTemp">20.0 °C</span>
+                </div>
+                <div class="info-row">
+                    <span>Temp. máxima:</span>
+                    <span id="maxT">20.0 °C</span>
+                </div>
+                <div class="info-row">
+                    <span>Temp. mínima:</span>
+                    <span id="minT">20.0 °C</span>
+                </div>
+                <div class="info-row">
+                    <span>Iteraciones:</span>
+                    <span id="iterations">0</span>
+                </div>
+            </div>
+
+            <div class="ecuacion">
+                <div class="ecuacion-main">∂T/∂t = α∇²T</div>
+                <div class="ecuacion-desc">Ecuación del calor (2D)</div>
+                <div class="ecuacion-desc" style="margin-top: 8px; font-size: 0.8rem;">
+                    ∂T/∂t = α(∂²T/∂x² + ∂²T/∂y²)
+                </div>
+            </div>
+
+            <div class="instrucciones">
+                <strong>Instrucciones:</strong><br>
+                1. Selecciona "Radiador" o "Ventana"<br>
+                2. Haz clic en la habitación para colocar<br>
+                3. Presiona Play y observa la difusión<br>
+                4. Las paredes son adiabáticas (∂T/∂n = 0)
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        // Grid de temperatura
+        const N = 100;  // Resolución de la grilla
+        let T = [];     // Temperatura actual
+        let Tnew = [];  // Temperatura siguiente paso
+
+        // Fuentes de calor/frío (constantes)
+        let sources = [];
+
+        // Parámetros
+        let alpha = 0.25;       // Difusividad térmica
+        let ambientTemp = 20;   // Temperatura inicial
+        let hotTemp = 80;       // Temperatura radiador
+        let coldTemp = 5;       // Temperatura ventana
+        let speed = 5;          // Iteraciones por frame
+
+        // Estado
+        let running = false;
+        let iterations = 0;
+        let simTime = 0;
+        let addMode = null;  // 'hot', 'cold', o null
+        let showFlow = false;
+
+        // Inicializar grilla
+        function initGrid() {
+            T = [];
+            Tnew = [];
+            for (let i = 0; i < N; i++) {
+                T[i] = [];
+                Tnew[i] = [];
+                for (let j = 0; j < N; j++) {
+                    T[i][j] = ambientTemp;
+                    Tnew[i][j] = ambientTemp;
+                }
+            }
+        }
+
+        // Aplicar fuentes
+        function applySources() {
+            for (const src of sources) {
+                const cx = Math.floor(src.x * N / canvas.width);
+                const cy = Math.floor(src.y * N / canvas.height);
+                const r = Math.floor(src.radius * N / canvas.width);
+
+                for (let i = Math.max(0, cx - r); i < Math.min(N, cx + r); i++) {
+                    for (let j = Math.max(0, cy - r); j < Math.min(N, cy + r); j++) {
+                        const dist = Math.sqrt((i - cx) ** 2 + (j - cy) ** 2);
+                        if (dist <= r) {
+                            T[i][j] = src.temp;
+                            Tnew[i][j] = src.temp;
+                        }
+                    }
+                }
+            }
+        }
+
+        // Paso de simulación (diferencias finitas)
+        function step() {
+            const dx = 1.0 / N;
+            const dt = 0.25 * dx * dx / alpha;  // Condición CFL
+
+            // Laplaciano con condiciones de frontera Neumann (adiabáticas)
+            for (let i = 0; i < N; i++) {
+                for (let j = 0; j < N; j++) {
+                    // Vecinos con condiciones de frontera reflejadas
+                    const im = i > 0 ? i - 1 : i + 1;
+                    const ip = i < N - 1 ? i + 1 : i - 1;
+                    const jm = j > 0 ? j - 1 : j + 1;
+                    const jp = j < N - 1 ? j + 1 : j - 1;
+
+                    const laplacian = (T[ip][j] + T[im][j] + T[i][jp] + T[i][jm] - 4 * T[i][j]) / (dx * dx);
+                    Tnew[i][j] = T[i][j] + alpha * dt * laplacian;
+                }
+            }
+
+            // Intercambiar buffers
+            [T, Tnew] = [Tnew, T];
+
+            // Reaplicar fuentes (condiciones de frontera fijas)
+            applySources();
+
+            iterations++;
+            simTime += dt;
+        }
+
+        // Mapear temperatura a color
+        function tempToColor(temp) {
+            // Normalizar a [0, 1]
+            const minT = coldTemp - 10;
+            const maxT = hotTemp + 10;
+            let t = (temp - minT) / (maxT - minT);
+            t = Math.max(0, Math.min(1, t));
+
+            // Gradiente: azul -> cyan -> verde -> amarillo -> rojo
+            let r, g, b;
+            if (t < 0.25) {
+                const s = t / 0.25;
+                r = 0; g = Math.floor(255 * s); b = 255;
+            } else if (t < 0.5) {
+                const s = (t - 0.25) / 0.25;
+                r = 0; g = 255; b = Math.floor(255 * (1 - s));
+            } else if (t < 0.75) {
+                const s = (t - 0.5) / 0.25;
+                r = Math.floor(255 * s); g = 255; b = 0;
+            } else {
+                const s = (t - 0.75) / 0.25;
+                r = 255; g = Math.floor(255 * (1 - s)); b = 0;
+            }
+
+            return `rgb(${r},${g},${b})`;
+        }
+
+        // Dibujar
+        function draw() {
+            const cellW = canvas.width / N;
+            const cellH = canvas.height / N;
+
+            // Crear ImageData para mejor rendimiento
+            const imageData = ctx.createImageData(canvas.width, canvas.height);
+            const data = imageData.data;
+
+            let sumT = 0, maxTemp = -Infinity, minTemp = Infinity;
+
+            for (let i = 0; i < N; i++) {
+                for (let j = 0; j < N; j++) {
+                    const temp = T[i][j];
+                    sumT += temp;
+                    if (temp > maxTemp) maxTemp = temp;
+                    if (temp < minTemp) minTemp = temp;
+
+                    // Normalizar
+                    const minTScale = coldTemp - 10;
+                    const maxTScale = hotTemp + 10;
+                    let t = (temp - minTScale) / (maxTScale - minTScale);
+                    t = Math.max(0, Math.min(1, t));
+
+                    // Color
+                    let r, g, b;
+                    if (t < 0.25) {
+                        const s = t / 0.25;
+                        r = 0; g = Math.floor(255 * s); b = 255;
+                    } else if (t < 0.5) {
+                        const s = (t - 0.25) / 0.25;
+                        r = 0; g = 255; b = Math.floor(255 * (1 - s));
+                    } else if (t < 0.75) {
+                        const s = (t - 0.5) / 0.25;
+                        r = Math.floor(255 * s); g = 255; b = 0;
+                    } else {
+                        const s = (t - 0.75) / 0.25;
+                        r = 255; g = Math.floor(255 * (1 - s)); b = 0;
+                    }
+
+                    // Pintar píxeles de la celda
+                    const startX = Math.floor(i * cellW);
+                    const endX = Math.floor((i + 1) * cellW);
+                    const startY = Math.floor(j * cellH);
+                    const endY = Math.floor((j + 1) * cellH);
+
+                    for (let px = startX; px < endX; px++) {
+                        for (let py = startY; py < endY; py++) {
+                            const idx = (py * canvas.width + px) * 4;
+                            data[idx] = r;
+                            data[idx + 1] = g;
+                            data[idx + 2] = b;
+                            data[idx + 3] = 255;
+                        }
+                    }
+                }
+            }
+
+            ctx.putImageData(imageData, 0, 0);
+
+            // Dibujar fuentes de calor
+            for (const src of sources) {
+                ctx.beginPath();
+                ctx.arc(src.x, src.y, src.radius, 0, Math.PI * 2);
+                ctx.strokeStyle = src.type === 'hot' ? 'rgba(255,255,255,0.8)' : 'rgba(255,255,255,0.8)';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([4, 4]);
+                ctx.stroke();
+                ctx.setLineDash([]);
+
+                // Icono
+                ctx.font = '16px sans-serif';
+                ctx.fillStyle = '#fff';
+                ctx.fillText(src.type === 'hot' ? '🔥' : '❄️', src.x - 8, src.y + 6);
+            }
+
+            // Flujo de calor (gradiente)
+            if (showFlow && iterations > 10) {
+                ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+                ctx.lineWidth = 1;
+
+                const step = 8;
+                for (let i = step; i < N - step; i += step) {
+                    for (let j = step; j < N - step; j += step) {
+                        // Gradiente
+                        const dTdx = (T[Math.min(i+1, N-1)][j] - T[Math.max(i-1, 0)][j]) / 2;
+                        const dTdy = (T[i][Math.min(j+1, N-1)] - T[i][Math.max(j-1, 0)]) / 2;
+
+                        const mag = Math.sqrt(dTdx * dTdx + dTdy * dTdy);
+                        if (mag > 0.1) {
+                            const x = i * cellW + cellW / 2;
+                            const y = j * cellH + cellH / 2;
+                            const len = Math.min(mag * 3, 15);
+
+                            // Flujo va de caliente a frío (opuesto al gradiente)
+                            const fx = -dTdx / mag * len;
+                            const fy = -dTdy / mag * len;
+
+                            ctx.beginPath();
+                            ctx.moveTo(x, y);
+                            ctx.lineTo(x + fx, y + fy);
+                            ctx.stroke();
+
+                            // Punta de flecha
+                            const angle = Math.atan2(fy, fx);
+                            ctx.beginPath();
+                            ctx.moveTo(x + fx, y + fy);
+                            ctx.lineTo(x + fx - 4 * Math.cos(angle - 0.4), y + fy - 4 * Math.sin(angle - 0.4));
+                            ctx.moveTo(x + fx, y + fy);
+                            ctx.lineTo(x + fx - 4 * Math.cos(angle + 0.4), y + fy - 4 * Math.sin(angle + 0.4));
+                            ctx.stroke();
+                        }
+                    }
+                }
+            }
+
+            // Actualizar info
+            const avgTemp = sumT / (N * N);
+            document.getElementById('time').textContent = simTime.toFixed(1) + ' s';
+            document.getElementById('avgTemp').textContent = avgTemp.toFixed(1) + ' °C';
+            document.getElementById('maxT').textContent = maxTemp.toFixed(1) + ' °C';
+            document.getElementById('minT').textContent = minTemp.toFixed(1) + ' °C';
+            document.getElementById('iterations').textContent = iterations;
+        }
+
+        // Loop de animación
+        function animate() {
+            if (!running) return;
+
+            for (let i = 0; i < speed; i++) {
+                step();
+            }
+            draw();
+            requestAnimationFrame(animate);
+        }
+
+        // Controles
+        document.getElementById('alpha').addEventListener('input', (e) => {
+            alpha = parseFloat(e.target.value);
+            document.getElementById('alphaValue').textContent = alpha.toFixed(2);
+        });
+
+        document.getElementById('ambient').addEventListener('input', (e) => {
+            ambientTemp = parseFloat(e.target.value);
+            document.getElementById('ambientValue').textContent = ambientTemp;
+        });
+
+        document.getElementById('hot').addEventListener('input', (e) => {
+            hotTemp = parseFloat(e.target.value);
+            document.getElementById('hotValue').textContent = hotTemp;
+            document.getElementById('maxTemp').textContent = hotTemp + '°C';
+            // Actualizar fuentes existentes
+            sources.filter(s => s.type === 'hot').forEach(s => s.temp = hotTemp);
+        });
+
+        document.getElementById('cold').addEventListener('input', (e) => {
+            coldTemp = parseFloat(e.target.value);
+            document.getElementById('coldValue').textContent = coldTemp;
+            document.getElementById('minTemp').textContent = coldTemp + '°C';
+            sources.filter(s => s.type === 'cold').forEach(s => s.temp = coldTemp);
+        });
+
+        document.getElementById('speed').addEventListener('input', (e) => {
+            speed = parseInt(e.target.value);
+            document.getElementById('speedValue').textContent = speed;
+        });
+
+        document.getElementById('showFlow').addEventListener('change', (e) => {
+            showFlow = e.target.checked;
+            if (!running) draw();
+        });
+
+        document.getElementById('addHot').addEventListener('click', () => {
+            addMode = addMode === 'hot' ? null : 'hot';
+            document.getElementById('addHot').style.opacity = addMode === 'hot' ? '1' : '0.6';
+            document.getElementById('addCold').style.opacity = addMode === 'cold' ? '1' : '0.6';
+            canvas.style.cursor = addMode ? 'crosshair' : 'default';
+        });
+
+        document.getElementById('addCold').addEventListener('click', () => {
+            addMode = addMode === 'cold' ? null : 'cold';
+            document.getElementById('addHot').style.opacity = addMode === 'hot' ? '1' : '0.6';
+            document.getElementById('addCold').style.opacity = addMode === 'cold' ? '1' : '0.6';
+            canvas.style.cursor = addMode ? 'crosshair' : 'default';
+        });
+
+        document.getElementById('clearSources').addEventListener('click', () => {
+            sources = [];
+            initGrid();
+            draw();
+        });
+
+        canvas.addEventListener('click', (e) => {
+            if (!addMode) return;
+
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            sources.push({
+                x: x,
+                y: y,
+                radius: 20,
+                temp: addMode === 'hot' ? hotTemp : coldTemp,
+                type: addMode
+            });
+
+            applySources();
+            draw();
+        });
+
+        document.getElementById('playBtn').addEventListener('click', () => {
+            if (!running) {
+                running = true;
+                animate();
+            }
+        });
+
+        document.getElementById('pauseBtn').addEventListener('click', () => {
+            running = false;
+        });
+
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            running = false;
+            iterations = 0;
+            simTime = 0;
+            initGrid();
+            applySources();
+            draw();
+        });
+
+        // Inicializar
+        initGrid();
+        document.getElementById('minTemp').textContent = coldTemp + '°C';
+        document.getElementById('maxTemp').textContent = hotTemp + '°C';
+        draw();
+    </script>
+</body>
+</html>

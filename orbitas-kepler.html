@@ -1,0 +1,1072 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movimiento Planetario - Leyes de Kepler</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Covered+By+Your+Grace&family=Inter:wght@300;400;500&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #000;
+            font-family: 'Inter', sans-serif;
+            padding: 20px;
+        }
+
+        .container {
+            display: flex;
+            gap: 25px;
+            align-items: flex-start;
+        }
+
+        .simulacion {
+            background: #0a0a15;
+            border: 6px solid #1a1a2e;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 0 60px rgba(100, 150, 255, 0.1);
+        }
+
+        .titulo {
+            font-family: 'Covered By Your Grace', cursive;
+            font-size: 1.8rem;
+            color: rgba(255,255,255,0.9);
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        #canvas {
+            display: block;
+            border-radius: 50%;
+            background: radial-gradient(ellipse at center, #0a0a20 0%, #000 100%);
+        }
+
+        .panel {
+            background: #0a0a15;
+            border: 2px solid #1a1a2e;
+            border-radius: 10px;
+            padding: 20px;
+            width: 340px;
+            color: #fff;
+            max-height: 720px;
+            overflow-y: auto;
+        }
+
+        .panel h2 {
+            font-family: 'Covered By Your Grace', cursive;
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: rgba(255,255,255,0.9);
+            border-bottom: 1px solid #333;
+            padding-bottom: 8px;
+        }
+
+        .panel h3 {
+            font-family: 'Covered By Your Grace', cursive;
+            font-size: 1.2rem;
+            margin: 15px 0 10px 0;
+            color: #fbbf24;
+        }
+
+        .control-group {
+            margin-bottom: 12px;
+        }
+
+        .control-group label {
+            display: block;
+            font-size: 0.8rem;
+            color: #aaa;
+            margin-bottom: 5px;
+        }
+
+        .control-group .value {
+            font-family: 'Covered By Your Grace', cursive;
+            font-size: 1.1rem;
+            color: #fff;
+            margin-left: 8px;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 5px;
+            background: #222;
+            border-radius: 3px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 14px;
+            height: 14px;
+            background: #fbbf24;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 8px;
+            margin-top: 15px;
+        }
+
+        button {
+            flex: 1;
+            padding: 10px 8px;
+            font-size: 0.85rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .btn-play { background: #4ade80; color: #000; }
+        .btn-pause { background: #fbbf24; color: #000; }
+        .btn-reset { background: #f87171; color: #000; }
+
+        .presets {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 10px;
+        }
+
+        .presets button {
+            flex: none;
+            padding: 6px 10px;
+            font-size: 0.7rem;
+            background: #1a1a2e;
+            color: #fff;
+            border: 1px solid #333;
+        }
+
+        .presets button:hover {
+            background: #2a2a4e;
+        }
+
+        .info {
+            margin-top: 15px;
+            padding-top: 10px;
+            border-top: 1px solid #333;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 0.8rem;
+        }
+
+        .info-row span:first-child { color: #888; }
+        .info-row span:last-child {
+            font-family: 'Covered By Your Grace', cursive;
+            font-size: 1.05rem;
+            color: #fff;
+        }
+
+        .leyes {
+            margin-top: 15px;
+            padding: 12px;
+            background: rgba(251, 191, 36, 0.05);
+            border: 1px solid rgba(251, 191, 36, 0.2);
+            border-radius: 6px;
+        }
+
+        .ley {
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .ley:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
+        .ley-titulo {
+            font-family: 'Covered By Your Grace', cursive;
+            font-size: 1.1rem;
+            color: #fbbf24;
+            margin-bottom: 3px;
+        }
+
+        .ley-desc {
+            font-size: 0.75rem;
+            color: #888;
+            line-height: 1.4;
+        }
+
+        .ley-formula {
+            font-family: 'Covered By Your Grace', cursive;
+            font-size: 1rem;
+            color: rgba(255,255,255,0.8);
+            margin-top: 3px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .checkbox-group input {
+            width: 14px;
+            height: 14px;
+        }
+
+        .checkbox-group label {
+            font-size: 0.8rem;
+            color: #aaa;
+        }
+
+        .area-indicator {
+            margin-top: 10px;
+            padding: 8px;
+            background: rgba(74, 222, 128, 0.1);
+            border-radius: 6px;
+            font-size: 0.8rem;
+            text-align: center;
+        }
+
+        .area-indicator .value {
+            font-family: 'Covered By Your Grace', cursive;
+            font-size: 1.3rem;
+            color: #4ade80;
+        }
+
+        /* Metronome section */
+        .metronome-section {
+            margin-top: 15px;
+            padding: 12px;
+            background: rgba(251, 191, 36, 0.08);
+            border: 1px solid rgba(251, 191, 36, 0.25);
+            border-radius: 6px;
+        }
+
+        .metronome-title {
+            font-family: 'Covered By Your Grace', cursive;
+            font-size: 1.2rem;
+            color: #fbbf24;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .metronome-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .metronome-stat {
+            text-align: center;
+            padding: 6px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 4px;
+        }
+
+        .metronome-stat .label {
+            font-size: 0.65rem;
+            color: #888;
+        }
+
+        .metronome-stat .value {
+            font-family: 'Covered By Your Grace', cursive;
+            font-size: 1.1rem;
+            color: #fff;
+        }
+
+        .beat-indicator {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .beat-dot {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #333;
+            transition: all 0.1s;
+        }
+
+        .beat-dot.perihelion {
+            border: 2px solid #4ade80;
+        }
+
+        .beat-dot.aphelion {
+            border: 2px solid #f87171;
+        }
+
+        .beat-dot.active {
+            transform: scale(1.3);
+            box-shadow: 0 0 15px currentColor;
+        }
+
+        .beat-dot.perihelion.active {
+            background: #4ade80;
+        }
+
+        .beat-dot.aphelion.active {
+            background: #f87171;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="simulacion">
+            <div class="titulo">Movimiento Planetario - Kepler</div>
+            <canvas id="canvas" width="600" height="600"></canvas>
+        </div>
+
+        <div class="panel">
+            <h2>Controles Orbitales</h2>
+
+            <div class="control-group">
+                <label>Semieje mayor (a)<span class="value" id="aValue">1.0 UA</span></label>
+                <input type="range" id="semieje" min="0.3" max="3" step="0.05" value="1">
+            </div>
+
+            <div class="control-group">
+                <label>Excentricidad (e)<span class="value" id="eValue">0.20</span></label>
+                <input type="range" id="excentricidad" min="0" max="0.95" step="0.01" value="0.2">
+            </div>
+
+            <div class="control-group">
+                <label>Velocidad simulación<span class="value" id="speedValue">1x</span></label>
+                <input type="range" id="speed" min="0.1" max="5" step="0.1" value="1">
+            </div>
+
+            <div class="checkbox-group">
+                <input type="checkbox" id="showOrbit" checked>
+                <label for="showOrbit">Mostrar órbita</label>
+            </div>
+
+            <div class="checkbox-group">
+                <input type="checkbox" id="showVectors">
+                <label for="showVectors">Mostrar vectores (v, a)</label>
+            </div>
+
+            <div class="checkbox-group">
+                <input type="checkbox" id="showArea" checked>
+                <label for="showArea">Mostrar área barrida</label>
+            </div>
+
+            <div class="checkbox-group">
+                <input type="checkbox" id="showTrail" checked>
+                <label for="showTrail">Mostrar trayectoria</label>
+            </div>
+
+            <h3>Presets de planetas</h3>
+            <div class="presets">
+                <button onclick="setPreset(0.39, 0.206)">☿ Mercurio</button>
+                <button onclick="setPreset(0.72, 0.007)">♀ Venus</button>
+                <button onclick="setPreset(1.0, 0.017)">🌍 Tierra</button>
+                <button onclick="setPreset(1.52, 0.093)">♂ Marte</button>
+                <button onclick="setPreset(0.8, 0.5)">☄️ Cometa</button>
+                <button onclick="setPreset(1.0, 0.0)">⭕ Circular</button>
+            </div>
+
+            <div class="buttons">
+                <button class="btn-play" id="playBtn">▶ Play</button>
+                <button class="btn-pause" id="pauseBtn">⏸ Pausa</button>
+                <button class="btn-reset" id="resetBtn">↺ Reset</button>
+            </div>
+
+            <div class="info">
+                <div class="info-row">
+                    <span>Período orbital (T):</span>
+                    <span id="periodo">1.00 años</span>
+                </div>
+                <div class="info-row">
+                    <span>Distancia al Sol (r):</span>
+                    <span id="distancia">1.00 UA</span>
+                </div>
+                <div class="info-row">
+                    <span>Velocidad orbital:</span>
+                    <span id="velocidad">29.8 km/s</span>
+                </div>
+                <div class="info-row">
+                    <span>Perihelio:</span>
+                    <span id="perihelio">0.80 UA</span>
+                </div>
+                <div class="info-row">
+                    <span>Afelio:</span>
+                    <span id="afelio">1.20 UA</span>
+                </div>
+                <div class="info-row">
+                    <span>Anomalía verdadera (θ):</span>
+                    <span id="anomalia">0°</span>
+                </div>
+            </div>
+
+            <div class="area-indicator">
+                <div>Área barrida (Δt constante)</div>
+                <div class="value" id="areaValue">-- UA²</div>
+                <div style="font-size: 0.7rem; color: #666; margin-top: 3px;">2ª Ley: dA/dt = constante</div>
+            </div>
+
+            <div class="metronome-section">
+                <div class="metronome-title">
+                    🎵 Metrónomo Kepleriano
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="metronomeEnabled" checked>
+                    <label for="metronomeEnabled">Activar sonido orbital</label>
+                </div>
+                <div class="control-group" style="margin-top: 10px;">
+                    <label>Divisiones por órbita<span class="value" id="divisionsValue">2</span></label>
+                    <input type="range" id="divisions" min="1" max="12" step="1" value="2">
+                </div>
+                <div class="beat-indicator">
+                    <div class="beat-dot perihelion" id="dotPeri" title="Perihelio"></div>
+                    <div class="beat-dot aphelion" id="dotAfel" title="Afelio"></div>
+                </div>
+                <div class="metronome-info">
+                    <div class="metronome-stat">
+                        <div class="label">Período</div>
+                        <div class="value" id="metroPeriod">1.00 años</div>
+                    </div>
+                    <div class="metronome-stat">
+                        <div class="label">BPM equiv.</div>
+                        <div class="value" id="metroBPM">--</div>
+                    </div>
+                    <div class="metronome-stat">
+                        <div class="label">Beats</div>
+                        <div class="value" id="beatCount">0</div>
+                    </div>
+                    <div class="metronome-stat">
+                        <div class="label">Órbitas</div>
+                        <div class="value" id="orbitCount">0</div>
+                    </div>
+                </div>
+                <div style="font-size: 0.7rem; color: #666; margin-top: 8px; text-align: center;">
+                    3ª Ley: T² = a³ → Ritmo variable según órbita
+                </div>
+            </div>
+
+            <div class="leyes">
+                <div class="ley">
+                    <div class="ley-titulo">1ª Ley - Órbitas elípticas</div>
+                    <div class="ley-desc">Los planetas orbitan en elipses con el Sol en un foco</div>
+                </div>
+                <div class="ley">
+                    <div class="ley-titulo">2ª Ley - Áreas iguales</div>
+                    <div class="ley-desc">El radio vector barre áreas iguales en tiempos iguales</div>
+                    <div class="ley-formula">dA/dt = L/(2m) = const</div>
+                </div>
+                <div class="ley">
+                    <div class="ley-titulo">3ª Ley - Períodos</div>
+                    <div class="ley-desc">El cuadrado del período es proporcional al cubo del semieje</div>
+                    <div class="ley-formula">T² = a³</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        const cx = canvas.width / 2;
+        const cy = canvas.height / 2;
+        const scale = 150;  // píxeles por UA
+
+        // Parámetros orbitales
+        let a = 1.0;        // Semieje mayor (UA)
+        let e = 0.2;        // Excentricidad
+        let speed = 1;      // Velocidad de simulación
+
+        // Estado
+        let theta = 0;      // Anomalía verdadera (radianes)
+        let running = false;
+        let lastTime = 0;
+
+        // Visualización
+        let showOrbit = true;
+        let showVectors = false;
+        let showArea = true;
+        let showTrail = true;
+
+        // Trail y área
+        let trail = [];
+        let areaPoints = [];
+        let lastAreaTime = 0;
+        const areaInterval = 0.1;  // Intervalo para calcular área
+
+        // Metrónomo
+        let metronomeEnabled = true;
+        let divisions = 2;  // Número de beats por órbita
+        let prevTheta = 0;
+        let beatCount = 0;
+        let orbitCount = 0;
+        let lastBeatDivision = -1;
+
+        // Audio
+        let audioCtx = null;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        function playClick(type) {
+            if (!audioCtx || !metronomeEnabled) return;
+
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            if (type === 'perihelion') {
+                // Tono alto para perihelio (más rápido, más cerca del Sol)
+                osc.frequency.setValueAtTime(1400, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(700, audioCtx.currentTime + 0.02);
+                gain.gain.setValueAtTime(0.7, audioCtx.currentTime);
+            } else if (type === 'aphelion') {
+                // Tono bajo para afelio (más lento, más lejos)
+                osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(300, audioCtx.currentTime + 0.03);
+                gain.gain.setValueAtTime(0.5, audioCtx.currentTime);
+            } else {
+                // Tono medio para divisiones intermedias
+                osc.frequency.setValueAtTime(900, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(450, audioCtx.currentTime + 0.02);
+                gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
+            }
+
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.12);
+
+            osc.start(audioCtx.currentTime);
+            osc.stop(audioCtx.currentTime + 0.12);
+        }
+
+        function flashBeatIndicator(type) {
+            const dotPeri = document.getElementById('dotPeri');
+            const dotAfel = document.getElementById('dotAfel');
+
+            dotPeri.classList.remove('active');
+            dotAfel.classList.remove('active');
+
+            if (type === 'perihelion') {
+                dotPeri.classList.add('active');
+                setTimeout(() => dotPeri.classList.remove('active'), 200);
+            } else if (type === 'aphelion') {
+                dotAfel.classList.add('active');
+                setTimeout(() => dotAfel.classList.remove('active'), 200);
+            }
+        }
+
+        // Constantes físicas (normalizadas: G*M = 4π² para que T² = a³ en años y UA)
+        const GM = 4 * Math.PI * Math.PI;
+
+        // Calcular radio desde anomalía verdadera
+        function getRadius(theta) {
+            const p = a * (1 - e * e);  // Semilatus rectum
+            return p / (1 + e * Math.cos(theta));
+        }
+
+        // Calcular velocidad orbital
+        function getVelocity(r) {
+            // v² = GM(2/r - 1/a)  (vis-viva equation)
+            const v2 = GM * (2 / r - 1 / a);
+            return Math.sqrt(Math.max(0, v2));
+        }
+
+        // Calcular período orbital
+        function getPeriod() {
+            return Math.sqrt(a * a * a);  // T² = a³ en años
+        }
+
+        // Actualizar anomalía verdadera (dθ/dt basado en conservación del momento angular)
+        function updateTheta(dt) {
+            const r = getRadius(theta);
+            // L = r²(dθ/dt) = const = √(GM * a * (1-e²))
+            // dθ/dt = L / r² = √(GM * p) / r²
+            const p = a * (1 - e * e);
+            const L = Math.sqrt(GM * p);
+            const dtheta = L / (r * r) * dt * speed;
+            theta += dtheta;
+
+            if (theta > 2 * Math.PI) theta -= 2 * Math.PI;
+            if (theta < 0) theta += 2 * Math.PI;
+        }
+
+        // Posición cartesiana
+        function getPosition(theta) {
+            const r = getRadius(theta);
+            // El Sol está en un foco, desplazado del centro
+            const x = r * Math.cos(theta);
+            const y = r * Math.sin(theta);
+            return { x, y, r };
+        }
+
+        // Dibujar estrellas de fondo
+        function drawStars() {
+            ctx.fillStyle = '#fff';
+            for (let i = 0; i < 100; i++) {
+                const x = (Math.sin(i * 123.456) * 0.5 + 0.5) * canvas.width;
+                const y = (Math.cos(i * 789.012) * 0.5 + 0.5) * canvas.height;
+                const size = (Math.sin(i * 345.678) * 0.5 + 0.5) * 1.5 + 0.5;
+                ctx.globalAlpha = 0.3 + (Math.sin(i * 111.222) * 0.5 + 0.5) * 0.4;
+                ctx.beginPath();
+                ctx.arc(x, y, size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            ctx.globalAlpha = 1;
+        }
+
+        // Dibujar
+        function draw() {
+            // Limpiar
+            ctx.fillStyle = '#0a0a15';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            drawStars();
+
+            const pos = getPosition(theta);
+            const sunX = cx;
+            const sunY = cy;
+
+            // Desplazamiento del foco (el Sol está en un foco, no en el centro)
+            const focalDist = a * e * scale;
+
+            // Dibujar órbita
+            if (showOrbit) {
+                ctx.strokeStyle = 'rgba(100, 150, 255, 0.3)';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+
+                for (let t = 0; t <= 2 * Math.PI; t += 0.02) {
+                    const p = getPosition(t);
+                    const px = sunX + p.x * scale;
+                    const py = sunY - p.y * scale;
+                    if (t === 0) ctx.moveTo(px, py);
+                    else ctx.lineTo(px, py);
+                }
+                ctx.closePath();
+                ctx.stroke();
+
+                // Marcar perihelio y afelio
+                const periPos = getPosition(0);
+                const afePos = getPosition(Math.PI);
+
+                ctx.fillStyle = 'rgba(74, 222, 128, 0.8)';
+                ctx.beginPath();
+                ctx.arc(sunX + periPos.x * scale, sunY - periPos.y * scale, 4, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.fillStyle = 'rgba(248, 113, 113, 0.8)';
+                ctx.beginPath();
+                ctx.arc(sunX + afePos.x * scale, sunY - afePos.y * scale, 4, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Labels
+                ctx.font = "12px 'Covered By Your Grace'";
+                ctx.fillStyle = 'rgba(74, 222, 128, 0.8)';
+                ctx.fillText('Perihelio', sunX + periPos.x * scale + 8, sunY - periPos.y * scale);
+                ctx.fillStyle = 'rgba(248, 113, 113, 0.8)';
+                ctx.fillText('Afelio', sunX + afePos.x * scale - 40, sunY - afePos.y * scale);
+            }
+
+            // Trail
+            if (showTrail && trail.length > 1) {
+                ctx.beginPath();
+                ctx.moveTo(trail[0].px, trail[0].py);
+                for (let i = 1; i < trail.length; i++) {
+                    ctx.lineTo(trail[i].px, trail[i].py);
+                }
+                ctx.strokeStyle = 'rgba(251, 191, 36, 0.5)';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            }
+
+            // Área barrida (2ª ley)
+            if (showArea && areaPoints.length > 1) {
+                ctx.fillStyle = 'rgba(74, 222, 128, 0.15)';
+                ctx.beginPath();
+                ctx.moveTo(sunX, sunY);
+                for (const pt of areaPoints) {
+                    ctx.lineTo(pt.px, pt.py);
+                }
+                ctx.closePath();
+                ctx.fill();
+
+                ctx.strokeStyle = 'rgba(74, 222, 128, 0.5)';
+                ctx.lineWidth = 1;
+                ctx.stroke();
+            }
+
+            // Radio vector (línea Sol-Planeta)
+            const planetX = sunX + pos.x * scale;
+            const planetY = sunY - pos.y * scale;
+
+            ctx.beginPath();
+            ctx.moveTo(sunX, sunY);
+            ctx.lineTo(planetX, planetY);
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+            ctx.lineWidth = 1;
+            ctx.setLineDash([4, 4]);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // Sol
+            const sunGradient = ctx.createRadialGradient(sunX, sunY, 0, sunX, sunY, 25);
+            sunGradient.addColorStop(0, '#fff');
+            sunGradient.addColorStop(0.3, '#fbbf24');
+            sunGradient.addColorStop(0.7, '#f59e0b');
+            sunGradient.addColorStop(1, 'rgba(245, 158, 11, 0)');
+
+            ctx.beginPath();
+            ctx.arc(sunX, sunY, 25, 0, Math.PI * 2);
+            ctx.fillStyle = sunGradient;
+            ctx.fill();
+
+            // Corona solar
+            ctx.beginPath();
+            ctx.arc(sunX, sunY, 35, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(251, 191, 36, 0.1)';
+            ctx.fill();
+
+            // Planeta
+            const planetGradient = ctx.createRadialGradient(planetX - 3, planetY - 3, 0, planetX, planetY, 12);
+            planetGradient.addColorStop(0, '#60a5fa');
+            planetGradient.addColorStop(0.5, '#3b82f6');
+            planetGradient.addColorStop(1, '#1e40af');
+
+            ctx.beginPath();
+            ctx.arc(planetX, planetY, 10, 0, Math.PI * 2);
+            ctx.fillStyle = planetGradient;
+            ctx.fill();
+
+            // Vectores
+            if (showVectors) {
+                const r = pos.r;
+                const v = getVelocity(r);
+
+                // Velocidad (tangente a la órbita)
+                // Dirección tangente: perpendicular al radio + corrección por excentricidad
+                const vr = e * Math.sin(theta) * v / Math.sqrt(1 + e * e + 2 * e * Math.cos(theta));
+                const vtheta = (1 + e * Math.cos(theta)) * v / Math.sqrt(1 + e * e + 2 * e * Math.cos(theta));
+
+                const vx = vr * Math.cos(theta) - vtheta * Math.sin(theta);
+                const vy = vr * Math.sin(theta) + vtheta * Math.cos(theta);
+
+                const vScale = 3;
+                ctx.beginPath();
+                ctx.moveTo(planetX, planetY);
+                ctx.lineTo(planetX + vx * vScale, planetY - vy * vScale);
+                ctx.strokeStyle = '#4ade80';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                // Flecha
+                const vAngle = Math.atan2(-vy, vx);
+                ctx.beginPath();
+                ctx.moveTo(planetX + vx * vScale, planetY - vy * vScale);
+                ctx.lineTo(planetX + vx * vScale - 8 * Math.cos(vAngle - 0.4), planetY - vy * vScale - 8 * Math.sin(vAngle - 0.4));
+                ctx.moveTo(planetX + vx * vScale, planetY - vy * vScale);
+                ctx.lineTo(planetX + vx * vScale - 8 * Math.cos(vAngle + 0.4), planetY - vy * vScale - 8 * Math.sin(vAngle + 0.4));
+                ctx.stroke();
+
+                ctx.font = "12px 'Covered By Your Grace'";
+                ctx.fillStyle = '#4ade80';
+                ctx.fillText('v', planetX + vx * vScale + 5, planetY - vy * vScale);
+
+                // Aceleración (hacia el Sol)
+                const ax = -pos.x / r;
+                const ay = -pos.y / r;
+                const aScale = 30;
+
+                ctx.beginPath();
+                ctx.moveTo(planetX, planetY);
+                ctx.lineTo(planetX + ax * aScale, planetY - ay * aScale);
+                ctx.strokeStyle = '#f87171';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                // Flecha
+                const aAngle = Math.atan2(-ay, ax);
+                ctx.beginPath();
+                ctx.moveTo(planetX + ax * aScale, planetY - ay * aScale);
+                ctx.lineTo(planetX + ax * aScale - 8 * Math.cos(aAngle - 0.4), planetY - ay * aScale - 8 * Math.sin(aAngle - 0.4));
+                ctx.moveTo(planetX + ax * aScale, planetY - ay * aScale);
+                ctx.lineTo(planetX + ax * aScale - 8 * Math.cos(aAngle + 0.4), planetY - ay * aScale - 8 * Math.sin(aAngle + 0.4));
+                ctx.stroke();
+
+                ctx.fillStyle = '#f87171';
+                ctx.fillText('a', planetX + ax * aScale + 5, planetY - ay * aScale);
+            }
+
+            // Info
+            ctx.font = "14px 'Covered By Your Grace'";
+            ctx.fillStyle = 'rgba(255,255,255,0.6)';
+            ctx.fillText(`r = ${pos.r.toFixed(2)} UA`, 20, 30);
+            ctx.fillText(`θ = ${(theta * 180 / Math.PI).toFixed(0)}°`, 20, 50);
+
+            // Actualizar panel
+            updateInfo(pos);
+        }
+
+        function updateInfo(pos) {
+            const T = getPeriod();
+            const v = getVelocity(pos.r);
+            const vKms = v * 29.78;  // Convertir a km/s (velocidad de la Tierra ≈ 29.78 km/s)
+
+            document.getElementById('periodo').textContent = T.toFixed(2) + ' años';
+            document.getElementById('distancia').textContent = pos.r.toFixed(2) + ' UA';
+            document.getElementById('velocidad').textContent = vKms.toFixed(1) + ' km/s';
+            document.getElementById('perihelio').textContent = (a * (1 - e)).toFixed(2) + ' UA';
+            document.getElementById('afelio').textContent = (a * (1 + e)).toFixed(2) + ' UA';
+            document.getElementById('anomalia').textContent = (theta * 180 / Math.PI).toFixed(0) + '°';
+        }
+
+        function calculateArea() {
+            if (areaPoints.length < 2) return 0;
+
+            // Área del sector usando fórmula del polígono
+            let area = 0;
+            const sunX = cx, sunY = cy;
+
+            for (let i = 0; i < areaPoints.length - 1; i++) {
+                // Área del triángulo Sol-punto[i]-punto[i+1]
+                const x1 = (areaPoints[i].px - sunX) / scale;
+                const y1 = (sunY - areaPoints[i].py) / scale;
+                const x2 = (areaPoints[i + 1].px - sunX) / scale;
+                const y2 = (sunY - areaPoints[i + 1].py) / scale;
+
+                area += 0.5 * Math.abs(x1 * y2 - x2 * y1);
+            }
+
+            return area;
+        }
+
+        function simulate(currentTime) {
+            if (!running) return;
+
+            const dt = Math.min((currentTime - lastTime) / 1000, 0.05);
+            lastTime = currentTime;
+
+            updateTheta(dt);
+
+            const pos = getPosition(theta);
+            const px = cx + pos.x * scale;
+            const py = cy - pos.y * scale;
+
+            // Metrónomo: detectar cruce de divisiones
+            checkMetronomeBeat();
+
+            // Trail
+            if (showTrail) {
+                trail.push({ px, py });
+                if (trail.length > 500) trail.shift();
+            }
+
+            // Área barrida
+            if (showArea) {
+                const simTime = currentTime / 1000;
+                if (simTime - lastAreaTime > areaInterval / speed) {
+                    areaPoints.push({ px, py });
+                    lastAreaTime = simTime;
+
+                    // Mantener solo últimos N puntos para visualización
+                    if (areaPoints.length > 20) areaPoints.shift();
+
+                    // Calcular área
+                    const area = calculateArea();
+                    document.getElementById('areaValue').textContent = area.toFixed(4) + ' UA²';
+                }
+            }
+
+            draw();
+            requestAnimationFrame(simulate);
+        }
+
+        function checkMetronomeBeat() {
+            // Normalizar theta a [0, 2π)
+            let normalizedTheta = theta;
+            while (normalizedTheta < 0) normalizedTheta += 2 * Math.PI;
+            while (normalizedTheta >= 2 * Math.PI) normalizedTheta -= 2 * Math.PI;
+
+            // Calcular en qué división estamos
+            const divisionAngle = (2 * Math.PI) / divisions;
+            const currentDivision = Math.floor(normalizedTheta / divisionAngle);
+
+            // Detectar si cruzamos una nueva división
+            if (currentDivision !== lastBeatDivision && lastBeatDivision !== -1) {
+                let beatType = 'normal';
+
+                // Perihelio: theta ≈ 0 (división 0)
+                if (currentDivision === 0) {
+                    beatType = 'perihelion';
+                    orbitCount++;
+                    document.getElementById('orbitCount').textContent = orbitCount;
+                }
+                // Afelio: theta ≈ π (mitad de las divisiones)
+                else if (divisions >= 2 && currentDivision === Math.floor(divisions / 2)) {
+                    beatType = 'aphelion';
+                }
+
+                playClick(beatType);
+                flashBeatIndicator(beatType);
+                beatCount++;
+                document.getElementById('beatCount').textContent = beatCount;
+            }
+
+            lastBeatDivision = currentDivision;
+            prevTheta = theta;
+
+            // Actualizar info del metrónomo
+            updateMetronomeInfo();
+        }
+
+        function updateMetronomeInfo() {
+            const T = getPeriod();
+            document.getElementById('metroPeriod').textContent = T.toFixed(2) + ' años';
+
+            // BPM equivalente (asumiendo 1 año simulado = 1 segundo real a speed=1)
+            const beatsPerYear = divisions;
+            const realSecondsPerYear = 1 / speed;  // A velocidad 1x, 1 año = 1 segundo simulado
+            const bpm = (beatsPerYear / (T * realSecondsPerYear)) * 60;
+            document.getElementById('metroBPM').textContent = bpm.toFixed(0);
+        }
+
+        // Controles
+        document.getElementById('semieje').addEventListener('input', (e) => {
+            a = parseFloat(e.target.value);
+            document.getElementById('aValue').textContent = a.toFixed(2) + ' UA';
+            trail = [];
+            areaPoints = [];
+            if (!running) draw();
+        });
+
+        document.getElementById('excentricidad').addEventListener('input', (e) => {
+            e = parseFloat(e.target.value);
+            document.getElementById('eValue').textContent = e.toFixed(2);
+            trail = [];
+            areaPoints = [];
+            if (!running) draw();
+        });
+
+        document.getElementById('speed').addEventListener('input', (ev) => {
+            speed = parseFloat(ev.target.value);
+            document.getElementById('speedValue').textContent = speed.toFixed(1) + 'x';
+        });
+
+        document.getElementById('showOrbit').addEventListener('change', (ev) => {
+            showOrbit = ev.target.checked;
+            if (!running) draw();
+        });
+
+        document.getElementById('showVectors').addEventListener('change', (ev) => {
+            showVectors = ev.target.checked;
+            if (!running) draw();
+        });
+
+        document.getElementById('showArea').addEventListener('change', (ev) => {
+            showArea = ev.target.checked;
+            areaPoints = [];
+            if (!running) draw();
+        });
+
+        document.getElementById('showTrail').addEventListener('change', (ev) => {
+            showTrail = ev.target.checked;
+            trail = [];
+            if (!running) draw();
+        });
+
+        document.getElementById('playBtn').addEventListener('click', () => {
+            if (!running) {
+                initAudio();
+                running = true;
+                lastTime = performance.now();
+                lastAreaTime = lastTime / 1000;
+                lastBeatDivision = -1;  // Reset para primer beat
+                requestAnimationFrame(simulate);
+            }
+        });
+
+        document.getElementById('metronomeEnabled').addEventListener('change', (ev) => {
+            metronomeEnabled = ev.target.checked;
+            if (metronomeEnabled) initAudio();
+        });
+
+        document.getElementById('divisions').addEventListener('input', (ev) => {
+            divisions = parseInt(ev.target.value);
+            document.getElementById('divisionsValue').textContent = divisions;
+            lastBeatDivision = -1;  // Reset para evitar beats falsos
+            updateMetronomeInfo();
+        });
+
+        document.getElementById('pauseBtn').addEventListener('click', () => {
+            running = false;
+        });
+
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            running = false;
+            theta = 0;
+            trail = [];
+            areaPoints = [];
+            beatCount = 0;
+            orbitCount = 0;
+            lastBeatDivision = -1;
+            document.getElementById('beatCount').textContent = '0';
+            document.getElementById('orbitCount').textContent = '0';
+            draw();
+            updateMetronomeInfo();
+        });
+
+        function setPreset(newA, newE) {
+            a = newA;
+            e = newE;
+            document.getElementById('semieje').value = a;
+            document.getElementById('excentricidad').value = e;
+            document.getElementById('aValue').textContent = a.toFixed(2) + ' UA';
+            document.getElementById('eValue').textContent = e.toFixed(2);
+            theta = 0;
+            trail = [];
+            areaPoints = [];
+            beatCount = 0;
+            orbitCount = 0;
+            lastBeatDivision = -1;
+            document.getElementById('beatCount').textContent = '0';
+            document.getElementById('orbitCount').textContent = '0';
+            draw();
+            updateMetronomeInfo();
+        }
+
+        // Fix: la variable 'e' estaba siendo sobrescrita por el evento
+        document.getElementById('excentricidad').addEventListener('input', (ev) => {
+            e = parseFloat(ev.target.value);
+            document.getElementById('eValue').textContent = e.toFixed(2);
+            trail = [];
+            areaPoints = [];
+            if (!running) draw();
+        });
+
+        // Inicializar
+        draw();
+        updateMetronomeInfo();
+    </script>
+</body>
+</html>

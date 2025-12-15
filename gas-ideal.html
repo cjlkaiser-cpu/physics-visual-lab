@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gas Ideal - Teoría Cinética</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: linear-gradient(135deg, #0a0a1a 0%, #1a1a2e 100%);
+            min-height: 100vh;
+            color: #fff;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            gap: 20px;
+            min-height: 100vh;
+        }
+        @media (max-width: 900px) {
+            .container { grid-template-columns: 1fr; }
+        }
+        h1 {
+            font-size: 1.5rem;
+            font-weight: 300;
+            margin-bottom: 5px;
+        }
+        h1 span { color: #f87171; font-weight: 600; }
+        .subtitle { color: #666; font-size: 0.8rem; margin-bottom: 15px; }
+        #canvas {
+            width: 100%;
+            height: 500px;
+            background: #000;
+            border-radius: 12px;
+            border: 2px solid #333;
+        }
+        .controls {
+            background: #111;
+            border-radius: 12px;
+            padding: 20px;
+        }
+        .section { margin-bottom: 20px; }
+        .section-title {
+            font-size: 0.7rem;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+        .slider-group { margin-bottom: 15px; }
+        .slider-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+        .slider-label { font-size: 0.8rem; color: #888; }
+        .slider-value { font-size: 0.9rem; color: #f87171; font-weight: 600; }
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            background: #333;
+            border-radius: 3px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            background: #f87171;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        .info-card {
+            background: rgba(255,255,255,0.03);
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .info-card .label {
+            font-size: 0.65rem;
+            color: #666;
+            margin-bottom: 4px;
+        }
+        .info-card .value {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+        .info-card .value.red { color: #f87171; }
+        .info-card .value.blue { color: #60a5fa; }
+        .info-card .value.green { color: #4ade80; }
+        .info-card .value.yellow { color: #fbbf24; }
+        .buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-play { background: #4ade80; color: #000; }
+        .btn-stop { background: #f87171; color: #000; }
+        .histogram {
+            background: rgba(0,0,0,0.3);
+            border-radius: 8px;
+            padding: 10px;
+            margin-top: 15px;
+        }
+        .histogram-title {
+            font-size: 0.7rem;
+            color: #888;
+            margin-bottom: 8px;
+        }
+        #histCanvas {
+            width: 100%;
+            height: 100px;
+            background: #0a0a0a;
+            border-radius: 4px;
+        }
+        .equations {
+            background: rgba(248, 113, 113, 0.1);
+            border: 1px solid rgba(248, 113, 113, 0.3);
+            border-radius: 8px;
+            padding: 12px;
+            font-family: 'Times New Roman', serif;
+            font-style: italic;
+            font-size: 0.85rem;
+            color: #f87171;
+            line-height: 1.8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="main">
+            <h1><span>Gas Ideal</span> - Teoría Cinética</h1>
+            <div class="subtitle">Partículas en una caja: PV = NkT</div>
+            <canvas id="canvas"></canvas>
+        </div>
+        <div class="controls">
+            <div class="section">
+                <div class="section-title">Parámetros</div>
+                <div class="slider-group">
+                    <div class="slider-header">
+                        <span class="slider-label">Número de partículas</span>
+                        <span class="slider-value" id="numDisplay">100</span>
+                    </div>
+                    <input type="range" id="numSlider" min="20" max="300" value="100">
+                </div>
+                <div class="slider-group">
+                    <div class="slider-header">
+                        <span class="slider-label">Temperatura (K)</span>
+                        <span class="slider-value" id="tempDisplay">300</span>
+                    </div>
+                    <input type="range" id="tempSlider" min="100" max="800" value="300">
+                </div>
+                <div class="slider-group">
+                    <div class="slider-header">
+                        <span class="slider-label">Volumen (ancho caja)</span>
+                        <span class="slider-value" id="volDisplay">100%</span>
+                    </div>
+                    <input type="range" id="volSlider" min="50" max="100" value="100">
+                </div>
+            </div>
+
+            <div class="buttons">
+                <button class="btn-play" onclick="toggleSim()">▶ Iniciar</button>
+                <button class="btn-stop" onclick="resetSim()">↺ Reiniciar</button>
+            </div>
+
+            <div class="section">
+                <div class="section-title">Mediciones</div>
+                <div class="info-grid">
+                    <div class="info-card">
+                        <div class="label">Presión (Pa)</div>
+                        <div class="value red" id="pressureVal">--</div>
+                    </div>
+                    <div class="info-card">
+                        <div class="label">Energía cinética (J)</div>
+                        <div class="value blue" id="energyVal">--</div>
+                    </div>
+                    <div class="info-card">
+                        <div class="label">Velocidad media (m/s)</div>
+                        <div class="value green" id="velVal">--</div>
+                    </div>
+                    <div class="info-card">
+                        <div class="label">Colisiones/s</div>
+                        <div class="value yellow" id="collVal">--</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="histogram">
+                <div class="histogram-title">Distribución de velocidades (Maxwell-Boltzmann)</div>
+                <canvas id="histCanvas"></canvas>
+            </div>
+
+            <div class="equations">
+                PV = NkT<br>
+                E = ½mv² = (3/2)kT<br>
+                v_rms = √(3kT/m)
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const histCanvas = document.getElementById('histCanvas');
+        const histCtx = histCanvas.getContext('2d');
+
+        let W, H, boxW, boxH;
+        let particles = [];
+        let running = false;
+        let temperature = 300;
+        let numParticles = 100;
+        let volumePercent = 100;
+        let wallCollisions = 0;
+        let lastCollisionCount = 0;
+        let collisionRate = 0;
+        let lastTime = 0;
+
+        const k = 1.38e-23; // Boltzmann constant
+        const m = 4.65e-26; // Mass of a particle (approx N2 molecule)
+        const scale = 1e-9; // Scale factor for visualization
+
+        function resize() {
+            const dpr = window.devicePixelRatio || 1;
+            W = canvas.clientWidth;
+            H = canvas.clientHeight;
+            canvas.width = W * dpr;
+            canvas.height = H * dpr;
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+            histCanvas.width = histCanvas.clientWidth * dpr;
+            histCanvas.height = histCanvas.clientHeight * dpr;
+            histCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+            boxW = W * 0.9 * (volumePercent / 100);
+            boxH = H * 0.85;
+        }
+
+        function initParticles() {
+            particles = [];
+            const v_rms = Math.sqrt(3 * k * temperature / m);
+            const visualSpeed = v_rms * scale * 5000;
+
+            const boxX = (W - boxW) / 2;
+            const boxY = (H - boxH) / 2;
+
+            for (let i = 0; i < numParticles; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const speed = visualSpeed * (0.5 + Math.random());
+                particles.push({
+                    x: boxX + Math.random() * boxW,
+                    y: boxY + Math.random() * boxH,
+                    vx: Math.cos(angle) * speed,
+                    vy: Math.sin(angle) * speed,
+                    r: 3
+                });
+            }
+            wallCollisions = 0;
+            lastCollisionCount = 0;
+        }
+
+        function updateParticles(dt) {
+            const boxX = (W - boxW) / 2;
+            const boxY = (H - boxH) / 2;
+
+            for (const p of particles) {
+                p.x += p.vx * dt;
+                p.y += p.vy * dt;
+
+                // Wall collisions
+                if (p.x - p.r < boxX) {
+                    p.x = boxX + p.r;
+                    p.vx = Math.abs(p.vx);
+                    wallCollisions++;
+                }
+                if (p.x + p.r > boxX + boxW) {
+                    p.x = boxX + boxW - p.r;
+                    p.vx = -Math.abs(p.vx);
+                    wallCollisions++;
+                }
+                if (p.y - p.r < boxY) {
+                    p.y = boxY + p.r;
+                    p.vy = Math.abs(p.vy);
+                    wallCollisions++;
+                }
+                if (p.y + p.r > boxY + boxH) {
+                    p.y = boxY + boxH - p.r;
+                    p.vy = -Math.abs(p.vy);
+                    wallCollisions++;
+                }
+            }
+        }
+
+        function draw() {
+            // Background
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, W, H);
+
+            const boxX = (W - boxW) / 2;
+            const boxY = (H - boxH) / 2;
+
+            // Box walls
+            ctx.strokeStyle = '#444';
+            ctx.lineWidth = 3;
+            ctx.strokeRect(boxX, boxY, boxW, boxH);
+
+            // Glow effect on walls
+            ctx.shadowColor = '#f87171';
+            ctx.shadowBlur = 10;
+            ctx.strokeStyle = '#f87171';
+            ctx.lineWidth = 1;
+            ctx.strokeRect(boxX, boxY, boxW, boxH);
+            ctx.shadowBlur = 0;
+
+            // Particles
+            for (const p of particles) {
+                const speed = Math.sqrt(p.vx * p.vx + p.vy * p.vy);
+                const maxSpeed = 300;
+                const t = Math.min(speed / maxSpeed, 1);
+
+                // Color based on speed (blue = slow, red = fast)
+                const r = Math.floor(100 + t * 155);
+                const g = Math.floor(150 - t * 100);
+                const b = Math.floor(255 - t * 200);
+
+                ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // Info text
+            ctx.fillStyle = '#666';
+            ctx.font = '12px Inter, sans-serif';
+            ctx.fillText(`N = ${numParticles} partículas`, boxX + 10, boxY + 20);
+            ctx.fillText(`T = ${temperature} K`, boxX + 10, boxY + 35);
+        }
+
+        function drawHistogram() {
+            const hW = histCanvas.clientWidth;
+            const hH = histCanvas.clientHeight;
+
+            histCtx.fillStyle = '#0a0a0a';
+            histCtx.fillRect(0, 0, hW, hH);
+
+            // Calculate velocity distribution
+            const bins = 20;
+            const maxVel = 400;
+            const counts = new Array(bins).fill(0);
+
+            for (const p of particles) {
+                const v = Math.sqrt(p.vx * p.vx + p.vy * p.vy);
+                const binIndex = Math.min(Math.floor(v / maxVel * bins), bins - 1);
+                counts[binIndex]++;
+            }
+
+            const maxCount = Math.max(...counts, 1);
+            const barWidth = hW / bins;
+
+            // Draw bars
+            for (let i = 0; i < bins; i++) {
+                const barH = (counts[i] / maxCount) * (hH - 20);
+                const t = i / bins;
+                const r = Math.floor(100 + t * 155);
+                const g = Math.floor(150 - t * 100);
+                const b = Math.floor(255 - t * 200);
+
+                histCtx.fillStyle = `rgb(${r}, ${g}, ${b})`;
+                histCtx.fillRect(i * barWidth + 1, hH - barH - 10, barWidth - 2, barH);
+            }
+
+            // Maxwell-Boltzmann curve (theoretical)
+            const v_rms = Math.sqrt(3 * k * temperature / m) * scale * 5000;
+            histCtx.strokeStyle = '#fbbf24';
+            histCtx.lineWidth = 2;
+            histCtx.beginPath();
+            for (let i = 0; i < hW; i++) {
+                const v = (i / hW) * maxVel;
+                const f = (v * v) * Math.exp(-v * v / (2 * v_rms * v_rms / 3));
+                const normalizedF = f / (v_rms * v_rms / 3 * Math.exp(-1)) * maxCount * 0.8;
+                const y = hH - normalizedF * (hH - 20) / maxCount - 10;
+                if (i === 0) histCtx.moveTo(i, y);
+                else histCtx.lineTo(i, y);
+            }
+            histCtx.stroke();
+
+            // Labels
+            histCtx.fillStyle = '#666';
+            histCtx.font = '9px sans-serif';
+            histCtx.fillText('0', 2, hH - 2);
+            histCtx.fillText(`${maxVel}`, hW - 20, hH - 2);
+        }
+
+        function updateInfo() {
+            // Calculate average kinetic energy
+            let totalKE = 0;
+            let totalV = 0;
+            for (const p of particles) {
+                const v = Math.sqrt(p.vx * p.vx + p.vy * p.vy);
+                totalV += v;
+                totalKE += 0.5 * m * (v / scale / 5000) ** 2;
+            }
+
+            const avgV = totalV / particles.length;
+            const avgKE = totalKE / particles.length;
+
+            // Pressure estimation (from collision rate and momentum transfer)
+            const perimeter = 2 * (boxW + boxH);
+            const pressure = (collisionRate * 2 * m * avgV / scale / 5000) / (perimeter * scale) * 1e15;
+
+            document.getElementById('pressureVal').textContent = pressure.toExponential(2);
+            document.getElementById('energyVal').textContent = avgKE.toExponential(2);
+            document.getElementById('velVal').textContent = (avgV / scale / 5000).toFixed(0);
+            document.getElementById('collVal').textContent = collisionRate.toFixed(0);
+        }
+
+        function animate(time) {
+            if (!running) return;
+
+            const dt = Math.min((time - lastTime) / 1000, 0.05);
+            lastTime = time;
+
+            // Update collision rate every second
+            if (time % 1000 < 20) {
+                collisionRate = wallCollisions - lastCollisionCount;
+                lastCollisionCount = wallCollisions;
+            }
+
+            updateParticles(dt * 60);
+            draw();
+            drawHistogram();
+            updateInfo();
+
+            requestAnimationFrame(animate);
+        }
+
+        function toggleSim() {
+            running = !running;
+            if (running) {
+                lastTime = performance.now();
+                requestAnimationFrame(animate);
+            }
+        }
+
+        function resetSim() {
+            running = false;
+            initParticles();
+            draw();
+            drawHistogram();
+        }
+
+        // Sliders
+        document.getElementById('numSlider').oninput = function() {
+            numParticles = parseInt(this.value);
+            document.getElementById('numDisplay').textContent = numParticles;
+            if (!running) {
+                initParticles();
+                draw();
+                drawHistogram();
+            }
+        };
+
+        document.getElementById('tempSlider').oninput = function() {
+            temperature = parseInt(this.value);
+            document.getElementById('tempDisplay').textContent = temperature;
+
+            // Adjust particle speeds to match new temperature
+            const v_rms = Math.sqrt(3 * k * temperature / m);
+            const visualSpeed = v_rms * scale * 5000;
+
+            for (const p of particles) {
+                const currentSpeed = Math.sqrt(p.vx * p.vx + p.vy * p.vy);
+                if (currentSpeed > 0) {
+                    const factor = visualSpeed / currentSpeed * (0.8 + Math.random() * 0.4);
+                    p.vx *= factor;
+                    p.vy *= factor;
+                }
+            }
+        };
+
+        document.getElementById('volSlider').oninput = function() {
+            volumePercent = parseInt(this.value);
+            document.getElementById('volDisplay').textContent = volumePercent + '%';
+            boxW = W * 0.9 * (volumePercent / 100);
+
+            // Move particles inside new box
+            const boxX = (W - boxW) / 2;
+            for (const p of particles) {
+                if (p.x < boxX + p.r) p.x = boxX + p.r;
+                if (p.x > boxX + boxW - p.r) p.x = boxX + boxW - p.r;
+            }
+
+            if (!running) draw();
+        };
+
+        // Init
+        window.onload = function() {
+            resize();
+            initParticles();
+            draw();
+            drawHistogram();
+        };
+        window.onresize = function() {
+            resize();
+            if (!running) {
+                draw();
+                drawHistogram();
+            }
+        };
+    </script>
+</body>
+</html>

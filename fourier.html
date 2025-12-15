@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transformada de Fourier - Síntesis Aditiva</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Covered+By+Your+Grace&family=Inter:wght@300;400;500&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            min-height: 100vh;
+            background: #0a0a0a;
+            font-family: 'Inter', sans-serif;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+        }
+
+        @media (min-width: 900px) {
+            body { flex-direction: row; }
+        }
+
+        .canvas-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 15px;
+            gap: 10px;
+        }
+
+        .title-bar {
+            text-align: center;
+            padding: 10px;
+        }
+
+        .title-bar h1 {
+            font-family: 'Covered By Your Grace', cursive;
+            font-size: 1.8rem;
+        }
+
+        .title-bar .subtitle {
+            font-size: 0.75rem;
+            color: #666;
+        }
+
+        .canvas-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        canvas {
+            width: 100%;
+            background: #111;
+            border-radius: 8px;
+        }
+
+        #waveCanvas {
+            flex: 2;
+            min-height: 200px;
+        }
+
+        #spectrumCanvas {
+            flex: 1;
+            min-height: 120px;
+        }
+
+        .controls {
+            width: 100%;
+            padding: 20px;
+            background: #1a1a1a;
+            overflow-y: auto;
+        }
+
+        @media (min-width: 900px) {
+            .controls {
+                width: 380px;
+                max-height: 100vh;
+            }
+        }
+
+        .section-title {
+            font-size: 0.7rem;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: 15px 0 10px;
+        }
+
+        .info-box {
+            background: rgba(168, 85, 247, 0.1);
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 15px;
+        }
+
+        .info-box .title {
+            font-family: 'Covered By Your Grace', cursive;
+            font-size: 1.2rem;
+            color: #a855f7;
+        }
+
+        .info-box .desc {
+            font-size: 0.7rem;
+            color: #888;
+            margin-top: 5px;
+            line-height: 1.4;
+        }
+
+        .wave-presets {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin: 15px 0;
+        }
+
+        .preset-btn {
+            padding: 12px;
+            border: 2px solid #333;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.05);
+            color: #888;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .preset-btn.active {
+            border-color: #a855f7;
+            color: #a855f7;
+            background: rgba(168, 85, 247, 0.1);
+        }
+
+        .harmonics-container {
+            max-height: 280px;
+            overflow-y: auto;
+        }
+
+        .harmonic-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            padding: 8px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 6px;
+        }
+
+        .harmonic-num {
+            font-family: 'Covered By Your Grace', cursive;
+            font-size: 1.2rem;
+            color: #a855f7;
+            width: 30px;
+        }
+
+        .harmonic-slider {
+            flex: 1;
+        }
+
+        .harmonic-slider input {
+            width: 100%;
+            height: 6px;
+            background: #333;
+            border-radius: 3px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .harmonic-slider input::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            background: #a855f7;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .harmonic-value {
+            font-size: 0.75rem;
+            color: #666;
+            width: 40px;
+            text-align: right;
+        }
+
+        .slider-group {
+            margin-bottom: 15px;
+        }
+
+        .slider-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+
+        .slider-label {
+            font-size: 0.8rem;
+            color: #888;
+        }
+
+        .slider-value {
+            font-family: 'Covered By Your Grace', cursive;
+            font-size: 1.1rem;
+            color: #a855f7;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            background: #333;
+            border-radius: 3px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #a855f7;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        button {
+            flex: 1;
+            padding: 12px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .btn-play { background: #4ade80; color: #000; }
+        .btn-stop { background: #f87171; color: #000; }
+
+        .equations {
+            background: rgba(255,255,255,0.03);
+            border-radius: 8px;
+            padding: 12px;
+        }
+
+        .equation-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .equation-row:last-child { border-bottom: none; }
+
+        .equation-name { font-size: 0.7rem; color: #666; }
+        .equation-text {
+            font-family: 'Covered By Your Grace', cursive;
+            font-size: 1rem;
+            color: rgba(255,255,255,0.9);
+        }
+    </style>
+</head>
+<body>
+    <div class="canvas-section">
+        <div class="title-bar">
+            <h1>Síntesis de Fourier</h1>
+            <div class="subtitle">Construyendo ondas complejas con armónicos</div>
+        </div>
+        <div class="canvas-container">
+            <canvas id="waveCanvas"></canvas>
+            <canvas id="spectrumCanvas"></canvas>
+        </div>
+    </div>
+
+    <div class="controls">
+        <div class="info-box">
+            <div class="title">Serie de Fourier</div>
+            <div class="desc">
+                Cualquier onda periódica puede descomponerse en una suma de senos y cosenos
+                (armónicos). La <strong>frecuencia fundamental</strong> determina el tono,
+                y los <strong>armónicos</strong> dan el timbre característico.
+            </div>
+        </div>
+
+        <div class="section-title">Ondas predefinidas</div>
+        <div class="wave-presets">
+            <button class="preset-btn" data-wave="sine">Senoidal</button>
+            <button class="preset-btn active" data-wave="square">Cuadrada</button>
+            <button class="preset-btn" data-wave="sawtooth">Diente de Sierra</button>
+            <button class="preset-btn" data-wave="triangle">Triangular</button>
+        </div>
+
+        <div class="slider-group">
+            <div class="slider-header">
+                <span class="slider-label">Frecuencia fundamental</span>
+                <span class="slider-value" id="freqDisplay">2.0 Hz</span>
+            </div>
+            <input type="range" id="freqSlider" min="0.5" max="5" step="0.1" value="2">
+        </div>
+
+        <div class="slider-group">
+            <div class="slider-header">
+                <span class="slider-label">Número de armónicos</span>
+                <span class="slider-value" id="numHarmonicsDisplay">8</span>
+            </div>
+            <input type="range" id="numHarmonicsSlider" min="1" max="16" step="1" value="8">
+        </div>
+
+        <div class="section-title">Amplitud de armónicos</div>
+        <div class="harmonics-container" id="harmonicsContainer">
+        </div>
+
+        <div class="buttons">
+            <button class="btn-play" id="playBtn">▶ Reproducir Sonido</button>
+            <button class="btn-stop" id="stopBtn">⏹ Detener</button>
+        </div>
+
+        <div class="equations">
+            <div class="section-title">Serie de Fourier</div>
+            <div class="equation-row">
+                <span class="equation-name">General</span>
+                <span class="equation-text">f(t) = Σ aₙsin(nωt)</span>
+            </div>
+            <div class="equation-row">
+                <span class="equation-name">Cuadrada</span>
+                <span class="equation-text">4/π × (sin + sin3ω/3 + ...)</span>
+            </div>
+            <div class="equation-row">
+                <span class="equation-name">Sierra</span>
+                <span class="equation-text">2/π × (sin - sin2ω/2 + ...)</span>
+            </div>
+            <div class="equation-row">
+                <span class="equation-name">Triangular</span>
+                <span class="equation-text">8/π² × (sin - sin3ω/9 + ...)</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const waveCanvas = document.getElementById('waveCanvas');
+        const spectrumCanvas = document.getElementById('spectrumCanvas');
+        const waveCtx = waveCanvas.getContext('2d');
+        const spectrumCtx = spectrumCanvas.getContext('2d');
+
+        let waveW, waveH, specW, specH;
+
+        function resize() {
+            waveW = waveCanvas.clientWidth;
+            waveH = waveCanvas.clientHeight;
+            specW = spectrumCanvas.clientWidth;
+            specH = spectrumCanvas.clientHeight;
+
+            if (waveW === 0 || waveH === 0) return;
+
+            waveCanvas.width = waveW;
+            waveCanvas.height = waveH;
+            spectrumCanvas.width = specW;
+            spectrumCanvas.height = specH;
+        }
+
+        window.addEventListener('resize', () => {
+            resize();
+            draw();
+        });
+
+        // Parameters
+        let frequency = 2.0;
+        let numHarmonics = 8;
+        let harmonics = [];
+        let waveType = 'square';
+        let time = 0;
+        let animating = true;
+        let lastTime = 0;
+
+        // Audio
+        let audioCtx = null;
+        let oscillators = [];
+        let gainNodes = [];
+        let masterGain = null;
+        let isPlaying = false;
+
+        function initHarmonics() {
+            harmonics = [];
+            for (let n = 1; n <= 16; n++) {
+                harmonics.push(getHarmonicAmplitude(n, waveType));
+            }
+            updateHarmonicsUI();
+        }
+
+        function getHarmonicAmplitude(n, type) {
+            switch (type) {
+                case 'sine':
+                    return n === 1 ? 1 : 0;
+                case 'square':
+                    // Only odd harmonics: 4/π × 1/n
+                    return n % 2 === 1 ? (4 / Math.PI) / n : 0;
+                case 'sawtooth':
+                    // All harmonics: 2/π × (-1)^(n+1) / n
+                    return (2 / Math.PI) * Math.pow(-1, n + 1) / n;
+                case 'triangle':
+                    // Only odd harmonics: 8/π² × (-1)^((n-1)/2) / n²
+                    if (n % 2 === 0) return 0;
+                    return (8 / (Math.PI * Math.PI)) * Math.pow(-1, (n - 1) / 2) / (n * n);
+                default:
+                    return 0;
+            }
+        }
+
+        function updateHarmonicsUI() {
+            const container = document.getElementById('harmonicsContainer');
+            container.innerHTML = '';
+
+            for (let i = 0; i < numHarmonics; i++) {
+                const n = i + 1;
+                const amp = harmonics[i];
+
+                const row = document.createElement('div');
+                row.className = 'harmonic-row';
+                row.innerHTML = `
+                    <span class="harmonic-num">${n}</span>
+                    <div class="harmonic-slider">
+                        <input type="range" min="0" max="1.5" step="0.01" value="${Math.abs(amp)}"
+                               data-index="${i}">
+                    </div>
+                    <span class="harmonic-value">${Math.abs(amp).toFixed(2)}</span>
+                `;
+                container.appendChild(row);
+
+                row.querySelector('input').addEventListener('input', (e) => {
+                    const idx = parseInt(e.target.dataset.index);
+                    const sign = harmonics[idx] >= 0 ? 1 : -1;
+                    harmonics[idx] = parseFloat(e.target.value) * sign;
+                    row.querySelector('.harmonic-value').textContent = Math.abs(harmonics[idx]).toFixed(2);
+                    if (isPlaying) updateAudio();
+                });
+            }
+        }
+
+        function calculateWave(t) {
+            let y = 0;
+            for (let i = 0; i < numHarmonics; i++) {
+                const n = i + 1;
+                y += harmonics[i] * Math.sin(2 * Math.PI * n * frequency * t);
+            }
+            return y;
+        }
+
+        function drawWave() {
+            waveCtx.fillStyle = '#111';
+            waveCtx.fillRect(0, 0, waveW, waveH);
+
+            const centerY = waveH / 2;
+            const amplitude = waveH * 0.35;
+
+            // Grid
+            waveCtx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+            waveCtx.lineWidth = 1;
+            waveCtx.beginPath();
+            waveCtx.moveTo(0, centerY);
+            waveCtx.lineTo(waveW, centerY);
+            waveCtx.stroke();
+
+            // Draw individual harmonics (faded)
+            for (let i = 0; i < Math.min(numHarmonics, 5); i++) {
+                if (Math.abs(harmonics[i]) < 0.01) continue;
+
+                const hue = (i * 40) % 360;
+                waveCtx.strokeStyle = `hsla(${hue}, 70%, 60%, 0.2)`;
+                waveCtx.lineWidth = 1;
+                waveCtx.beginPath();
+
+                for (let x = 0; x < waveW; x++) {
+                    const t = time + (x / waveW) * (2 / frequency);
+                    const n = i + 1;
+                    const y = harmonics[i] * Math.sin(2 * Math.PI * n * frequency * t);
+                    const py = centerY - y * amplitude;
+
+                    if (x === 0) waveCtx.moveTo(x, py);
+                    else waveCtx.lineTo(x, py);
+                }
+                waveCtx.stroke();
+            }
+
+            // Draw combined wave
+            waveCtx.strokeStyle = '#a855f7';
+            waveCtx.lineWidth = 3;
+            waveCtx.beginPath();
+
+            for (let x = 0; x < waveW; x++) {
+                const t = time + (x / waveW) * (2 / frequency);
+                const y = calculateWave(t);
+                const py = centerY - y * amplitude;
+
+                if (x === 0) waveCtx.moveTo(x, py);
+                else waveCtx.lineTo(x, py);
+            }
+            waveCtx.stroke();
+
+            // Labels
+            waveCtx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+            waveCtx.font = "14px 'Covered By Your Grace'";
+            waveCtx.textAlign = 'left';
+            waveCtx.fillText('Onda resultante', 10, 25);
+
+            waveCtx.fillStyle = 'rgba(168, 85, 247, 0.7)';
+            waveCtx.fillText(`${numHarmonics} armónicos`, 10, 45);
+        }
+
+        function drawSpectrum() {
+            spectrumCtx.fillStyle = '#0d0d0d';
+            spectrumCtx.fillRect(0, 0, specW, specH);
+
+            const barWidth = Math.min(40, (specW - 60) / numHarmonics - 5);
+            const maxHeight = specH - 40;
+            const startX = 30;
+
+            // Find max amplitude for scaling
+            let maxAmp = 0;
+            for (let i = 0; i < numHarmonics; i++) {
+                maxAmp = Math.max(maxAmp, Math.abs(harmonics[i]));
+            }
+            maxAmp = Math.max(maxAmp, 0.1);
+
+            for (let i = 0; i < numHarmonics; i++) {
+                const x = startX + i * (barWidth + 5);
+                const amp = Math.abs(harmonics[i]);
+                const h = (amp / maxAmp) * maxHeight * 0.8;
+
+                // Bar
+                const hue = (i * 25 + 270) % 360;
+                const gradient = spectrumCtx.createLinearGradient(x, specH - 20, x, specH - 20 - h);
+                gradient.addColorStop(0, `hsla(${hue}, 70%, 50%, 0.8)`);
+                gradient.addColorStop(1, `hsla(${hue}, 70%, 70%, 0.8)`);
+
+                spectrumCtx.fillStyle = gradient;
+                spectrumCtx.fillRect(x, specH - 20 - h, barWidth, h);
+
+                // Label
+                spectrumCtx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+                spectrumCtx.font = '10px Inter';
+                spectrumCtx.textAlign = 'center';
+                spectrumCtx.fillText(`${i + 1}`, x + barWidth / 2, specH - 5);
+            }
+
+            // Y axis label
+            spectrumCtx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+            spectrumCtx.font = "12px 'Covered By Your Grace'";
+            spectrumCtx.textAlign = 'left';
+            spectrumCtx.fillText('Espectro de frecuencias', 10, 15);
+        }
+
+        function draw() {
+            drawWave();
+            drawSpectrum();
+        }
+
+        function animate(currentTime) {
+            if (!animating) return;
+
+            const dt = (currentTime - lastTime) / 1000;
+            lastTime = currentTime;
+
+            time += dt * 0.3;
+
+            draw();
+            requestAnimationFrame(animate);
+        }
+
+        // Audio functions
+        function initAudio() {
+            if (audioCtx) return;
+
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            masterGain = audioCtx.createGain();
+            masterGain.gain.value = 0.15;
+            masterGain.connect(audioCtx.destination);
+        }
+
+        function startAudio() {
+            initAudio();
+
+            // Stop existing oscillators
+            stopAudio();
+
+            const baseFreq = 220;  // A3
+
+            for (let i = 0; i < numHarmonics; i++) {
+                if (Math.abs(harmonics[i]) < 0.01) continue;
+
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+
+                osc.type = 'sine';
+                osc.frequency.value = baseFreq * (i + 1);
+                gain.gain.value = Math.abs(harmonics[i]) * 0.5;
+
+                osc.connect(gain);
+                gain.connect(masterGain);
+                osc.start();
+
+                oscillators.push(osc);
+                gainNodes.push(gain);
+            }
+
+            isPlaying = true;
+        }
+
+        function stopAudio() {
+            for (const osc of oscillators) {
+                try {
+                    osc.stop();
+                    osc.disconnect();
+                } catch (e) {}
+            }
+            for (const gain of gainNodes) {
+                try {
+                    gain.disconnect();
+                } catch (e) {}
+            }
+            oscillators = [];
+            gainNodes = [];
+            isPlaying = false;
+        }
+
+        function updateAudio() {
+            if (!isPlaying) return;
+
+            // Update existing oscillators' gains
+            for (let i = 0; i < gainNodes.length; i++) {
+                if (i < harmonics.length) {
+                    gainNodes[i].gain.value = Math.abs(harmonics[i]) * 0.5;
+                }
+            }
+        }
+
+        // Event listeners
+        document.querySelectorAll('.preset-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                waveType = btn.dataset.wave;
+                initHarmonics();
+                if (isPlaying) {
+                    stopAudio();
+                    startAudio();
+                }
+            });
+        });
+
+        document.getElementById('freqSlider').addEventListener('input', (e) => {
+            frequency = parseFloat(e.target.value);
+            document.getElementById('freqDisplay').textContent = frequency.toFixed(1) + ' Hz';
+        });
+
+        document.getElementById('numHarmonicsSlider').addEventListener('input', (e) => {
+            numHarmonics = parseInt(e.target.value);
+            document.getElementById('numHarmonicsDisplay').textContent = numHarmonics;
+            updateHarmonicsUI();
+            if (isPlaying) {
+                stopAudio();
+                startAudio();
+            }
+        });
+
+        document.getElementById('playBtn').addEventListener('click', startAudio);
+        document.getElementById('stopBtn').addEventListener('click', stopAudio);
+
+        // Init
+        window.addEventListener('DOMContentLoaded', () => {
+            resize();
+            initHarmonics();
+            lastTime = performance.now();
+            animating = true;
+            requestAnimationFrame(animate);
+        });
+
+        if (document.readyState !== 'loading') {
+            resize();
+            initHarmonics();
+            lastTime = performance.now();
+            animating = true;
+            requestAnimationFrame(animate);
+        }
+    </script>
+</body>
+</html>

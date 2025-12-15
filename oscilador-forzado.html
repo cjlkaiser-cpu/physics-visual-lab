@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oscilador Forzado - Resonancia</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: linear-gradient(135deg, #0a0a1a 0%, #1a1a2e 100%);
+            min-height: 100vh;
+            color: #fff;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            gap: 20px;
+        }
+        @media (max-width: 900px) {
+            .container { grid-template-columns: 1fr; }
+        }
+        h1 { font-size: 1.5rem; font-weight: 300; margin-bottom: 5px; }
+        h1 span { color: #a855f7; font-weight: 600; }
+        .subtitle { color: #666; font-size: 0.8rem; margin-bottom: 15px; }
+        .canvas-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        #canvas {
+            width: 100%;
+            height: 350px;
+            background: #000;
+            border-radius: 12px;
+            border: 2px solid #333;
+        }
+        #responseCanvas {
+            width: 100%;
+            height: 200px;
+            background: #000;
+            border-radius: 12px;
+            border: 2px solid #333;
+        }
+        .controls {
+            background: #111;
+            border-radius: 12px;
+            padding: 20px;
+        }
+        .section { margin-bottom: 20px; }
+        .section-title {
+            font-size: 0.7rem;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+        .slider-group { margin-bottom: 15px; }
+        .slider-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+        .slider-label { font-size: 0.8rem; color: #888; }
+        .slider-value { font-size: 0.9rem; color: #a855f7; font-weight: 600; }
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            background: #333;
+            border-radius: 3px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            background: #a855f7;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        .info-card {
+            background: rgba(255,255,255,0.03);
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .info-card .label { font-size: 0.65rem; color: #666; margin-bottom: 4px; }
+        .info-card .value { font-size: 1.1rem; font-weight: 600; }
+        .info-card .value.purple { color: #a855f7; }
+        .info-card .value.green { color: #4ade80; }
+        .info-card .value.yellow { color: #fbbf24; }
+        .info-card .value.red { color: #f87171; }
+        .buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .btn-play { background: #4ade80; color: #000; }
+        .btn-stop { background: #f87171; color: #000; }
+        .damping-btns {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+        .damping-btn {
+            flex: 1;
+            padding: 8px;
+            background: rgba(255,255,255,0.05);
+            border: 2px solid #333;
+            border-radius: 8px;
+            color: #888;
+            font-size: 0.7rem;
+            cursor: pointer;
+        }
+        .damping-btn.active {
+            border-color: #a855f7;
+            color: #a855f7;
+            background: rgba(168, 85, 247, 0.1);
+        }
+        .equations {
+            background: rgba(168, 85, 247, 0.1);
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            border-radius: 8px;
+            padding: 12px;
+            font-family: 'Times New Roman', serif;
+            font-style: italic;
+            font-size: 0.85rem;
+            color: #a855f7;
+            line-height: 1.8;
+        }
+        .resonance-indicator {
+            text-align: center;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .resonance-indicator.far { background: rgba(100,100,100,0.2); color: #666; }
+        .resonance-indicator.near { background: rgba(251,191,36,0.2); color: #fbbf24; }
+        .resonance-indicator.resonance { background: rgba(239,68,68,0.3); color: #ef4444; animation: pulse 0.5s infinite; }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="main">
+            <h1><span>Oscilador Forzado</span> - Resonancia</h1>
+            <div class="subtitle">mẍ + bẋ + kx = F₀cos(ωt)</div>
+            <div class="canvas-container">
+                <canvas id="canvas"></canvas>
+                <canvas id="responseCanvas"></canvas>
+            </div>
+        </div>
+        <div class="controls">
+            <div class="resonance-indicator far" id="resonanceIndicator">
+                Lejos de resonancia
+            </div>
+
+            <div class="section">
+                <div class="section-title">Sistema</div>
+                <div class="slider-group">
+                    <div class="slider-header">
+                        <span class="slider-label">Frecuencia natural ω₀ (rad/s)</span>
+                        <span class="slider-value" id="w0Display">5.0</span>
+                    </div>
+                    <input type="range" id="w0Slider" min="1" max="10" step="0.1" value="5">
+                </div>
+                <div class="slider-group">
+                    <div class="slider-header">
+                        <span class="slider-label">Frecuencia forzada ω (rad/s)</span>
+                        <span class="slider-value" id="wDisplay">3.0</span>
+                    </div>
+                    <input type="range" id="wSlider" min="0.5" max="15" step="0.1" value="3">
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">Amortiguamiento</div>
+                <div class="damping-btns">
+                    <button class="damping-btn" data-b="0.2">Bajo</button>
+                    <button class="damping-btn active" data-b="1">Medio</button>
+                    <button class="damping-btn" data-b="3">Alto</button>
+                    <button class="damping-btn" data-b="7">Crítico</button>
+                </div>
+                <div class="slider-group">
+                    <div class="slider-header">
+                        <span class="slider-label">Coeficiente b</span>
+                        <span class="slider-value" id="bDisplay">1.0</span>
+                    </div>
+                    <input type="range" id="bSlider" min="0.1" max="10" step="0.1" value="1">
+                </div>
+                <div class="slider-group">
+                    <div class="slider-header">
+                        <span class="slider-label">Amplitud fuerza F₀</span>
+                        <span class="slider-value" id="f0Display">2.0</span>
+                    </div>
+                    <input type="range" id="f0Slider" min="0.5" max="5" step="0.1" value="2">
+                </div>
+            </div>
+
+            <div class="buttons">
+                <button class="btn-play" onclick="toggleSim()">▶ Iniciar</button>
+                <button class="btn-stop" onclick="resetSim()">↺ Reiniciar</button>
+            </div>
+
+            <div class="section">
+                <div class="section-title">Mediciones</div>
+                <div class="info-grid">
+                    <div class="info-card">
+                        <div class="label">Amplitud</div>
+                        <div class="value purple" id="ampVal">--</div>
+                    </div>
+                    <div class="info-card">
+                        <div class="label">Fase (°)</div>
+                        <div class="value green" id="phaseVal">--</div>
+                    </div>
+                    <div class="info-card">
+                        <div class="label">ω/ω₀</div>
+                        <div class="value yellow" id="ratioVal">--</div>
+                    </div>
+                    <div class="info-card">
+                        <div class="label">Factor Q</div>
+                        <div class="value red" id="qVal">--</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="equations">
+                A = F₀/√[(k-mω²)² + (bω)²]<br>
+                Resonancia: ω = ω₀√(1 - 2ζ²)<br>
+                Q = ω₀m/b
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const respCanvas = document.getElementById('responseCanvas');
+        const respCtx = respCanvas.getContext('2d');
+
+        let W, H, respW, respH;
+        let running = false;
+        let time = 0;
+
+        // Physics parameters
+        let w0 = 5.0;  // Natural frequency
+        let w = 3.0;   // Driving frequency
+        let b = 1.0;   // Damping
+        let F0 = 2.0;  // Force amplitude
+        let m = 1.0;   // Mass
+        let k = w0 * w0 * m; // Spring constant
+
+        // State
+        let x = 0, v = 0;
+        let history = [];
+        let forceHistory = [];
+
+        function resize() {
+            const dpr = window.devicePixelRatio || 1;
+            W = canvas.clientWidth;
+            H = canvas.clientHeight;
+            canvas.width = W * dpr;
+            canvas.height = H * dpr;
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+            respW = respCanvas.clientWidth;
+            respH = respCanvas.clientHeight;
+            respCanvas.width = respW * dpr;
+            respCanvas.height = respH * dpr;
+            respCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        }
+
+        function theoreticalAmplitude(omega) {
+            const denom = Math.sqrt((k - m * omega * omega) ** 2 + (b * omega) ** 2);
+            return F0 / denom;
+        }
+
+        function theoreticalPhase(omega) {
+            return Math.atan2(b * omega, k - m * omega * omega);
+        }
+
+        function updatePhysics(dt) {
+            const force = F0 * Math.cos(w * time);
+            const a = (force - b * v - k * x) / m;
+
+            v += a * dt;
+            x += v * dt;
+
+            history.push({ t: time, x: x });
+            forceHistory.push({ t: time, f: force / F0 });
+
+            if (history.length > 500) history.shift();
+            if (forceHistory.length > 500) forceHistory.shift();
+
+            time += dt;
+        }
+
+        function draw() {
+            // Main canvas - oscillator visualization
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, W, H);
+
+            const centerY = H / 2;
+            const baseX = 80;
+            const scale = 60;
+            const massX = W / 2 + x * scale;
+
+            // Wall
+            ctx.fillStyle = '#444';
+            ctx.fillRect(30, centerY - 60, 20, 120);
+
+            // Spring
+            ctx.strokeStyle = '#666';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            const coils = 15;
+            for (let i = 0; i <= coils; i++) {
+                const px = baseX + (massX - baseX - 30) * (i / coils);
+                const py = centerY + (i % 2 === 0 ? 20 : -20);
+                if (i === 0) ctx.moveTo(50, centerY);
+                else ctx.lineTo(px, py);
+            }
+            ctx.lineTo(massX - 30, centerY);
+            ctx.stroke();
+
+            // Mass with glow based on amplitude
+            const amp = Math.abs(x);
+            ctx.save();
+            ctx.shadowColor = '#a855f7';
+            ctx.shadowBlur = 10 + amp * 10;
+
+            const grad = ctx.createRadialGradient(massX, centerY, 0, massX, centerY, 30);
+            grad.addColorStop(0, '#c084fc');
+            grad.addColorStop(1, '#7c3aed');
+            ctx.fillStyle = grad;
+            ctx.fillRect(massX - 30, centerY - 30, 60, 60);
+            ctx.restore();
+
+            // Driving force arrow
+            const forceScale = 40;
+            const forceX = F0 * Math.cos(w * time) * forceScale;
+            ctx.strokeStyle = '#fbbf24';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(massX + 40, centerY);
+            ctx.lineTo(massX + 40 + forceX, centerY);
+            ctx.stroke();
+
+            // Arrow head
+            if (Math.abs(forceX) > 5) {
+                const dir = forceX > 0 ? 1 : -1;
+                ctx.fillStyle = '#fbbf24';
+                ctx.beginPath();
+                ctx.moveTo(massX + 40 + forceX, centerY);
+                ctx.lineTo(massX + 40 + forceX - dir * 10, centerY - 6);
+                ctx.lineTo(massX + 40 + forceX - dir * 10, centerY + 6);
+                ctx.closePath();
+                ctx.fill();
+            }
+
+            // Labels
+            ctx.fillStyle = '#888';
+            ctx.font = '12px sans-serif';
+            ctx.fillText('F(t) = F₀cos(ωt)', massX + 50, centerY - 40);
+
+            // Time trace at bottom
+            const traceY = H - 60;
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(50, traceY);
+            ctx.lineTo(W - 50, traceY);
+            ctx.stroke();
+
+            // Position trace
+            if (history.length > 1) {
+                ctx.strokeStyle = '#a855f7';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                const startT = history[0].t;
+                for (let i = 0; i < history.length; i++) {
+                    const px = 50 + (history[i].t - startT) * 30;
+                    const py = traceY - history[i].x * 20;
+                    if (i === 0) ctx.moveTo(px, py);
+                    else ctx.lineTo(px, py);
+                }
+                ctx.stroke();
+
+                // Force trace
+                ctx.strokeStyle = 'rgba(251, 191, 36, 0.5)';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                for (let i = 0; i < forceHistory.length; i++) {
+                    const px = 50 + (forceHistory[i].t - startT) * 30;
+                    const py = traceY - forceHistory[i].f * 15;
+                    if (i === 0) ctx.moveTo(px, py);
+                    else ctx.lineTo(px, py);
+                }
+                ctx.stroke();
+            }
+
+            ctx.fillStyle = '#a855f7';
+            ctx.fillText('x(t)', 20, traceY - 30);
+            ctx.fillStyle = '#fbbf24';
+            ctx.fillText('F(t)', 20, traceY + 20);
+        }
+
+        function drawResponseCurve() {
+            respCtx.fillStyle = '#000';
+            respCtx.fillRect(0, 0, respW, respH);
+
+            // Axes
+            respCtx.strokeStyle = '#333';
+            respCtx.lineWidth = 1;
+            respCtx.beginPath();
+            respCtx.moveTo(40, 20);
+            respCtx.lineTo(40, respH - 30);
+            respCtx.lineTo(respW - 20, respH - 30);
+            respCtx.stroke();
+
+            // Labels
+            respCtx.fillStyle = '#666';
+            respCtx.font = '10px sans-serif';
+            respCtx.fillText('A', 15, 20);
+            respCtx.fillText('ω', respW - 25, respH - 10);
+            respCtx.fillText('Curva de resonancia', respW / 2 - 50, 15);
+
+            // Draw theoretical response curve
+            const maxW = 15;
+            const maxA = theoreticalAmplitude(w0 * Math.sqrt(Math.max(0, 1 - 2 * (b / (2 * Math.sqrt(k * m))) ** 2)));
+
+            respCtx.strokeStyle = '#a855f7';
+            respCtx.lineWidth = 2;
+            respCtx.beginPath();
+            for (let i = 0; i < respW - 60; i++) {
+                const omega = (i / (respW - 60)) * maxW;
+                const amp = theoreticalAmplitude(omega);
+                const px = 40 + i;
+                const py = respH - 30 - (amp / maxA) * (respH - 60) * 0.8;
+                if (i === 0) respCtx.moveTo(px, py);
+                else respCtx.lineTo(px, py);
+            }
+            respCtx.stroke();
+
+            // Mark natural frequency
+            const w0X = 40 + (w0 / maxW) * (respW - 60);
+            respCtx.strokeStyle = '#4ade80';
+            respCtx.setLineDash([5, 5]);
+            respCtx.beginPath();
+            respCtx.moveTo(w0X, 20);
+            respCtx.lineTo(w0X, respH - 30);
+            respCtx.stroke();
+            respCtx.setLineDash([]);
+            respCtx.fillStyle = '#4ade80';
+            respCtx.fillText('ω₀', w0X - 5, respH - 15);
+
+            // Mark current frequency
+            const wX = 40 + (w / maxW) * (respW - 60);
+            const currentA = theoreticalAmplitude(w);
+            const wY = respH - 30 - (currentA / maxA) * (respH - 60) * 0.8;
+
+            respCtx.fillStyle = '#fbbf24';
+            respCtx.beginPath();
+            respCtx.arc(wX, wY, 6, 0, Math.PI * 2);
+            respCtx.fill();
+
+            respCtx.strokeStyle = '#fbbf24';
+            respCtx.setLineDash([3, 3]);
+            respCtx.beginPath();
+            respCtx.moveTo(wX, wY);
+            respCtx.lineTo(wX, respH - 30);
+            respCtx.stroke();
+            respCtx.setLineDash([]);
+            respCtx.fillStyle = '#fbbf24';
+            respCtx.fillText('ω', wX - 3, respH - 15);
+        }
+
+        function updateInfo() {
+            const amp = theoreticalAmplitude(w);
+            const phase = theoreticalPhase(w) * 180 / Math.PI;
+            const ratio = w / w0;
+            const zeta = b / (2 * Math.sqrt(k * m));
+            const Q = 1 / (2 * zeta);
+
+            document.getElementById('ampVal').textContent = amp.toFixed(2);
+            document.getElementById('phaseVal').textContent = phase.toFixed(1);
+            document.getElementById('ratioVal').textContent = ratio.toFixed(2);
+            document.getElementById('qVal').textContent = Q.toFixed(1);
+
+            // Resonance indicator
+            const indicator = document.getElementById('resonanceIndicator');
+            const resonanceW = w0 * Math.sqrt(Math.max(0, 1 - 2 * zeta * zeta));
+            const diff = Math.abs(w - resonanceW) / w0;
+
+            if (diff < 0.1) {
+                indicator.className = 'resonance-indicator resonance';
+                indicator.textContent = '¡RESONANCIA!';
+            } else if (diff < 0.3) {
+                indicator.className = 'resonance-indicator near';
+                indicator.textContent = 'Cerca de resonancia';
+            } else {
+                indicator.className = 'resonance-indicator far';
+                indicator.textContent = 'Lejos de resonancia';
+            }
+        }
+
+        function animate() {
+            if (!running) return;
+
+            for (let i = 0; i < 3; i++) {
+                updatePhysics(0.016);
+            }
+
+            draw();
+            drawResponseCurve();
+            updateInfo();
+
+            requestAnimationFrame(animate);
+        }
+
+        function toggleSim() {
+            running = !running;
+            if (running) requestAnimationFrame(animate);
+        }
+
+        function resetSim() {
+            running = false;
+            time = 0;
+            x = 0;
+            v = 0;
+            history = [];
+            forceHistory = [];
+            draw();
+            drawResponseCurve();
+            updateInfo();
+        }
+
+        // Sliders
+        document.getElementById('w0Slider').oninput = function() {
+            w0 = parseFloat(this.value);
+            k = w0 * w0 * m;
+            document.getElementById('w0Display').textContent = w0.toFixed(1);
+            updateInfo();
+            drawResponseCurve();
+        };
+
+        document.getElementById('wSlider').oninput = function() {
+            w = parseFloat(this.value);
+            document.getElementById('wDisplay').textContent = w.toFixed(1);
+            updateInfo();
+            drawResponseCurve();
+        };
+
+        document.getElementById('bSlider').oninput = function() {
+            b = parseFloat(this.value);
+            document.getElementById('bDisplay').textContent = b.toFixed(1);
+            updateInfo();
+            drawResponseCurve();
+
+            // Update damping buttons
+            document.querySelectorAll('.damping-btn').forEach(btn => btn.classList.remove('active'));
+        };
+
+        document.getElementById('f0Slider').oninput = function() {
+            F0 = parseFloat(this.value);
+            document.getElementById('f0Display').textContent = F0.toFixed(1);
+            updateInfo();
+            drawResponseCurve();
+        };
+
+        // Damping preset buttons
+        document.querySelectorAll('.damping-btn').forEach(btn => {
+            btn.onclick = function() {
+                document.querySelectorAll('.damping-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                b = parseFloat(this.dataset.b);
+                document.getElementById('bSlider').value = b;
+                document.getElementById('bDisplay').textContent = b.toFixed(1);
+                updateInfo();
+                drawResponseCurve();
+            };
+        });
+
+        // Init
+        window.onload = function() {
+            resize();
+            draw();
+            drawResponseCurve();
+            updateInfo();
+        };
+        window.onresize = resize;
+    </script>
+</body>
+</html>

@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema Solar - Simulación Orbital</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Covered+By+Your+Grace&family=Inter:wght@300;400;500&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #000;
+            font-family: 'Inter', sans-serif;
+            overflow: hidden;
+        }
+
+        .container {
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+            padding: 15px;
+        }
+
+        .simulacion {
+            position: relative;
+        }
+
+        .titulo {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: 'Covered By Your Grace', cursive;
+            font-size: 1.8rem;
+            color: rgba(255,255,255,0.9);
+            z-index: 10;
+            text-shadow: 0 0 20px rgba(0,0,0,0.8);
+        }
+
+        #canvas {
+            display: block;
+            background: radial-gradient(ellipse at center, #0a0a20 0%, #000 70%);
+            border-radius: 8px;
+        }
+
+        .panel {
+            background: rgba(10, 10, 20, 0.95);
+            border: 1px solid #1a1a3e;
+            border-radius: 10px;
+            padding: 15px;
+            width: 280px;
+            color: #fff;
+            max-height: 95vh;
+            overflow-y: auto;
+            font-size: 0.85rem;
+        }
+
+        .panel h2 {
+            font-family: 'Covered By Your Grace', cursive;
+            font-size: 1.4rem;
+            margin-bottom: 12px;
+            color: rgba(255,255,255,0.9);
+            border-bottom: 1px solid #333;
+            padding-bottom: 6px;
+        }
+
+        .panel h3 {
+            font-family: 'Covered By Your Grace', cursive;
+            font-size: 1.1rem;
+            margin: 12px 0 8px 0;
+            color: #fbbf24;
+        }
+
+        .control-group {
+            margin-bottom: 10px;
+        }
+
+        .control-group label {
+            display: block;
+            font-size: 0.75rem;
+            color: #aaa;
+            margin-bottom: 4px;
+        }
+
+        .control-group .value {
+            font-family: 'Covered By Your Grace', cursive;
+            font-size: 1rem;
+            color: #fff;
+            margin-left: 6px;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 4px;
+            background: #222;
+            border-radius: 2px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 12px;
+            height: 12px;
+            background: #fbbf24;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 6px;
+            margin-top: 12px;
+        }
+
+        button {
+            flex: 1;
+            padding: 8px 6px;
+            font-size: 0.8rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .btn-play { background: #4ade80; color: #000; }
+        .btn-pause { background: #fbbf24; color: #000; }
+        .btn-reset { background: #f87171; color: #000; }
+
+        .planeta-lista {
+            margin-top: 10px;
+        }
+
+        .planeta-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 5px 8px;
+            margin-bottom: 4px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .planeta-item:hover {
+            background: rgba(255,255,255,0.08);
+        }
+
+        .planeta-item.selected {
+            background: rgba(251, 191, 36, 0.15);
+            border: 1px solid rgba(251, 191, 36, 0.3);
+        }
+
+        .planeta-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .planeta-nombre {
+            flex: 1;
+            font-size: 0.8rem;
+        }
+
+        .planeta-dist {
+            font-size: 0.7rem;
+            color: #666;
+            font-family: 'Covered By Your Grace', cursive;
+        }
+
+        .info-selected {
+            margin-top: 12px;
+            padding: 10px;
+            background: rgba(251, 191, 36, 0.05);
+            border: 1px solid rgba(251, 191, 36, 0.2);
+            border-radius: 6px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 3px;
+            font-size: 0.75rem;
+        }
+
+        .info-row span:first-child { color: #888; }
+        .info-row span:last-child {
+            font-family: 'Covered By Your Grace', cursive;
+            font-size: 0.95rem;
+            color: #fff;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 6px;
+        }
+
+        .checkbox-group input {
+            width: 12px;
+            height: 12px;
+        }
+
+        .checkbox-group label {
+            font-size: 0.75rem;
+            color: #aaa;
+        }
+
+        .fecha {
+            text-align: center;
+            margin-top: 10px;
+            padding: 8px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 4px;
+        }
+
+        .fecha-valor {
+            font-family: 'Covered By Your Grace', cursive;
+            font-size: 1.2rem;
+            color: #fbbf24;
+        }
+
+        .leyenda {
+            margin-top: 10px;
+            font-size: 0.65rem;
+            color: #666;
+            line-height: 1.4;
+        }
+
+        .zoom-btns {
+            display: flex;
+            gap: 6px;
+            margin-top: 8px;
+        }
+
+        .zoom-btns button {
+            background: #1a1a3e;
+            color: #fff;
+            border: 1px solid #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="simulacion">
+            <div class="titulo">Sistema Solar</div>
+            <canvas id="canvas" width="900" height="900"></canvas>
+        </div>
+
+        <div class="panel">
+            <h2>Control de Simulación</h2>
+
+            <div class="control-group">
+                <label>Velocidad (días/segundo)<span class="value" id="speedValue">10</span></label>
+                <input type="range" id="speed" min="1" max="365" step="1" value="10">
+            </div>
+
+            <div class="control-group">
+                <label>Escala vista<span class="value" id="scaleValue">Todo</span></label>
+                <input type="range" id="scale" min="0" max="4" step="1" value="4">
+            </div>
+
+            <div class="zoom-btns">
+                <button onclick="setScale(0)">Interior</button>
+                <button onclick="setScale(2)">Medio</button>
+                <button onclick="setScale(4)">Todo</button>
+            </div>
+
+            <div class="checkbox-group">
+                <input type="checkbox" id="showOrbits" checked>
+                <label for="showOrbits">Mostrar órbitas</label>
+            </div>
+
+            <div class="checkbox-group">
+                <input type="checkbox" id="showLabels" checked>
+                <label for="showLabels">Mostrar nombres</label>
+            </div>
+
+            <div class="checkbox-group">
+                <input type="checkbox" id="showTrails">
+                <label for="showTrails">Mostrar trayectorias</label>
+            </div>
+
+            <div class="checkbox-group">
+                <input type="checkbox" id="realSize">
+                <label for="realSize">Tamaño proporcional</label>
+            </div>
+
+            <div class="buttons">
+                <button class="btn-play" id="playBtn">▶ Play</button>
+                <button class="btn-pause" id="pauseBtn">⏸ Pausa</button>
+                <button class="btn-reset" id="resetBtn">↺ Reset</button>
+            </div>
+
+            <div class="fecha">
+                <div style="font-size: 0.7rem; color: #888;">Fecha simulada</div>
+                <div class="fecha-valor" id="fecha">1 Ene 2024</div>
+            </div>
+
+            <h3>Planetas</h3>
+            <div class="planeta-lista" id="planetaLista"></div>
+
+            <div class="info-selected" id="infoSelected">
+                <div style="text-align: center; color: #888; font-size: 0.75rem;">
+                    Clic en un planeta para ver info
+                </div>
+            </div>
+
+            <div class="leyenda">
+                <strong>Datos reales:</strong> Distancias en UA, períodos en días terrestres.
+                La Luna orbita la Tierra (visible al hacer zoom).
+                Escala de tamaños exagerada para visibilidad.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        const cx = canvas.width / 2;
+        const cy = canvas.height / 2;
+
+        // Datos reales de los planetas
+        // a: semieje mayor (UA), e: excentricidad, T: período (días), color, radio visual
+        const planetas = [
+            {
+                nombre: '☿ Mercurio',
+                a: 0.387, e: 0.206, T: 88,
+                color: '#a0a0a0', radius: 4,
+                realRadius: 2439, // km
+                moons: []
+            },
+            {
+                nombre: '♀ Venus',
+                a: 0.723, e: 0.007, T: 225,
+                color: '#e6c87a', radius: 6,
+                realRadius: 6052,
+                moons: []
+            },
+            {
+                nombre: '🌍 Tierra',
+                a: 1.0, e: 0.017, T: 365.25,
+                color: '#6b93d6', radius: 6,
+                realRadius: 6371,
+                moons: [
+                    { nombre: '🌙 Luna', a: 0.00257, T: 27.3, color: '#c0c0c0', radius: 2 }
+                ]
+            },
+            {
+                nombre: '♂ Marte',
+                a: 1.524, e: 0.093, T: 687,
+                color: '#c1440e', radius: 5,
+                realRadius: 3390,
+                moons: []
+            },
+            {
+                nombre: '♃ Júpiter',
+                a: 5.203, e: 0.048, T: 4333,
+                color: '#d8ca9d', radius: 14,
+                realRadius: 69911,
+                moons: [
+                    { nombre: 'Io', a: 0.00282, T: 1.77, color: '#ffff80', radius: 2 },
+                    { nombre: 'Europa', a: 0.00449, T: 3.55, color: '#b0b0b0', radius: 2 },
+                    { nombre: 'Ganímedes', a: 0.00716, T: 7.15, color: '#909090', radius: 2.5 },
+                    { nombre: 'Calisto', a: 0.01258, T: 16.7, color: '#707070', radius: 2 }
+                ]
+            },
+            {
+                nombre: '♄ Saturno',
+                a: 9.537, e: 0.054, T: 10759,
+                color: '#f4d59e', radius: 12,
+                realRadius: 58232,
+                hasRings: true,
+                moons: [
+                    { nombre: 'Titán', a: 0.00817, T: 16, color: '#ffa500', radius: 2.5 }
+                ]
+            },
+            {
+                nombre: '♅ Urano',
+                a: 19.19, e: 0.047, T: 30687,
+                color: '#b5e3e3', radius: 8,
+                realRadius: 25362,
+                moons: []
+            },
+            {
+                nombre: '♆ Neptuno',
+                a: 30.07, e: 0.009, T: 60190,
+                color: '#5b7fde', radius: 8,
+                realRadius: 24622,
+                moons: []
+            }
+        ];
+
+        // Estado
+        let running = false;
+        let lastTime = 0;
+        let simDays = 0;  // Días desde el inicio
+        let speed = 10;   // Días por segundo
+        let scaleLevel = 4;  // Nivel de zoom
+        let selectedPlanet = null;
+
+        // Opciones de visualización
+        let showOrbits = true;
+        let showLabels = true;
+        let showTrails = false;
+        let realSize = false;
+
+        // Escalas de visualización (UA a píxeles)
+        const scales = [
+            { name: 'Mercurio-Venus', maxUA: 1.2, pixelsPerUA: 300 },
+            { name: 'Interior', maxUA: 2, pixelsPerUA: 180 },
+            { name: 'Marte', maxUA: 3, pixelsPerUA: 120 },
+            { name: 'Júpiter', maxUA: 7, pixelsPerUA: 55 },
+            { name: 'Todo', maxUA: 35, pixelsPerUA: 12 }
+        ];
+
+        // Trails para cada planeta
+        let trails = planetas.map(() => []);
+
+        // Calcular posición orbital
+        function getOrbitalPosition(a, e, T, days) {
+            // Anomalía media
+            const M = (2 * Math.PI * days / T) % (2 * Math.PI);
+
+            // Resolver ecuación de Kepler para anomalía excéntrica (Newton-Raphson)
+            let E = M;
+            for (let i = 0; i < 10; i++) {
+                E = E - (E - e * Math.sin(E) - M) / (1 - e * Math.cos(E));
+            }
+
+            // Anomalía verdadera
+            const theta = 2 * Math.atan2(
+                Math.sqrt(1 + e) * Math.sin(E / 2),
+                Math.sqrt(1 - e) * Math.cos(E / 2)
+            );
+
+            // Radio
+            const r = a * (1 - e * Math.cos(E));
+
+            return {
+                x: r * Math.cos(theta),
+                y: r * Math.sin(theta),
+                r: r,
+                theta: theta
+            };
+        }
+
+        // Dibujar estrellas
+        function drawStars() {
+            ctx.fillStyle = '#fff';
+            for (let i = 0; i < 200; i++) {
+                const x = (Math.sin(i * 123.456) * 0.5 + 0.5) * canvas.width;
+                const y = (Math.cos(i * 789.012) * 0.5 + 0.5) * canvas.height;
+                const size = (Math.sin(i * 345.678) * 0.5 + 0.5) * 1.2 + 0.3;
+                ctx.globalAlpha = 0.2 + (Math.sin(i * 111.222 + simDays * 0.01) * 0.5 + 0.5) * 0.3;
+                ctx.beginPath();
+                ctx.arc(x, y, size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            ctx.globalAlpha = 1;
+        }
+
+        // Dibujar Sol
+        function drawSun() {
+            const sunRadius = scaleLevel < 2 ? 20 : (scaleLevel < 4 ? 15 : 12);
+
+            // Corona
+            const coronaGradient = ctx.createRadialGradient(cx, cy, sunRadius, cx, cy, sunRadius * 3);
+            coronaGradient.addColorStop(0, 'rgba(255, 200, 50, 0.3)');
+            coronaGradient.addColorStop(1, 'rgba(255, 200, 50, 0)');
+            ctx.beginPath();
+            ctx.arc(cx, cy, sunRadius * 3, 0, Math.PI * 2);
+            ctx.fillStyle = coronaGradient;
+            ctx.fill();
+
+            // Sol
+            const sunGradient = ctx.createRadialGradient(cx - 3, cy - 3, 0, cx, cy, sunRadius);
+            sunGradient.addColorStop(0, '#fff');
+            sunGradient.addColorStop(0.3, '#ffee00');
+            sunGradient.addColorStop(0.7, '#ffaa00');
+            sunGradient.addColorStop(1, '#ff6600');
+
+            ctx.beginPath();
+            ctx.arc(cx, cy, sunRadius, 0, Math.PI * 2);
+            ctx.fillStyle = sunGradient;
+            ctx.fill();
+
+            if (showLabels && scaleLevel >= 3) {
+                ctx.font = "12px 'Covered By Your Grace'";
+                ctx.fillStyle = 'rgba(255, 200, 50, 0.8)';
+                ctx.fillText('☀ Sol', cx + sunRadius + 5, cy + 4);
+            }
+        }
+
+        // Dibujar planeta
+        function drawPlanet(planeta, index) {
+            const scale = scales[scaleLevel].pixelsPerUA;
+            const pos = getOrbitalPosition(planeta.a, planeta.e, planeta.T, simDays);
+
+            const px = cx + pos.x * scale;
+            const py = cy - pos.y * scale;
+
+            // Verificar si está en pantalla
+            if (px < -50 || px > canvas.width + 50 || py < -50 || py > canvas.height + 50) {
+                return { px, py, pos };
+            }
+
+            // Trail
+            if (showTrails) {
+                trails[index].push({ x: px, y: py });
+                if (trails[index].length > 200) trails[index].shift();
+
+                if (trails[index].length > 1) {
+                    ctx.beginPath();
+                    ctx.moveTo(trails[index][0].x, trails[index][0].y);
+                    for (let i = 1; i < trails[index].length; i++) {
+                        ctx.lineTo(trails[index][i].x, trails[index][i].y);
+                    }
+                    ctx.strokeStyle = planeta.color + '40';
+                    ctx.lineWidth = 1;
+                    ctx.stroke();
+                }
+            }
+
+            // Órbita
+            if (showOrbits) {
+                ctx.beginPath();
+                for (let t = 0; t <= 360; t += 2) {
+                    const angle = t * Math.PI / 180;
+                    const r = planeta.a * (1 - planeta.e * planeta.e) / (1 + planeta.e * Math.cos(angle));
+                    const ox = cx + r * Math.cos(angle) * scale;
+                    const oy = cy - r * Math.sin(angle) * scale;
+                    if (t === 0) ctx.moveTo(ox, oy);
+                    else ctx.lineTo(ox, oy);
+                }
+                ctx.closePath();
+                ctx.strokeStyle = planeta.color + '30';
+                ctx.lineWidth = 1;
+                ctx.stroke();
+            }
+
+            // Planeta
+            let radius = planeta.radius;
+            if (realSize) {
+                radius = Math.max(2, planeta.realRadius / 5000);
+            }
+
+            // Anillos de Saturno
+            if (planeta.hasRings) {
+                ctx.beginPath();
+                ctx.ellipse(px, py, radius * 2.2, radius * 0.6, -0.4, 0, Math.PI * 2);
+                ctx.strokeStyle = 'rgba(210, 180, 140, 0.5)';
+                ctx.lineWidth = 3;
+                ctx.stroke();
+            }
+
+            const planetGradient = ctx.createRadialGradient(px - radius/3, py - radius/3, 0, px, py, radius);
+            planetGradient.addColorStop(0, '#fff');
+            planetGradient.addColorStop(0.3, planeta.color);
+            planetGradient.addColorStop(1, shadeColor(planeta.color, -40));
+
+            ctx.beginPath();
+            ctx.arc(px, py, radius, 0, Math.PI * 2);
+            ctx.fillStyle = planetGradient;
+            ctx.fill();
+
+            // Selección
+            if (selectedPlanet === index) {
+                ctx.beginPath();
+                ctx.arc(px, py, radius + 5, 0, Math.PI * 2);
+                ctx.strokeStyle = '#fbbf24';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([4, 4]);
+                ctx.stroke();
+                ctx.setLineDash([]);
+            }
+
+            // Nombre
+            if (showLabels) {
+                ctx.font = "11px 'Covered By Your Grace'";
+                ctx.fillStyle = 'rgba(255,255,255,0.8)';
+                ctx.fillText(planeta.nombre, px + radius + 4, py + 3);
+            }
+
+            // Lunas
+            if (planeta.moons && scaleLevel < 3) {
+                for (const moon of planeta.moons) {
+                    const moonPos = getOrbitalPosition(moon.a, 0, moon.T, simDays);
+                    const moonScale = scale * 40;  // Escala aumentada para ver lunas
+                    const mx = px + moonPos.x * moonScale;
+                    const my = py - moonPos.y * moonScale;
+
+                    // Órbita de luna
+                    if (showOrbits) {
+                        ctx.beginPath();
+                        ctx.arc(px, py, moon.a * moonScale, 0, Math.PI * 2);
+                        ctx.strokeStyle = moon.color + '30';
+                        ctx.lineWidth = 0.5;
+                        ctx.stroke();
+                    }
+
+                    // Luna
+                    ctx.beginPath();
+                    ctx.arc(mx, my, moon.radius, 0, Math.PI * 2);
+                    ctx.fillStyle = moon.color;
+                    ctx.fill();
+
+                    if (showLabels && scaleLevel === 0) {
+                        ctx.font = "9px 'Covered By Your Grace'";
+                        ctx.fillStyle = 'rgba(255,255,255,0.6)';
+                        ctx.fillText(moon.nombre, mx + moon.radius + 2, my + 2);
+                    }
+                }
+            }
+
+            return { px, py, pos };
+        }
+
+        // Oscurecer color
+        function shadeColor(color, percent) {
+            const num = parseInt(color.replace('#', ''), 16);
+            const amt = Math.round(2.55 * percent);
+            const R = Math.max(0, Math.min(255, (num >> 16) + amt));
+            const G = Math.max(0, Math.min(255, (num >> 8 & 0x00FF) + amt));
+            const B = Math.max(0, Math.min(255, (num & 0x0000FF) + amt));
+            return '#' + (0x1000000 + R * 0x10000 + G * 0x100 + B).toString(16).slice(1);
+        }
+
+        // Dibujar todo
+        function draw() {
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            drawStars();
+            drawSun();
+
+            // Dibujar planetas
+            const positions = [];
+            for (let i = 0; i < planetas.length; i++) {
+                positions[i] = drawPlanet(planetas[i], i);
+            }
+
+            // Escala
+            const scale = scales[scaleLevel].pixelsPerUA;
+            ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(20, canvas.height - 30);
+            ctx.lineTo(20 + scale, canvas.height - 30);
+            ctx.stroke();
+            ctx.font = "11px Inter";
+            ctx.fillStyle = 'rgba(255,255,255,0.5)';
+            ctx.fillText('1 UA', 20 + scale/2 - 15, canvas.height - 15);
+
+            // Actualizar fecha
+            const startDate = new Date(2024, 0, 1);
+            const currentDate = new Date(startDate.getTime() + simDays * 24 * 60 * 60 * 1000);
+            const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+            document.getElementById('fecha').textContent =
+                `${currentDate.getDate()} ${months[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
+
+            // Actualizar info del planeta seleccionado
+            if (selectedPlanet !== null) {
+                updateSelectedInfo(selectedPlanet, positions[selectedPlanet]);
+            }
+        }
+
+        function updateSelectedInfo(index, posData) {
+            const planeta = planetas[index];
+            const pos = posData.pos;
+
+            const velocidad = Math.sqrt(39.478 * (2/pos.r - 1/planeta.a)) * 29.78;  // km/s
+
+            document.getElementById('infoSelected').innerHTML = `
+                <div style="font-family: 'Covered By Your Grace'; font-size: 1.2rem; color: ${planeta.color}; margin-bottom: 8px;">
+                    ${planeta.nombre}
+                </div>
+                <div class="info-row">
+                    <span>Distancia al Sol:</span>
+                    <span>${pos.r.toFixed(3)} UA</span>
+                </div>
+                <div class="info-row">
+                    <span>Período orbital:</span>
+                    <span>${planeta.T.toFixed(0)} días</span>
+                </div>
+                <div class="info-row">
+                    <span>Período (años):</span>
+                    <span>${(planeta.T / 365.25).toFixed(2)} años</span>
+                </div>
+                <div class="info-row">
+                    <span>Velocidad:</span>
+                    <span>${velocidad.toFixed(1)} km/s</span>
+                </div>
+                <div class="info-row">
+                    <span>Semieje mayor:</span>
+                    <span>${planeta.a.toFixed(3)} UA</span>
+                </div>
+                <div class="info-row">
+                    <span>Excentricidad:</span>
+                    <span>${planeta.e.toFixed(3)}</span>
+                </div>
+                ${planeta.moons.length > 0 ? `
+                <div class="info-row">
+                    <span>Lunas principales:</span>
+                    <span>${planeta.moons.length}</span>
+                </div>
+                ` : ''}
+            `;
+        }
+
+        // Simulación
+        function simulate(currentTime) {
+            if (!running) return;
+
+            const dt = (currentTime - lastTime) / 1000;
+            lastTime = currentTime;
+
+            simDays += speed * dt;
+
+            draw();
+            requestAnimationFrame(simulate);
+        }
+
+        // Controles
+        document.getElementById('speed').addEventListener('input', (e) => {
+            speed = parseFloat(e.target.value);
+            document.getElementById('speedValue').textContent = speed;
+        });
+
+        document.getElementById('scale').addEventListener('input', (e) => {
+            scaleLevel = parseInt(e.target.value);
+            document.getElementById('scaleValue').textContent = scales[scaleLevel].name;
+            trails = planetas.map(() => []);
+            if (!running) draw();
+        });
+
+        function setScale(level) {
+            scaleLevel = level;
+            document.getElementById('scale').value = level;
+            document.getElementById('scaleValue').textContent = scales[scaleLevel].name;
+            trails = planetas.map(() => []);
+            if (!running) draw();
+        }
+
+        document.getElementById('showOrbits').addEventListener('change', (e) => {
+            showOrbits = e.target.checked;
+            if (!running) draw();
+        });
+
+        document.getElementById('showLabels').addEventListener('change', (e) => {
+            showLabels = e.target.checked;
+            if (!running) draw();
+        });
+
+        document.getElementById('showTrails').addEventListener('change', (e) => {
+            showTrails = e.target.checked;
+            trails = planetas.map(() => []);
+            if (!running) draw();
+        });
+
+        document.getElementById('realSize').addEventListener('change', (e) => {
+            realSize = e.target.checked;
+            if (!running) draw();
+        });
+
+        document.getElementById('playBtn').addEventListener('click', () => {
+            if (!running) {
+                running = true;
+                lastTime = performance.now();
+                requestAnimationFrame(simulate);
+            }
+        });
+
+        document.getElementById('pauseBtn').addEventListener('click', () => {
+            running = false;
+        });
+
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            running = false;
+            simDays = 0;
+            trails = planetas.map(() => []);
+            draw();
+        });
+
+        // Lista de planetas
+        const listaContainer = document.getElementById('planetaLista');
+        planetas.forEach((planeta, index) => {
+            const item = document.createElement('div');
+            item.className = 'planeta-item';
+            item.innerHTML = `
+                <div class="planeta-color" style="background: ${planeta.color}"></div>
+                <div class="planeta-nombre">${planeta.nombre}</div>
+                <div class="planeta-dist">${planeta.a.toFixed(2)} UA</div>
+            `;
+            item.addEventListener('click', () => {
+                document.querySelectorAll('.planeta-item').forEach(el => el.classList.remove('selected'));
+                item.classList.add('selected');
+                selectedPlanet = index;
+                if (!running) draw();
+            });
+            listaContainer.appendChild(item);
+        });
+
+        // Click en canvas para seleccionar planeta
+        canvas.addEventListener('click', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const clickX = e.clientX - rect.left;
+            const clickY = e.clientY - rect.top;
+
+            const scale = scales[scaleLevel].pixelsPerUA;
+
+            for (let i = 0; i < planetas.length; i++) {
+                const pos = getOrbitalPosition(planetas[i].a, planetas[i].e, planetas[i].T, simDays);
+                const px = cx + pos.x * scale;
+                const py = cy - pos.y * scale;
+
+                const dist = Math.sqrt((clickX - px) ** 2 + (clickY - py) ** 2);
+                if (dist < planetas[i].radius + 10) {
+                    selectedPlanet = i;
+                    document.querySelectorAll('.planeta-item').forEach((el, idx) => {
+                        el.classList.toggle('selected', idx === i);
+                    });
+                    if (!running) draw();
+                    return;
+                }
+            }
+        });
+
+        // Inicializar
+        draw();
+    </script>
+</body>
+</html>

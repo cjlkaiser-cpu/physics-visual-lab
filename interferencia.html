@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interferencia de Ondas - Dos Fuentes</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Covered+By+Your+Grace&family=Inter:wght@300;400;500&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            min-height: 100vh;
+            background: #0a0a0a;
+            font-family: 'Inter', sans-serif;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+        }
+
+        @media (min-width: 900px) {
+            body { flex-direction: row; }
+        }
+
+        .canvas-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 15px;
+        }
+
+        .title-bar {
+            text-align: center;
+            padding: 10px;
+        }
+
+        .title-bar h1 {
+            font-family: 'Covered By Your Grace', cursive;
+            font-size: 1.8rem;
+        }
+
+        .title-bar .subtitle {
+            font-size: 0.75rem;
+            color: #666;
+        }
+
+        #canvas {
+            flex: 1;
+            width: 100%;
+            min-height: 400px;
+            background: #0c1929;
+            border-radius: 12px;
+            image-rendering: pixelated;
+        }
+
+        .controls {
+            width: 100%;
+            padding: 20px;
+            background: #1a1a1a;
+            overflow-y: auto;
+        }
+
+        @media (min-width: 900px) {
+            .controls {
+                width: 350px;
+                max-height: 100vh;
+            }
+        }
+
+        .section-title {
+            font-size: 0.7rem;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: 15px 0 10px;
+        }
+
+        .info-box {
+            background: rgba(96, 165, 250, 0.1);
+            border: 1px solid rgba(96, 165, 250, 0.3);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 15px;
+        }
+
+        .info-box .title {
+            font-family: 'Covered By Your Grace', cursive;
+            font-size: 1.2rem;
+            color: #60a5fa;
+        }
+
+        .info-box .desc {
+            font-size: 0.7rem;
+            color: #888;
+            margin-top: 5px;
+            line-height: 1.4;
+        }
+
+        .slider-group {
+            margin-bottom: 15px;
+        }
+
+        .slider-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+
+        .slider-label {
+            font-size: 0.8rem;
+            color: #888;
+        }
+
+        .slider-value {
+            font-family: 'Covered By Your Grace', cursive;
+            font-size: 1.1rem;
+            color: #60a5fa;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            background: #333;
+            border-radius: 3px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #60a5fa;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        button {
+            flex: 1;
+            padding: 12px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .btn-play { background: #4ade80; color: #000; }
+        .btn-stop { background: #f87171; color: #000; }
+
+        .toggle {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+
+        .toggle input { display: none; }
+
+        .toggle-switch {
+            width: 40px;
+            height: 22px;
+            background: #333;
+            border-radius: 11px;
+            position: relative;
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            background: #fff;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: transform 0.2s;
+        }
+
+        .toggle input:checked + .toggle-switch { background: #4ade80; }
+        .toggle input:checked + .toggle-switch::after { transform: translateX(18px); }
+        .toggle-label { font-size: 0.8rem; color: #aaa; }
+
+        .legend {
+            display: flex;
+            gap: 15px;
+            margin: 15px 0;
+            padding: 12px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 8px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.75rem;
+            color: #888;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+
+        .legend-color.constructive { background: #4ade80; }
+        .legend-color.destructive { background: #1e3a5f; }
+
+        .equations {
+            background: rgba(255,255,255,0.03);
+            border-radius: 8px;
+            padding: 12px;
+        }
+
+        .equation-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .equation-row:last-child { border-bottom: none; }
+
+        .equation-name { font-size: 0.7rem; color: #666; }
+        .equation-text {
+            font-family: 'Covered By Your Grace', cursive;
+            font-size: 1rem;
+            color: rgba(255,255,255,0.9);
+        }
+
+        .quality-selector {
+            display: flex;
+            gap: 8px;
+            margin: 10px 0;
+        }
+
+        .quality-btn {
+            flex: 1;
+            padding: 8px;
+            background: rgba(255,255,255,0.05);
+            border: 2px solid #333;
+            border-radius: 6px;
+            color: #888;
+            font-size: 0.7rem;
+            cursor: pointer;
+        }
+
+        .quality-btn.active {
+            border-color: #60a5fa;
+            color: #60a5fa;
+        }
+    </style>
+</head>
+<body>
+    <div class="canvas-section">
+        <div class="title-bar">
+            <h1>Interferencia de Ondas</h1>
+            <div class="subtitle">Superposición de ondas de dos fuentes coherentes</div>
+        </div>
+        <canvas id="canvas"></canvas>
+    </div>
+
+    <div class="controls">
+        <div class="info-box">
+            <div class="title">Principio de Superposición</div>
+            <div class="desc">
+                Cuando dos ondas se encuentran, sus amplitudes se suman. Si están en fase
+                (crestas con crestas), se refuerzan <strong>(interferencia constructiva)</strong>.
+                Si están en contrafase (crestas con valles), se cancelan <strong>(interferencia destructiva)</strong>.
+            </div>
+        </div>
+
+        <div class="section-title">Parámetros de las ondas</div>
+
+        <div class="slider-group">
+            <div class="slider-header">
+                <span class="slider-label">Longitud de onda (λ)</span>
+                <span class="slider-value" id="wavelengthDisplay">40 px</span>
+            </div>
+            <input type="range" id="wavelengthSlider" min="15" max="80" value="40">
+        </div>
+
+        <div class="slider-group">
+            <div class="slider-header">
+                <span class="slider-label">Separación entre fuentes (d)</span>
+                <span class="slider-value" id="separationDisplay">120 px</span>
+            </div>
+            <input type="range" id="separationSlider" min="30" max="250" value="120">
+        </div>
+
+        <div class="slider-group">
+            <div class="slider-header">
+                <span class="slider-label">Velocidad animación</span>
+                <span class="slider-value" id="freqDisplay">1.0x</span>
+            </div>
+            <input type="range" id="freqSlider" min="0.2" max="2" step="0.1" value="1">
+        </div>
+
+        <div class="section-title">Calidad de renderizado</div>
+        <div class="quality-selector">
+            <button class="quality-btn" data-scale="4">Rápido</button>
+            <button class="quality-btn active" data-scale="2">Normal</button>
+            <button class="quality-btn" data-scale="1">Alta</button>
+        </div>
+
+        <div class="buttons">
+            <button class="btn-play" id="playBtn">▶ Iniciar</button>
+            <button class="btn-stop" id="stopBtn">⏹ Detener</button>
+        </div>
+
+        <label class="toggle">
+            <input type="checkbox" id="showSourcesToggle" checked>
+            <span class="toggle-switch"></span>
+            <span class="toggle-label">Mostrar fuentes</span>
+        </label>
+
+        <label class="toggle">
+            <input type="checkbox" id="showLinesToggle">
+            <span class="toggle-switch"></span>
+            <span class="toggle-label">Líneas de máximos/mínimos</span>
+        </label>
+
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color constructive"></div>
+                <span>Constructiva</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color destructive"></div>
+                <span>Destructiva</span>
+            </div>
+        </div>
+
+        <div class="equations">
+            <div class="section-title">Condiciones de interferencia</div>
+            <div class="equation-row">
+                <span class="equation-name">Constructiva</span>
+                <span class="equation-text">Δr = nλ (n = 0,1,2...)</span>
+            </div>
+            <div class="equation-row">
+                <span class="equation-name">Destructiva</span>
+                <span class="equation-text">Δr = (n+½)λ</span>
+            </div>
+            <div class="equation-row">
+                <span class="equation-name">Diferencia camino</span>
+                <span class="equation-text">Δr = r₂ - r₁</span>
+            </div>
+            <div class="equation-row">
+                <span class="equation-name">Superposición</span>
+                <span class="equation-text">A = A₁ + A₂</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        // Offscreen canvas for low-res rendering
+        const offscreen = document.createElement('canvas');
+        const offCtx = offscreen.getContext('2d');
+
+        let displayW, displayH;
+        let renderScale = 2;  // Render at 1/2 resolution by default
+
+        function resize() {
+            displayW = canvas.clientWidth;
+            displayH = canvas.clientHeight;
+            if (displayW === 0 || displayH === 0) return;
+            canvas.width = displayW;
+            canvas.height = displayH;
+
+            offscreen.width = Math.ceil(displayW / renderScale);
+            offscreen.height = Math.ceil(displayH / renderScale);
+        }
+        window.addEventListener('resize', () => {
+            resize();
+            updateSources();
+            if (!running) draw();
+        });
+
+        // Parameters
+        let wavelength = 40;
+        let separation = 120;
+        let frequency = 1.0;
+
+        // State
+        let running = false;
+        let time = 0;
+        let lastTime = 0;
+        let showSources = true;
+        let showLines = false;
+
+        // Source positions
+        let source1 = { x: 0, y: 0 };
+        let source2 = { x: 0, y: 0 };
+
+        function updateSources() {
+            source1.x = displayW / 2 - separation / 2;
+            source1.y = displayH * 0.25;
+            source2.x = displayW / 2 + separation / 2;
+            source2.y = displayH * 0.25;
+        }
+
+        function animate(currentTime) {
+            if (!running) return;
+
+            const dt = Math.min((currentTime - lastTime) / 1000, 0.1);
+            lastTime = currentTime;
+
+            time += dt * frequency * 3;
+
+            draw();
+            requestAnimationFrame(animate);
+        }
+
+        function draw() {
+            const w = offscreen.width;
+            const h = offscreen.height;
+            const scale = renderScale;
+
+            // Scaled source positions for offscreen canvas
+            const s1x = source1.x / scale;
+            const s1y = source1.y / scale;
+            const s2x = source2.x / scale;
+            const s2y = source2.y / scale;
+            const scaledWavelength = wavelength / scale;
+
+            const imageData = offCtx.createImageData(w, h);
+            const data = imageData.data;
+
+            const k = 2 * Math.PI / scaledWavelength;
+            const omega = 3;  // Angular frequency
+
+            // Precompute lookup table for sqrt approximation (optional speedup)
+            for (let y = 0; y < h; y++) {
+                const rowOffset = y * w * 4;
+                const dy1 = y - s1y;
+                const dy2 = y - s2y;
+                const dy1sq = dy1 * dy1;
+                const dy2sq = dy2 * dy2;
+
+                for (let x = 0; x < w; x++) {
+                    const dx1 = x - s1x;
+                    const dx2 = x - s2x;
+
+                    // Distances from each source
+                    const r1 = Math.sqrt(dx1 * dx1 + dy1sq);
+                    const r2 = Math.sqrt(dx2 * dx2 + dy2sq);
+
+                    // Wave phases
+                    const phase1 = k * r1 - omega * time;
+                    const phase2 = k * r2 - omega * time;
+
+                    // Amplitudes with 1/sqrt(r) attenuation
+                    const att1 = 1 / Math.sqrt(r1 + 5);
+                    const att2 = 1 / Math.sqrt(r2 + 5);
+
+                    const amp1 = Math.sin(phase1) * att1;
+                    const amp2 = Math.sin(phase2) * att2;
+
+                    // Superposition
+                    const totalAmp = amp1 + amp2;
+
+                    // Normalize to color (max combined amplitude ~ 0.6)
+                    const normalized = (totalAmp + 0.5) / 1.0;
+
+                    const idx = rowOffset + x * 4;
+
+                    if (normalized > 0.5) {
+                        // Constructive - cyan/green
+                        const intensity = (normalized - 0.5) * 2;
+                        const i2 = intensity * intensity;  // Nonlinear for better contrast
+                        data[idx] = 20 + i2 * 60 | 0;
+                        data[idx + 1] = 60 + i2 * 160 | 0;
+                        data[idx + 2] = 80 + i2 * 120 | 0;
+                    } else {
+                        // Destructive - dark blue
+                        const intensity = normalized * 2;
+                        data[idx] = 12 + intensity * 18 | 0;
+                        data[idx + 1] = 25 + intensity * 35 | 0;
+                        data[idx + 2] = 41 + intensity * 45 | 0;
+                    }
+                    data[idx + 3] = 255;
+                }
+            }
+
+            offCtx.putImageData(imageData, 0, 0);
+
+            // Scale up to display canvas
+            ctx.imageSmoothingEnabled = false;
+            ctx.drawImage(offscreen, 0, 0, displayW, displayH);
+
+            // Draw overlay elements at full resolution
+            if (showLines) {
+                drawInterferenceLines();
+            }
+
+            if (showSources) {
+                drawSources();
+            }
+        }
+
+        function drawInterferenceLines() {
+            ctx.lineWidth = 1;
+
+            // Draw lines of constant path difference (hyperbolas)
+            for (let n = -6; n <= 6; n++) {
+                // Constructive (solid green)
+                ctx.strokeStyle = 'rgba(74, 222, 128, 0.4)';
+                ctx.setLineDash([]);
+                drawHyperbola(n * wavelength);
+
+                // Destructive (dashed red)
+                ctx.strokeStyle = 'rgba(248, 113, 113, 0.3)';
+                ctx.setLineDash([4, 4]);
+                drawHyperbola((n + 0.5) * wavelength);
+            }
+            ctx.setLineDash([]);
+        }
+
+        function drawHyperbola(pathDiff) {
+            const cy = source1.y;
+            const cx = (source1.x + source2.x) / 2;
+            const a = Math.abs(pathDiff) / 2;
+            const c = separation / 2;
+
+            if (a >= c || a < 1) return;
+
+            const b = Math.sqrt(c * c - a * a);
+
+            ctx.beginPath();
+            let started = false;
+
+            for (let y = 0; y < displayH; y += 2) {
+                const yRel = y - cy;
+                const xSquared = a * a * (1 + yRel * yRel / (b * b));
+
+                if (xSquared < 0) continue;
+
+                const xOffset = Math.sqrt(xSquared);
+                const px = pathDiff >= 0 ? cx + xOffset : cx - xOffset;
+
+                if (px > 0 && px < displayW) {
+                    if (!started) {
+                        ctx.moveTo(px, y);
+                        started = true;
+                    } else {
+                        ctx.lineTo(px, y);
+                    }
+                }
+            }
+            ctx.stroke();
+        }
+
+        function drawSources() {
+            // Source 1
+            ctx.beginPath();
+            ctx.arc(source1.x, source1.y, 10, 0, Math.PI * 2);
+            ctx.fillStyle = '#fbbf24';
+            ctx.fill();
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            // Source 2
+            ctx.beginPath();
+            ctx.arc(source2.x, source2.y, 10, 0, Math.PI * 2);
+            ctx.fillStyle = '#fbbf24';
+            ctx.fill();
+            ctx.stroke();
+
+            // Labels
+            ctx.font = "14px 'Covered By Your Grace'";
+            ctx.fillStyle = '#fff';
+            ctx.textAlign = 'center';
+            ctx.fillText('S₁', source1.x, source1.y - 18);
+            ctx.fillText('S₂', source2.x, source2.y - 18);
+
+            // Distance indicator
+            ctx.setLineDash([3, 3]);
+            ctx.beginPath();
+            ctx.moveTo(source1.x, source1.y + 20);
+            ctx.lineTo(source2.x, source2.y + 20);
+            ctx.strokeStyle = 'rgba(255,255,255,0.5)';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            ctx.font = "12px 'Covered By Your Grace'";
+            ctx.fillStyle = 'rgba(255,255,255,0.7)';
+            ctx.fillText('d = ' + separation + ' px', (source1.x + source2.x) / 2, source1.y + 35);
+
+            // Wavelength indicator
+            ctx.font = "14px 'Covered By Your Grace'";
+            ctx.fillStyle = 'rgba(255,255,255,0.5)';
+            ctx.textAlign = 'left';
+            ctx.fillText('λ = ' + wavelength + ' px', 15, displayH - 15);
+        }
+
+        // Controls
+        document.getElementById('wavelengthSlider').addEventListener('input', (e) => {
+            wavelength = parseInt(e.target.value);
+            document.getElementById('wavelengthDisplay').textContent = wavelength + ' px';
+            if (!running) draw();
+        });
+
+        document.getElementById('separationSlider').addEventListener('input', (e) => {
+            separation = parseInt(e.target.value);
+            document.getElementById('separationDisplay').textContent = separation + ' px';
+            updateSources();
+            if (!running) draw();
+        });
+
+        document.getElementById('freqSlider').addEventListener('input', (e) => {
+            frequency = parseFloat(e.target.value);
+            document.getElementById('freqDisplay').textContent = frequency.toFixed(1) + 'x';
+        });
+
+        document.querySelectorAll('.quality-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.quality-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                renderScale = parseInt(btn.dataset.scale);
+                resize();
+            });
+        });
+
+        document.getElementById('playBtn').addEventListener('click', () => {
+            if (!running) {
+                running = true;
+                lastTime = performance.now();
+                requestAnimationFrame(animate);
+            }
+        });
+
+        document.getElementById('stopBtn').addEventListener('click', () => {
+            running = false;
+            time = 0;
+            draw();
+        });
+
+        document.getElementById('showSourcesToggle').addEventListener('change', (e) => {
+            showSources = e.target.checked;
+            if (!running) draw();
+        });
+
+        document.getElementById('showLinesToggle').addEventListener('change', (e) => {
+            showLines = e.target.checked;
+            if (!running) draw();
+        });
+
+        // Init
+        window.addEventListener('DOMContentLoaded', () => {
+            resize();
+            updateSources();
+            draw();
+        });
+
+        if (document.readyState !== 'loading') {
+            resize();
+            updateSources();
+            draw();
+        }
+    </script>
+</body>
+</html>

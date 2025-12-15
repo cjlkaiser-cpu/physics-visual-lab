@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Efecto Doppler - Simulación Interactiva</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Covered+By+Your+Grace&family=Inter:wght@300;400;500&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            min-height: 100vh;
+            background: #0a0a0a;
+            font-family: 'Inter', sans-serif;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+        }
+
+        @media (min-width: 900px) {
+            body { flex-direction: row; }
+        }
+
+        .canvas-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 15px;
+        }
+
+        .title-bar {
+            text-align: center;
+            padding: 10px;
+        }
+
+        .title-bar h1 {
+            font-family: 'Covered By Your Grace', cursive;
+            font-size: 1.8rem;
+            color: #fff;
+        }
+
+        .title-bar .subtitle {
+            font-size: 0.75rem;
+            color: #666;
+        }
+
+        #canvas {
+            flex: 1;
+            width: 100%;
+            min-height: 400px;
+            background: #111;
+            border-radius: 12px;
+        }
+
+        .controls {
+            width: 100%;
+            padding: 20px;
+            background: #1a1a1a;
+            overflow-y: auto;
+        }
+
+        @media (min-width: 900px) {
+            .controls {
+                width: 350px;
+                max-height: 100vh;
+                border-radius: 0;
+            }
+        }
+
+        .section-title {
+            font-size: 0.7rem;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: 15px 0 10px;
+        }
+
+        .slider-group {
+            margin-bottom: 15px;
+        }
+
+        .slider-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+
+        .slider-label {
+            font-size: 0.8rem;
+            color: #888;
+        }
+
+        .slider-value {
+            font-family: 'Covered By Your Grace', cursive;
+            font-size: 1.1rem;
+            color: #f87171;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            background: #333;
+            border-radius: 3px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #f87171;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        button {
+            flex: 1;
+            padding: 12px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .btn-play { background: #4ade80; color: #000; }
+        .btn-stop { background: #f87171; color: #000; }
+
+        .toggle {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+
+        .toggle input { display: none; }
+
+        .toggle-switch {
+            width: 40px;
+            height: 22px;
+            background: #333;
+            border-radius: 11px;
+            position: relative;
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            background: #fff;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: transform 0.2s;
+        }
+
+        .toggle input:checked + .toggle-switch {
+            background: #4ade80;
+        }
+
+        .toggle input:checked + .toggle-switch::after {
+            transform: translateX(18px);
+        }
+
+        .toggle-label {
+            font-size: 0.8rem;
+            color: #aaa;
+        }
+
+        .info-box {
+            background: rgba(248, 113, 113, 0.1);
+            border: 1px solid rgba(248, 113, 113, 0.3);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 15px;
+        }
+
+        .info-box .title {
+            font-family: 'Covered By Your Grace', cursive;
+            font-size: 1.2rem;
+            color: #f87171;
+        }
+
+        .info-box .desc {
+            font-size: 0.7rem;
+            color: #888;
+            margin-top: 5px;
+            line-height: 1.4;
+        }
+
+        .frequency-display {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .freq-item {
+            background: rgba(255,255,255,0.03);
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .freq-item .label {
+            font-size: 0.65rem;
+            color: #666;
+        }
+
+        .freq-item .value {
+            font-family: 'Covered By Your Grace', cursive;
+            font-size: 1.4rem;
+            color: #fff;
+        }
+
+        .freq-item .value.approaching { color: #60a5fa; }
+        .freq-item .value.receding { color: #f87171; }
+
+        .equations {
+            background: rgba(255,255,255,0.03);
+            border-radius: 8px;
+            padding: 12px;
+        }
+
+        .equation-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .equation-row:last-child { border-bottom: none; }
+
+        .equation-name {
+            font-size: 0.7rem;
+            color: #666;
+        }
+
+        .equation-text {
+            font-family: 'Covered By Your Grace', cursive;
+            font-size: 1rem;
+            color: rgba(255,255,255,0.9);
+        }
+    </style>
+</head>
+<body>
+    <div class="canvas-section">
+        <div class="title-bar">
+            <h1>Efecto Doppler</h1>
+            <div class="subtitle">El cambio de frecuencia por movimiento relativo</div>
+        </div>
+        <canvas id="canvas"></canvas>
+    </div>
+
+    <div class="controls">
+        <div class="info-box">
+            <div class="title">¿Por qué cambia el sonido?</div>
+            <div class="desc">
+                Cuando una fuente de sonido se acerca, las ondas se comprimen (frecuencia más alta, tono agudo).
+                Cuando se aleja, se estiran (frecuencia más baja, tono grave).
+                Es el efecto que escuchas cuando pasa una ambulancia.
+            </div>
+        </div>
+
+        <div class="frequency-display">
+            <div class="freq-item">
+                <div class="label">Frecuencia emitida</div>
+                <div class="value" id="emittedFreq">440 Hz</div>
+            </div>
+            <div class="freq-item">
+                <div class="label">Frecuencia percibida</div>
+                <div class="value" id="perceivedFreq">440 Hz</div>
+            </div>
+        </div>
+
+        <div class="section-title">Parámetros</div>
+
+        <div class="slider-group">
+            <div class="slider-header">
+                <span class="slider-label">Velocidad de la fuente</span>
+                <span class="slider-value" id="speedDisplay">50 m/s</span>
+            </div>
+            <input type="range" id="speedSlider" min="0" max="300" value="50">
+        </div>
+
+        <div class="slider-group">
+            <div class="slider-header">
+                <span class="slider-label">Frecuencia base</span>
+                <span class="slider-value" id="freqDisplay">440 Hz</span>
+            </div>
+            <input type="range" id="freqSlider" min="200" max="800" value="440">
+        </div>
+
+        <div class="buttons">
+            <button class="btn-play" id="playBtn">▶ Iniciar</button>
+            <button class="btn-stop" id="stopBtn">⏹ Detener</button>
+        </div>
+
+        <label class="toggle">
+            <input type="checkbox" id="soundToggle" checked>
+            <span class="toggle-switch"></span>
+            <span class="toggle-label">🔊 Sonido (escuchar el efecto)</span>
+        </label>
+
+        <div class="equations">
+            <div class="section-title">Fórmula del Doppler</div>
+            <div class="equation-row">
+                <span class="equation-name">General</span>
+                <span class="equation-text">f' = f × (v ± vₒ)/(v ∓ vₛ)</span>
+            </div>
+            <div class="equation-row">
+                <span class="equation-name">Acercándose</span>
+                <span class="equation-text">f' = f × v/(v - vₛ)</span>
+            </div>
+            <div class="equation-row">
+                <span class="equation-name">Alejándose</span>
+                <span class="equation-text">f' = f × v/(v + vₛ)</span>
+            </div>
+            <div class="equation-row">
+                <span class="equation-name">v (sonido)</span>
+                <span class="equation-text">343 m/s</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        function resize() {
+            canvas.width = canvas.clientWidth * devicePixelRatio;
+            canvas.height = canvas.clientHeight * devicePixelRatio;
+            ctx.scale(devicePixelRatio, devicePixelRatio);
+        }
+        resize();
+        window.addEventListener('resize', resize);
+
+        // Physics
+        const soundSpeed = 343;  // m/s
+        let sourceSpeed = 50;
+        let baseFreq = 440;
+
+        // State
+        let running = false;
+        let sourceX = 0;
+        let waves = [];  // {x, y, radius, time}
+        let lastWaveTime = 0;
+        let lastTime = 0;
+        let soundEnabled = true;
+
+        // Observer position (right side)
+        let observerX = 0;
+        let observerY = 0;
+
+        // Audio
+        let audioCtx = null;
+        let oscillator = null;
+        let gainNode = null;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                gainNode = audioCtx.createGain();
+                gainNode.connect(audioCtx.destination);
+                gainNode.gain.value = 0;
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        function startSound() {
+            if (!audioCtx || !soundEnabled) return;
+            if (oscillator) oscillator.stop();
+
+            oscillator = audioCtx.createOscillator();
+            oscillator.type = 'sine';
+            oscillator.frequency.value = baseFreq;
+            oscillator.connect(gainNode);
+            oscillator.start();
+            gainNode.gain.setValueAtTime(0.15, audioCtx.currentTime);
+        }
+
+        function stopSound() {
+            if (gainNode) {
+                gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+            }
+            if (oscillator) {
+                oscillator.stop();
+                oscillator = null;
+            }
+        }
+
+        function updateSound(perceivedFreq) {
+            if (oscillator && soundEnabled) {
+                oscillator.frequency.setValueAtTime(perceivedFreq, audioCtx.currentTime);
+            }
+        }
+
+        function calculateDoppler(sourceX, sourceVx) {
+            const w = canvas.clientWidth;
+            const h = canvas.clientHeight;
+            observerX = w * 0.85;
+            observerY = h / 2;
+
+            // Distance and direction to observer
+            const dx = observerX - sourceX;
+            const distance = Math.abs(dx);
+
+            // Radial velocity (positive = approaching)
+            const radialV = dx > 0 ? sourceVx : -sourceVx;
+
+            // Doppler formula: f' = f * v / (v - vs) when approaching
+            let perceivedFreq;
+            if (radialV > 0) {
+                // Approaching
+                perceivedFreq = baseFreq * soundSpeed / (soundSpeed - Math.min(radialV, soundSpeed - 1));
+            } else {
+                // Receding
+                perceivedFreq = baseFreq * soundSpeed / (soundSpeed - radialV);
+            }
+
+            return { perceivedFreq, approaching: radialV > 0 };
+        }
+
+        function simulate(currentTime) {
+            if (!running) return;
+
+            const dt = Math.min((currentTime - lastTime) / 1000, 0.05);
+            lastTime = currentTime;
+
+            const w = canvas.clientWidth;
+            const h = canvas.clientHeight;
+
+            // Move source
+            sourceX += sourceSpeed * dt * 50;  // Scale for visual
+
+            // Wrap around
+            if (sourceX > w + 50) {
+                sourceX = -50;
+            }
+
+            // Emit waves periodically
+            const waveInterval = 1000 / baseFreq * 50;  // Scaled
+            if (currentTime - lastWaveTime > waveInterval) {
+                waves.push({
+                    x: sourceX,
+                    y: h / 2,
+                    radius: 0,
+                    time: currentTime
+                });
+                lastWaveTime = currentTime;
+            }
+
+            // Update waves
+            const waveSpeed = soundSpeed * 0.5;  // Visual scale
+            waves.forEach(wave => {
+                wave.radius += waveSpeed * dt;
+            });
+
+            // Remove old waves
+            waves = waves.filter(w => w.radius < Math.max(w, h));
+
+            // Calculate Doppler effect
+            const { perceivedFreq, approaching } = calculateDoppler(sourceX, sourceSpeed);
+
+            // Update audio
+            updateSound(perceivedFreq);
+
+            // Update display
+            document.getElementById('perceivedFreq').textContent = Math.round(perceivedFreq) + ' Hz';
+            const freqEl = document.getElementById('perceivedFreq');
+            freqEl.className = 'value ' + (approaching ? 'approaching' : 'receding');
+
+            draw();
+            requestAnimationFrame(simulate);
+        }
+
+        function draw() {
+            const w = canvas.clientWidth;
+            const h = canvas.clientHeight;
+
+            ctx.fillStyle = '#111';
+            ctx.fillRect(0, 0, w, h);
+
+            // Draw waves
+            waves.forEach(wave => {
+                const alpha = Math.max(0, 1 - wave.radius / Math.max(w, h));
+                ctx.beginPath();
+                ctx.arc(wave.x, wave.y, wave.radius, 0, Math.PI * 2);
+                ctx.strokeStyle = `rgba(248, 113, 113, ${alpha * 0.6})`;
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            });
+
+            // Draw observer
+            observerX = w * 0.85;
+            observerY = h / 2;
+
+            ctx.beginPath();
+            ctx.arc(observerX, observerY, 20, 0, Math.PI * 2);
+            ctx.fillStyle = '#4ade80';
+            ctx.fill();
+
+            ctx.font = "12px Inter";
+            ctx.fillStyle = '#000';
+            ctx.textAlign = 'center';
+            ctx.fillText('👂', observerX, observerY + 5);
+
+            ctx.font = "14px 'Covered By Your Grace'";
+            ctx.fillStyle = '#4ade80';
+            ctx.fillText('Observador', observerX, observerY + 40);
+
+            // Draw source (car/ambulance shape)
+            const sourceY = h / 2;
+            ctx.fillStyle = '#f87171';
+
+            // Simple car shape
+            ctx.beginPath();
+            ctx.roundRect(sourceX - 25, sourceY - 12, 50, 24, 5);
+            ctx.fill();
+
+            ctx.fillStyle = '#fca5a5';
+            ctx.fillRect(sourceX + 10, sourceY - 8, 12, 16);
+
+            // Wheels
+            ctx.fillStyle = '#333';
+            ctx.beginPath();
+            ctx.arc(sourceX - 12, sourceY + 12, 6, 0, Math.PI * 2);
+            ctx.arc(sourceX + 12, sourceY + 12, 6, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Speaker icon
+            ctx.font = "16px Inter";
+            ctx.fillStyle = '#fff';
+            ctx.textAlign = 'center';
+            ctx.fillText('🔊', sourceX - 5, sourceY + 5);
+
+            // Speed arrow
+            ctx.beginPath();
+            ctx.moveTo(sourceX + 30, sourceY);
+            ctx.lineTo(sourceX + 60, sourceY);
+            ctx.lineTo(sourceX + 55, sourceY - 5);
+            ctx.moveTo(sourceX + 60, sourceY);
+            ctx.lineTo(sourceX + 55, sourceY + 5);
+            ctx.strokeStyle = '#fbbf24';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            ctx.font = "12px 'Covered By Your Grace'";
+            ctx.fillStyle = '#fbbf24';
+            ctx.fillText(sourceSpeed + ' m/s', sourceX + 45, sourceY - 15);
+
+            // Labels
+            ctx.font = "14px 'Covered By Your Grace'";
+            ctx.fillStyle = '#f87171';
+            ctx.fillText('Fuente', sourceX, sourceY + 40);
+
+            // Frequency indicators
+            const { perceivedFreq, approaching } = calculateDoppler(sourceX, sourceSpeed);
+
+            if (sourceX < observerX - 100) {
+                // Show compression ahead
+                ctx.fillStyle = 'rgba(96, 165, 250, 0.3)';
+                ctx.font = "16px 'Covered By Your Grace'";
+                ctx.fillText('Ondas comprimidas', (sourceX + observerX) / 2, h / 2 - 80);
+                ctx.fillText('→ Tono agudo', (sourceX + observerX) / 2, h / 2 - 60);
+            } else if (sourceX > observerX + 100) {
+                // Show stretching behind
+                ctx.fillStyle = 'rgba(248, 113, 113, 0.3)';
+                ctx.font = "16px 'Covered By Your Grace'";
+                ctx.fillText('Ondas estiradas', (sourceX + observerX) / 2, h / 2 - 80);
+                ctx.fillText('→ Tono grave', (sourceX + observerX) / 2, h / 2 - 60);
+            }
+        }
+
+        // Controls
+        document.getElementById('speedSlider').addEventListener('input', (e) => {
+            sourceSpeed = parseInt(e.target.value);
+            document.getElementById('speedDisplay').textContent = sourceSpeed + ' m/s';
+
+            // Warning if approaching sound speed
+            if (sourceSpeed > 300) {
+                document.getElementById('speedDisplay').style.color = '#fbbf24';
+            } else {
+                document.getElementById('speedDisplay').style.color = '#f87171';
+            }
+        });
+
+        document.getElementById('freqSlider').addEventListener('input', (e) => {
+            baseFreq = parseInt(e.target.value);
+            document.getElementById('freqDisplay').textContent = baseFreq + ' Hz';
+            document.getElementById('emittedFreq').textContent = baseFreq + ' Hz';
+        });
+
+        document.getElementById('playBtn').addEventListener('click', () => {
+            if (!running) {
+                initAudio();
+                running = true;
+                sourceX = -50;
+                waves = [];
+                lastTime = performance.now();
+                lastWaveTime = 0;
+                if (soundEnabled) startSound();
+                requestAnimationFrame(simulate);
+            }
+        });
+
+        document.getElementById('stopBtn').addEventListener('click', () => {
+            running = false;
+            stopSound();
+            sourceX = canvas.clientWidth * 0.15;
+            waves = [];
+            draw();
+        });
+
+        document.getElementById('soundToggle').addEventListener('change', (e) => {
+            soundEnabled = e.target.checked;
+            if (!soundEnabled) {
+                stopSound();
+            } else if (running) {
+                initAudio();
+                startSound();
+            }
+        });
+
+        // Init
+        sourceX = canvas.clientWidth * 0.15;
+        document.getElementById('emittedFreq').textContent = baseFreq + ' Hz';
+        draw();
+    </script>
+</body>
+</html>

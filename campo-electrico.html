@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campo Eléctrico - Cargas Puntuales</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Covered+By+Your+Grace&family=Inter:wght@300;400;500&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            min-height: 100vh;
+            background: #0a0a0a;
+            font-family: 'Inter', sans-serif;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+        }
+
+        @media (min-width: 900px) {
+            body { flex-direction: row; }
+        }
+
+        .canvas-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 15px;
+        }
+
+        .title-bar {
+            text-align: center;
+            padding: 10px;
+        }
+
+        .title-bar h1 {
+            font-family: 'Covered By Your Grace', cursive;
+            font-size: 1.8rem;
+        }
+
+        .title-bar .subtitle {
+            font-size: 0.75rem;
+            color: #666;
+        }
+
+        #canvas {
+            flex: 1;
+            width: 100%;
+            min-height: 400px;
+            background: #111;
+            border-radius: 12px;
+            cursor: crosshair;
+        }
+
+        .controls {
+            width: 100%;
+            padding: 20px;
+            background: #1a1a1a;
+            overflow-y: auto;
+        }
+
+        @media (min-width: 900px) {
+            .controls {
+                width: 350px;
+                max-height: 100vh;
+            }
+        }
+
+        .section-title {
+            font-size: 0.7rem;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: 15px 0 10px;
+        }
+
+        .info-box {
+            background: rgba(251, 191, 36, 0.1);
+            border: 1px solid rgba(251, 191, 36, 0.3);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 15px;
+        }
+
+        .info-box .title {
+            font-family: 'Covered By Your Grace', cursive;
+            font-size: 1.2rem;
+            color: #fbbf24;
+        }
+
+        .info-box .desc {
+            font-size: 0.7rem;
+            color: #888;
+            margin-top: 5px;
+            line-height: 1.4;
+        }
+
+        .charge-selector {
+            display: flex;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .charge-btn {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #333;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.05);
+            color: #888;
+            font-size: 1.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .charge-btn.positive.active {
+            border-color: #f87171;
+            color: #f87171;
+            background: rgba(248, 113, 113, 0.1);
+        }
+
+        .charge-btn.negative.active {
+            border-color: #60a5fa;
+            color: #60a5fa;
+            background: rgba(96, 165, 250, 0.1);
+        }
+
+        .slider-group {
+            margin-bottom: 15px;
+        }
+
+        .slider-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+
+        .slider-label {
+            font-size: 0.8rem;
+            color: #888;
+        }
+
+        .slider-value {
+            font-family: 'Covered By Your Grace', cursive;
+            font-size: 1.1rem;
+            color: #fbbf24;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            background: #333;
+            border-radius: 3px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #fbbf24;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        button {
+            flex: 1;
+            padding: 12px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .btn-clear { background: #f87171; color: #000; }
+        .btn-preset { background: #4ade80; color: #000; }
+
+        .toggle {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+
+        .toggle input { display: none; }
+
+        .toggle-switch {
+            width: 40px;
+            height: 22px;
+            background: #333;
+            border-radius: 11px;
+            position: relative;
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            background: #fff;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: transform 0.2s;
+        }
+
+        .toggle input:checked + .toggle-switch { background: #4ade80; }
+        .toggle input:checked + .toggle-switch::after { transform: translateX(18px); }
+        .toggle-label { font-size: 0.8rem; color: #aaa; }
+
+        .legend {
+            display: flex;
+            gap: 15px;
+            margin: 15px 0;
+            padding: 12px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 8px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.75rem;
+            color: #888;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+        }
+
+        .legend-color.positive { background: #f87171; }
+        .legend-color.negative { background: #60a5fa; }
+
+        .equations {
+            background: rgba(255,255,255,0.03);
+            border-radius: 8px;
+            padding: 12px;
+        }
+
+        .equation-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .equation-row:last-child { border-bottom: none; }
+
+        .equation-name { font-size: 0.7rem; color: #666; }
+        .equation-text {
+            font-family: 'Covered By Your Grace', cursive;
+            font-size: 1rem;
+            color: rgba(255,255,255,0.9);
+        }
+
+        .charge-list {
+            max-height: 150px;
+            overflow-y: auto;
+            margin: 10px 0;
+        }
+
+        .charge-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 6px;
+            margin-bottom: 5px;
+            font-size: 0.75rem;
+        }
+
+        .charge-item .type {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .charge-item .type.pos { background: #f87171; }
+        .charge-item .type.neg { background: #60a5fa; }
+
+        .charge-item .delete {
+            background: none;
+            border: none;
+            color: #666;
+            cursor: pointer;
+            padding: 2px 6px;
+        }
+
+        .charge-item .delete:hover { color: #f87171; }
+    </style>
+</head>
+<body>
+    <div class="canvas-section">
+        <div class="title-bar">
+            <h1>Campo Eléctrico</h1>
+            <div class="subtitle">Ley de Coulomb y líneas de campo</div>
+        </div>
+        <canvas id="canvas"></canvas>
+    </div>
+
+    <div class="controls">
+        <div class="info-box">
+            <div class="title">Ley de Coulomb</div>
+            <div class="desc">
+                La fuerza entre cargas es proporcional al producto de las cargas e inversamente
+                proporcional al cuadrado de la distancia. El campo eléctrico apunta <strong>desde</strong>
+                cargas positivas y <strong>hacia</strong> cargas negativas.
+            </div>
+        </div>
+
+        <div class="section-title">Selecciona tipo de carga</div>
+        <div class="charge-selector">
+            <button class="charge-btn positive active" data-charge="1">+</button>
+            <button class="charge-btn negative" data-charge="-1">−</button>
+        </div>
+
+        <div class="slider-group">
+            <div class="slider-header">
+                <span class="slider-label">Magnitud de carga |q|</span>
+                <span class="slider-value" id="chargeDisplay">1.0 μC</span>
+            </div>
+            <input type="range" id="chargeSlider" min="0.5" max="3" step="0.1" value="1">
+        </div>
+
+        <div class="slider-group">
+            <div class="slider-header">
+                <span class="slider-label">Densidad de líneas</span>
+                <span class="slider-value" id="densityDisplay">15</span>
+            </div>
+            <input type="range" id="densitySlider" min="8" max="30" step="1" value="15">
+        </div>
+
+        <div class="buttons">
+            <button class="btn-preset" id="dipoleBtn">Dipolo</button>
+            <button class="btn-preset" id="quadBtn">Cuadrupolo</button>
+            <button class="btn-clear" id="clearBtn">Limpiar</button>
+        </div>
+
+        <label class="toggle">
+            <input type="checkbox" id="showVectorsToggle" checked>
+            <span class="toggle-switch"></span>
+            <span class="toggle-label">Mostrar vectores de campo</span>
+        </label>
+
+        <label class="toggle">
+            <input type="checkbox" id="showLinesToggle" checked>
+            <span class="toggle-switch"></span>
+            <span class="toggle-label">Mostrar líneas de campo</span>
+        </label>
+
+        <label class="toggle">
+            <input type="checkbox" id="showPotentialToggle">
+            <span class="toggle-switch"></span>
+            <span class="toggle-label">Mostrar potencial (colores)</span>
+        </label>
+
+        <div class="section-title">Cargas colocadas</div>
+        <div class="charge-list" id="chargeList">
+            <div style="color: #666; font-size: 0.75rem; padding: 10px;">
+                Haz clic en el canvas para añadir cargas
+            </div>
+        </div>
+
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color positive"></div>
+                <span>Positiva (+)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color negative"></div>
+                <span>Negativa (−)</span>
+            </div>
+        </div>
+
+        <div class="equations">
+            <div class="section-title">Ecuaciones</div>
+            <div class="equation-row">
+                <span class="equation-name">Ley de Coulomb</span>
+                <span class="equation-text">F = kq₁q₂/r²</span>
+            </div>
+            <div class="equation-row">
+                <span class="equation-name">Campo eléctrico</span>
+                <span class="equation-text">E = kq/r²</span>
+            </div>
+            <div class="equation-row">
+                <span class="equation-name">Potencial</span>
+                <span class="equation-text">V = kq/r</span>
+            </div>
+            <div class="equation-row">
+                <span class="equation-name">Constante k</span>
+                <span class="equation-text">9×10⁹ N·m²/C²</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        let canvasW, canvasH;
+
+        function resize() {
+            canvasW = canvas.clientWidth;
+            canvasH = canvas.clientHeight;
+            if (canvasW === 0 || canvasH === 0) return;
+            canvas.width = canvasW;
+            canvas.height = canvasH;
+        }
+        window.addEventListener('resize', () => {
+            resize();
+            draw();
+        });
+
+        // State
+        let charges = [];
+        let selectedSign = 1;
+        let chargeMagnitude = 1.0;
+        let lineDensity = 15;
+        let showVectors = true;
+        let showLines = true;
+        let showPotential = false;
+
+        const k = 50000;  // Scaled Coulomb constant for visualization
+
+        function addCharge(x, y, q) {
+            charges.push({ x, y, q });
+            updateChargeList();
+            draw();
+        }
+
+        function removeCharge(index) {
+            charges.splice(index, 1);
+            updateChargeList();
+            draw();
+        }
+
+        function updateChargeList() {
+            const list = document.getElementById('chargeList');
+            if (charges.length === 0) {
+                list.innerHTML = '<div style="color: #666; font-size: 0.75rem; padding: 10px;">Haz clic en el canvas para añadir cargas</div>';
+                return;
+            }
+
+            list.innerHTML = charges.map((c, i) => `
+                <div class="charge-item">
+                    <div class="type ${c.q > 0 ? 'pos' : 'neg'}"></div>
+                    <span>q${i + 1} = ${c.q > 0 ? '+' : ''}${c.q.toFixed(1)} μC</span>
+                    <span>(${Math.round(c.x)}, ${Math.round(c.y)})</span>
+                    <button class="delete" onclick="removeCharge(${i})">✕</button>
+                </div>
+            `).join('');
+        }
+
+        function getField(x, y) {
+            let Ex = 0, Ey = 0;
+
+            for (const charge of charges) {
+                const dx = x - charge.x;
+                const dy = y - charge.y;
+                const r2 = dx * dx + dy * dy;
+                const r = Math.sqrt(r2);
+
+                if (r < 10) continue;  // Avoid singularity
+
+                const E = k * charge.q / r2;
+                Ex += E * dx / r;
+                Ey += E * dy / r;
+            }
+
+            return { Ex, Ey };
+        }
+
+        function getPotential(x, y) {
+            let V = 0;
+
+            for (const charge of charges) {
+                const dx = x - charge.x;
+                const dy = y - charge.y;
+                const r = Math.sqrt(dx * dx + dy * dy);
+
+                if (r < 5) r = 5;
+
+                V += k * charge.q / r;
+            }
+
+            return V;
+        }
+
+        function drawPotential() {
+            const imageData = ctx.createImageData(canvasW, canvasH);
+            const data = imageData.data;
+
+            for (let y = 0; y < canvasH; y += 2) {
+                for (let x = 0; x < canvasW; x += 2) {
+                    const V = getPotential(x, y);
+
+                    // Map potential to color
+                    const normalized = Math.tanh(V / 500);  // Normalize
+
+                    let r, g, b;
+                    if (normalized > 0) {
+                        // Positive - red
+                        r = 50 + normalized * 150;
+                        g = 30;
+                        b = 30;
+                    } else {
+                        // Negative - blue
+                        r = 30;
+                        g = 30;
+                        b = 50 - normalized * 150;
+                    }
+
+                    // Fill 2x2 block
+                    for (let dy = 0; dy < 2 && y + dy < canvasH; dy++) {
+                        for (let dx = 0; dx < 2 && x + dx < canvasW; dx++) {
+                            const idx = ((y + dy) * canvasW + (x + dx)) * 4;
+                            data[idx] = r;
+                            data[idx + 1] = g;
+                            data[idx + 2] = b;
+                            data[idx + 3] = 255;
+                        }
+                    }
+                }
+            }
+
+            ctx.putImageData(imageData, 0, 0);
+        }
+
+        function drawFieldVectors() {
+            const spacing = 40;
+
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+            ctx.lineWidth = 1;
+
+            for (let y = spacing / 2; y < canvasH; y += spacing) {
+                for (let x = spacing / 2; x < canvasW; x += spacing) {
+                    // Check if too close to a charge
+                    let tooClose = false;
+                    for (const charge of charges) {
+                        const d = Math.sqrt((x - charge.x) ** 2 + (y - charge.y) ** 2);
+                        if (d < 30) {
+                            tooClose = true;
+                            break;
+                        }
+                    }
+                    if (tooClose) continue;
+
+                    const { Ex, Ey } = getField(x, y);
+                    const mag = Math.sqrt(Ex * Ex + Ey * Ey);
+
+                    if (mag < 0.1) continue;
+
+                    const len = Math.min(15, mag * 0.5);
+                    const angle = Math.atan2(Ey, Ex);
+
+                    const endX = x + Math.cos(angle) * len;
+                    const endY = y + Math.sin(angle) * len;
+
+                    ctx.beginPath();
+                    ctx.moveTo(x, y);
+                    ctx.lineTo(endX, endY);
+                    ctx.stroke();
+
+                    // Arrowhead
+                    const headLen = 4;
+                    ctx.beginPath();
+                    ctx.moveTo(endX, endY);
+                    ctx.lineTo(endX - headLen * Math.cos(angle - 0.5), endY - headLen * Math.sin(angle - 0.5));
+                    ctx.moveTo(endX, endY);
+                    ctx.lineTo(endX - headLen * Math.cos(angle + 0.5), endY - headLen * Math.sin(angle + 0.5));
+                    ctx.stroke();
+                }
+            }
+        }
+
+        function drawFieldLines() {
+            ctx.lineWidth = 1.5;
+
+            for (const charge of charges) {
+                const numLines = Math.round(lineDensity * Math.abs(charge.q));
+                const startDist = 15;
+
+                for (let i = 0; i < numLines; i++) {
+                    const angle = (2 * Math.PI * i) / numLines;
+
+                    // Starting point
+                    let x = charge.x + Math.cos(angle) * startDist;
+                    let y = charge.y + Math.sin(angle) * startDist;
+
+                    // Direction depends on charge sign
+                    const direction = charge.q > 0 ? 1 : -1;
+
+                    ctx.beginPath();
+                    ctx.moveTo(x, y);
+
+                    // Color gradient based on direction
+                    const gradient = ctx.createLinearGradient(
+                        charge.x, charge.y,
+                        charge.x + Math.cos(angle) * 200,
+                        charge.y + Math.sin(angle) * 200
+                    );
+
+                    if (charge.q > 0) {
+                        gradient.addColorStop(0, '#f87171');
+                        gradient.addColorStop(1, 'rgba(248, 113, 113, 0.1)');
+                    } else {
+                        gradient.addColorStop(0, 'rgba(96, 165, 250, 0.1)');
+                        gradient.addColorStop(1, '#60a5fa');
+                    }
+                    ctx.strokeStyle = gradient;
+
+                    // Trace field line
+                    const step = 3;
+                    const maxSteps = 500;
+
+                    for (let s = 0; s < maxSteps; s++) {
+                        const { Ex, Ey } = getField(x, y);
+                        const mag = Math.sqrt(Ex * Ex + Ey * Ey);
+
+                        if (mag < 0.5) break;
+
+                        // Normalize and step
+                        x += direction * (Ex / mag) * step;
+                        y += direction * (Ey / mag) * step;
+
+                        // Check bounds
+                        if (x < 0 || x > canvasW || y < 0 || y > canvasH) break;
+
+                        // Check if reached another charge
+                        let reachedCharge = false;
+                        for (const other of charges) {
+                            if (other === charge) continue;
+                            const d = Math.sqrt((x - other.x) ** 2 + (y - other.y) ** 2);
+                            if (d < 12) {
+                                reachedCharge = true;
+                                break;
+                            }
+                        }
+                        if (reachedCharge) {
+                            ctx.lineTo(x, y);
+                            break;
+                        }
+
+                        ctx.lineTo(x, y);
+                    }
+
+                    ctx.stroke();
+                }
+            }
+        }
+
+        function drawCharges() {
+            for (const charge of charges) {
+                const radius = 12 + Math.abs(charge.q) * 5;
+
+                // Glow
+                const glow = ctx.createRadialGradient(
+                    charge.x, charge.y, radius * 0.5,
+                    charge.x, charge.y, radius * 2
+                );
+
+                if (charge.q > 0) {
+                    glow.addColorStop(0, 'rgba(248, 113, 113, 0.5)');
+                    glow.addColorStop(1, 'rgba(248, 113, 113, 0)');
+                } else {
+                    glow.addColorStop(0, 'rgba(96, 165, 250, 0.5)');
+                    glow.addColorStop(1, 'rgba(96, 165, 250, 0)');
+                }
+
+                ctx.beginPath();
+                ctx.arc(charge.x, charge.y, radius * 2, 0, Math.PI * 2);
+                ctx.fillStyle = glow;
+                ctx.fill();
+
+                // Charge circle
+                ctx.beginPath();
+                ctx.arc(charge.x, charge.y, radius, 0, Math.PI * 2);
+                ctx.fillStyle = charge.q > 0 ? '#f87171' : '#60a5fa';
+                ctx.fill();
+
+                // Symbol
+                ctx.fillStyle = '#fff';
+                ctx.font = `bold ${radius}px Inter`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(charge.q > 0 ? '+' : '−', charge.x, charge.y);
+            }
+        }
+
+        function draw() {
+            // Background
+            if (showPotential && charges.length > 0) {
+                drawPotential();
+            } else {
+                ctx.fillStyle = '#111';
+                ctx.fillRect(0, 0, canvasW, canvasH);
+            }
+
+            // Grid
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+            ctx.lineWidth = 1;
+            for (let x = 0; x < canvasW; x += 50) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, canvasH);
+                ctx.stroke();
+            }
+            for (let y = 0; y < canvasH; y += 50) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(canvasW, y);
+                ctx.stroke();
+            }
+
+            if (charges.length > 0) {
+                if (showLines) drawFieldLines();
+                if (showVectors) drawFieldVectors();
+                drawCharges();
+            }
+
+            // Instructions
+            if (charges.length === 0) {
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+                ctx.font = "20px 'Covered By Your Grace'";
+                ctx.textAlign = 'center';
+                ctx.fillText('Haz clic para colocar cargas', canvasW / 2, canvasH / 2);
+            }
+        }
+
+        // Event listeners
+        canvas.addEventListener('click', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            addCharge(x, y, selectedSign * chargeMagnitude);
+        });
+
+        document.querySelectorAll('.charge-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.charge-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                selectedSign = parseInt(btn.dataset.charge);
+            });
+        });
+
+        document.getElementById('chargeSlider').addEventListener('input', (e) => {
+            chargeMagnitude = parseFloat(e.target.value);
+            document.getElementById('chargeDisplay').textContent = chargeMagnitude.toFixed(1) + ' μC';
+        });
+
+        document.getElementById('densitySlider').addEventListener('input', (e) => {
+            lineDensity = parseInt(e.target.value);
+            document.getElementById('densityDisplay').textContent = lineDensity;
+            draw();
+        });
+
+        document.getElementById('clearBtn').addEventListener('click', () => {
+            charges = [];
+            updateChargeList();
+            draw();
+        });
+
+        document.getElementById('dipoleBtn').addEventListener('click', () => {
+            charges = [];
+            addCharge(canvasW / 2 - 80, canvasH / 2, 1);
+            addCharge(canvasW / 2 + 80, canvasH / 2, -1);
+        });
+
+        document.getElementById('quadBtn').addEventListener('click', () => {
+            charges = [];
+            const cx = canvasW / 2, cy = canvasH / 2;
+            const d = 70;
+            addCharge(cx - d, cy - d, 1);
+            addCharge(cx + d, cy - d, -1);
+            addCharge(cx - d, cy + d, -1);
+            addCharge(cx + d, cy + d, 1);
+        });
+
+        document.getElementById('showVectorsToggle').addEventListener('change', (e) => {
+            showVectors = e.target.checked;
+            draw();
+        });
+
+        document.getElementById('showLinesToggle').addEventListener('change', (e) => {
+            showLines = e.target.checked;
+            draw();
+        });
+
+        document.getElementById('showPotentialToggle').addEventListener('change', (e) => {
+            showPotential = e.target.checked;
+            draw();
+        });
+
+        // Init
+        window.addEventListener('DOMContentLoaded', () => {
+            resize();
+            draw();
+        });
+
+        if (document.readyState !== 'loading') {
+            resize();
+            draw();
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orbifold Walker 3D - Physics Visual Lab</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: #0a0a0f;
+            color: #e0e0e0;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+
+        header {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #333;
+            margin-bottom: 10px;
+        }
+
+        header h1 {
+            font-size: 1.5rem;
+            font-weight: 400;
+        }
+
+        header h1 span { color: #8b5cf6; font-weight: 600; }
+
+        .back-link {
+            color: #888;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover { color: #8b5cf6; }
+
+        .canvas-section {
+            flex: 1;
+            min-width: 600px;
+        }
+
+        #canvas-container {
+            width: 100%;
+            height: 550px;
+            background: #111118;
+            border-radius: 12px;
+            border: 1px solid #333;
+            overflow: hidden;
+        }
+
+        #canvas-container canvas {
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+        .controls {
+            width: 340px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .control-group {
+            background: #1a1a24;
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #2a2a3a;
+        }
+
+        .control-group h3 {
+            font-size: 0.75rem;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+        }
+
+        .slider-row {
+            margin-bottom: 12px;
+        }
+
+        .slider-row:last-child { margin-bottom: 0; }
+
+        .slider-row label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            margin-bottom: 6px;
+        }
+
+        .slider-row label span { color: #8b5cf6; font-weight: 500; }
+
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            -webkit-appearance: none;
+            background: #333;
+            border-radius: 3px;
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            background: #8b5cf6;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .button-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            flex: 1;
+            min-width: 80px;
+            padding: 10px 12px;
+            border: none;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        button.primary {
+            background: #8b5cf6;
+            color: #fff;
+        }
+
+        button.primary:hover { background: #a78bfa; }
+
+        button.secondary {
+            background: #2a2a3a;
+            color: #e0e0e0;
+        }
+
+        button.secondary:hover { background: #3a3a4a; }
+
+        button.active {
+            background: #22c55e;
+            color: #000;
+        }
+
+        .checkbox-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.85rem;
+            padding: 8px 0;
+        }
+
+        .checkbox-row input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #8b5cf6;
+        }
+
+        .info-panel {
+            background: #1a1a24;
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #2a2a3a;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            padding: 5px 0;
+            border-bottom: 1px solid #2a2a3a;
+        }
+
+        .info-row:last-child { border-bottom: none; }
+
+        .info-row .label { color: #888; }
+        .info-row .value { color: #8b5cf6; font-weight: 500; font-family: 'SF Mono', monospace; }
+
+        .chord-display {
+            background: #0a0a0f;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .chord-display .chord-name {
+            font-size: 2rem;
+            font-weight: 600;
+            color: #8b5cf6;
+        }
+
+        .chord-display .chord-notes {
+            font-size: 0.9rem;
+            color: #888;
+            margin-top: 5px;
+        }
+
+        .theory-box {
+            background: #1a1a24;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 3px solid #8b5cf6;
+        }
+
+        .theory-box h3 {
+            color: #8b5cf6;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+        }
+
+        .theory-box p {
+            font-size: 0.8rem;
+            color: #888;
+            line-height: 1.5;
+        }
+
+        .equation {
+            font-family: 'Times New Roman', serif;
+            font-style: italic;
+            color: #60a5fa;
+            font-size: 1rem;
+            text-align: center;
+            padding: 10px;
+            background: #0a0a0f;
+            border-radius: 6px;
+            margin-top: 10px;
+        }
+
+        .legend {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.75rem;
+            color: #888;
+        }
+
+        .legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        @media (max-width: 1000px) {
+            .container { flex-direction: column; }
+            .canvas-section { min-width: 100%; }
+            .controls { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><span>Orbifold</span> Walker 3D</h1>
+            <a href="index.html" class="back-link">← Volver al laboratorio</a>
+        </header>
+
+        <div class="canvas-section">
+            <div id="canvas-container"></div>
+        </div>
+
+        <div class="controls">
+            <div class="chord-display">
+                <div class="chord-name" id="chordName">C maj</div>
+                <div class="chord-notes" id="chordNotes">C - E - G</div>
+            </div>
+
+            <div class="control-group">
+                <h3>Parámetros Físicos</h3>
+                <div class="slider-row">
+                    <label>Fuerza (K) <span id="forceVal">80</span></label>
+                    <input type="range" id="force" min="20" max="200" value="80">
+                </div>
+                <div class="slider-row">
+                    <label>Fricción (γ) <span id="frictionVal">0.008</span></label>
+                    <input type="range" id="friction" min="0" max="30" value="8">
+                </div>
+                <div class="slider-row">
+                    <label>Exponente (n) <span id="exponentVal">3</span></label>
+                    <input type="range" id="exponent" min="2" max="4" value="3" step="0.5">
+                </div>
+                <div class="slider-row">
+                    <label>Velocidad Inicial <span id="velocityVal">3</span></label>
+                    <input type="range" id="velocity" min="1" max="10" value="3" step="0.5">
+                </div>
+            </div>
+
+            <div class="control-group">
+                <h3>Visualización</h3>
+                <div class="checkbox-row">
+                    <input type="checkbox" id="showPrism" checked>
+                    <label for="showPrism">Mostrar prisma (espacio de acordes)</label>
+                </div>
+                <div class="checkbox-row">
+                    <input type="checkbox" id="showTrail" checked>
+                    <label for="showTrail">Mostrar trail</label>
+                </div>
+                <div class="checkbox-row">
+                    <input type="checkbox" id="autoRotate">
+                    <label for="autoRotate">Auto-rotar cámara</label>
+                </div>
+                <div class="slider-row">
+                    <label>Longitud del trail <span id="trailVal">200</span></label>
+                    <input type="range" id="trail" min="50" max="500" value="200">
+                </div>
+            </div>
+
+            <div class="control-group">
+                <h3>Control</h3>
+                <div class="button-row">
+                    <button class="primary" id="resetBtn">Reset</button>
+                    <button class="secondary" id="pauseBtn">Pausar</button>
+                </div>
+                <div class="button-row" style="margin-top: 8px;">
+                    <button class="secondary" id="nudgeBtn">Impulsar</button>
+                    <button class="secondary" id="clearBtn">Limpiar Trail</button>
+                </div>
+                <div class="button-row" style="margin-top: 8px;">
+                    <button class="secondary" id="resetCamBtn">Reset Cámara</button>
+                </div>
+                <p style="font-size: 0.75rem; color: #666; margin-top: 8px;">
+                    Shift+click en canvas = mover walker
+                </p>
+            </div>
+
+            <div class="info-panel">
+                <div class="info-row">
+                    <span class="label">Posición</span>
+                    <span class="value" id="infoPos">(0, 0, 0)</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Velocidad</span>
+                    <span class="value" id="infoVel">|v| = 0.00</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Intervalo Inf.</span>
+                    <span class="value" id="infoInt1">0 st</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Intervalo Sup.</span>
+                    <span class="value" id="infoInt2">0 st</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Attractor más cercano</span>
+                    <span class="value" id="infoNearest">-</span>
+                </div>
+            </div>
+
+            <div class="theory-box">
+                <h3>Espacio de Tríadas (Tymoczko)</h3>
+                <p>
+                    Cada punto en este espacio 3D representa una <strong>tríada específica</strong>.
+                    El eje X es la transposición (0-12), Y es el intervalo inferior (nota baja → media),
+                    Z es el intervalo superior (media → alta). Los <strong>acordes simétricos</strong>
+                    (aumentados) están en el centro; hacia los bordes encontramos mayores, menores y disminuidos.
+                </p>
+                <div class="equation">T³/S₃ : (p₁, p₂, p₃) ↔ (x, y, z)</div>
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-dot" style="background: #22c55e;"></div>
+                        Mayor (4+3)
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-dot" style="background: #3b82f6;"></div>
+                        Menor (3+4)
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-dot" style="background: #ef4444;"></div>
+                        Dim (3+3)
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-dot" style="background: #f59e0b;"></div>
+                        Aug (4+4)
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // === THREE.JS SETUP ===
+        const container = document.getElementById('canvas-container');
+        const W = container.clientWidth;
+        const H = container.clientHeight;
+
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x111118);
+
+        const camera = new THREE.PerspectiveCamera(60, W / H, 0.1, 1000);
+        camera.position.set(15, 12, 15);
+        camera.lookAt(6, 3, 3);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(W, H);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        container.appendChild(renderer.domElement);
+
+        // === ORBIT CONTROLS (manual) ===
+        let isDragging = false;
+        let previousMousePosition = { x: 0, y: 0 };
+        let spherical = { radius: 25, theta: Math.PI / 4, phi: Math.PI / 3 };
+
+        function updateCameraPosition() {
+            camera.position.x = spherical.radius * Math.sin(spherical.phi) * Math.cos(spherical.theta) + 6;
+            camera.position.y = spherical.radius * Math.cos(spherical.phi) + 3;
+            camera.position.z = spherical.radius * Math.sin(spherical.phi) * Math.sin(spherical.theta) + 3;
+            camera.lookAt(6, 3, 3);
+        }
+
+        renderer.domElement.addEventListener('mousedown', (e) => {
+            if (e.shiftKey) {
+                // Shift+click: reposicionar walker en punto aleatorio
+                // Usamos la posición del mouse para determinar dirección general
+                const rect = renderer.domElement.getBoundingClientRect();
+                const mouseX = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+                const mouseY = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+
+                // Mover walker a nueva posición basada en click
+                walker.x = (mouseX + 1) * 6;  // 0-12
+                walker.y = 2 + (mouseY + 1) * 2;  // 2-6 (zona de acordes)
+                walker.z = 2 + Math.random() * 3;  // 2-5
+                walker.vx = 0;
+                walker.vy = 0;
+                walker.vz = 0;
+                walker.trail = [];
+                return;
+            }
+            isDragging = true;
+            previousMousePosition = { x: e.clientX, y: e.clientY };
+        });
+
+        renderer.domElement.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            const deltaX = e.clientX - previousMousePosition.x;
+            const deltaY = e.clientY - previousMousePosition.y;
+            spherical.theta -= deltaX * 0.01;
+            spherical.phi = Math.max(0.1, Math.min(Math.PI - 0.1, spherical.phi + deltaY * 0.01));
+            updateCameraPosition();
+            previousMousePosition = { x: e.clientX, y: e.clientY };
+        });
+
+        renderer.domElement.addEventListener('mouseup', () => isDragging = false);
+        renderer.domElement.addEventListener('mouseleave', () => isDragging = false);
+
+        renderer.domElement.addEventListener('wheel', (e) => {
+            spherical.radius = Math.max(10, Math.min(50, spherical.radius + e.deltaY * 0.02));
+            updateCameraPosition();
+        });
+
+        updateCameraPosition();
+
+        // === LUCES ===
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+        scene.add(ambientLight);
+
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+        directionalLight.position.set(10, 20, 10);
+        scene.add(directionalLight);
+
+        // === PARÁMETROS ===
+        let params = {
+            force: 80,
+            friction: 0.008,
+            exponent: 3,
+            initialVelocity: 3,
+            maxSpeed: 8,
+            trailLength: 200
+        };
+
+        let paused = false;
+        let showPrism = true;
+        let showTrail = true;
+        let autoRotate = false;
+
+        // === CONSTANTES MUSICALES ===
+        const NOTE_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+
+        function getChordType(int1, int2) {
+            const i1 = Math.round(int1);
+            const i2 = Math.round(int2);
+            if (i1 === 4 && i2 === 3) return { name: 'maj', type: 'Major' };
+            if (i1 === 3 && i2 === 4) return { name: 'min', type: 'Minor' };
+            if (i1 === 3 && i2 === 3) return { name: 'dim', type: 'Dim' };
+            if (i1 === 4 && i2 === 4) return { name: 'aug', type: 'Aug' };
+            if (i1 === 5 && i2 === 4) return { name: 'sus4', type: 'Sus4' };
+            if (i1 === 2 && i2 === 5) return { name: 'sus2', type: 'Sus2' };
+            return { name: '', type: 'Cluster' };
+        }
+
+        function orbifoldToTriad(x, y, z) {
+            // x = transposición (centro tonal), y = intervalo inferior, z = intervalo superior
+            const root = ((x - (y + z) / 3) % 12 + 12) % 12;
+            const p1 = root;
+            const p2 = (root + y) % 12;
+            const p3 = (root + y + z) % 12;
+            return [p1, p2, p3];
+        }
+
+        function updateChordDisplay() {
+            const [p1, p2, p3] = orbifoldToTriad(walker.x, walker.y, walker.z);
+            const chordInfo = getChordType(walker.y, walker.z);
+
+            const rootName = NOTE_NAMES[Math.round(p1) % 12];
+            document.getElementById('chordName').textContent = rootName + ' ' + chordInfo.name;
+            document.getElementById('chordNotes').textContent =
+                NOTE_NAMES[Math.round(p1) % 12] + ' - ' +
+                NOTE_NAMES[Math.round(p2) % 12] + ' - ' +
+                NOTE_NAMES[Math.round(p3) % 12];
+        }
+
+        // === ATTRACTORES (acordes consonantes) ===
+        const attractors = [
+            { x: 0, y: 4, z: 3, name: 'Major', color: 0x22c55e },
+            { x: 3, y: 4, z: 3, name: 'Major', color: 0x22c55e },
+            { x: 6, y: 4, z: 3, name: 'Major', color: 0x22c55e },
+            { x: 9, y: 4, z: 3, name: 'Major', color: 0x22c55e },
+
+            { x: 0, y: 3, z: 4, name: 'Minor', color: 0x3b82f6 },
+            { x: 3, y: 3, z: 4, name: 'Minor', color: 0x3b82f6 },
+            { x: 6, y: 3, z: 4, name: 'Minor', color: 0x3b82f6 },
+            { x: 9, y: 3, z: 4, name: 'Minor', color: 0x3b82f6 },
+
+            { x: 0, y: 3, z: 3, name: 'Dim', color: 0xef4444 },
+            { x: 3, y: 3, z: 3, name: 'Dim', color: 0xef4444 },
+            { x: 6, y: 3, z: 3, name: 'Dim', color: 0xef4444 },
+            { x: 9, y: 3, z: 3, name: 'Dim', color: 0xef4444 },
+
+            { x: 0, y: 4, z: 4, name: 'Aug', color: 0xf59e0b },
+            { x: 4, y: 4, z: 4, name: 'Aug', color: 0xf59e0b },
+            { x: 8, y: 4, z: 4, name: 'Aug', color: 0xf59e0b },
+        ];
+
+        // Crear meshes para attractores
+        const attractorMeshes = [];
+        attractors.forEach(att => {
+            const geometry = new THREE.SphereGeometry(0.3, 16, 16);
+            const material = new THREE.MeshBasicMaterial({ color: att.color });
+            const mesh = new THREE.Mesh(geometry, material);
+            mesh.position.set(att.x, att.y, att.z);
+            scene.add(mesh);
+            attractorMeshes.push({ mesh, data: att });
+
+            // Glow
+            const glowGeometry = new THREE.SphereGeometry(0.6, 16, 16);
+            const glowMaterial = new THREE.MeshBasicMaterial({
+                color: att.color,
+                transparent: true,
+                opacity: 0.2
+            });
+            const glow = new THREE.Mesh(glowGeometry, glowMaterial);
+            glow.position.copy(mesh.position);
+            scene.add(glow);
+        });
+
+        // === PRISMA (espacio fundamental del orbifold) ===
+        const prismGroup = new THREE.Group();
+
+        // Crear wireframe del prisma fundamental
+        // El espacio es: x ∈ [0, 12), y ∈ [0, 6], z ∈ [0, 6], con y + z ≤ 12
+        const prismGeometry = new THREE.BufferGeometry();
+        const prismVertices = new Float32Array([
+            // Base (y=0, z=0 a z=6)
+            0, 0, 0, 12, 0, 0,
+            0, 0, 6, 12, 0, 6,
+            0, 0, 0, 0, 0, 6,
+            12, 0, 0, 12, 0, 6,
+
+            // Techo (y=6, z=0 a z=6)
+            0, 6, 0, 12, 6, 0,
+            0, 6, 6, 12, 6, 6,
+            0, 6, 0, 0, 6, 6,
+            12, 6, 0, 12, 6, 6,
+
+            // Verticales
+            0, 0, 0, 0, 6, 0,
+            12, 0, 0, 12, 6, 0,
+            0, 0, 6, 0, 6, 6,
+            12, 0, 6, 12, 6, 6,
+        ]);
+        prismGeometry.setAttribute('position', new THREE.BufferAttribute(prismVertices, 3));
+        const prismMaterial = new THREE.LineBasicMaterial({ color: 0x444466, transparent: true, opacity: 0.5 });
+        const prismLines = new THREE.LineSegments(prismGeometry, prismMaterial);
+        prismGroup.add(prismLines);
+
+        // Plano semi-transparente en y=4, z=3 (zona Mayor)
+        const majorPlaneGeometry = new THREE.PlaneGeometry(12, 0.5);
+        const majorPlaneMaterial = new THREE.MeshBasicMaterial({
+            color: 0x22c55e,
+            transparent: true,
+            opacity: 0.1,
+            side: THREE.DoubleSide
+        });
+        const majorPlane = new THREE.Mesh(majorPlaneGeometry, majorPlaneMaterial);
+        majorPlane.rotation.x = Math.PI / 2;
+        majorPlane.position.set(6, 4, 3);
+        prismGroup.add(majorPlane);
+
+        // Plano zona Menor (y=3, z=4)
+        const minorPlaneGeometry = new THREE.PlaneGeometry(12, 0.5);
+        const minorPlaneMaterial = new THREE.MeshBasicMaterial({
+            color: 0x3b82f6,
+            transparent: true,
+            opacity: 0.1,
+            side: THREE.DoubleSide
+        });
+        const minorPlane = new THREE.Mesh(minorPlaneGeometry, minorPlaneMaterial);
+        minorPlane.rotation.x = Math.PI / 2;
+        minorPlane.position.set(6, 3, 4);
+        prismGroup.add(minorPlane);
+
+        scene.add(prismGroup);
+
+        // Ejes con labels
+        const axesHelper = new THREE.AxesHelper(8);
+        axesHelper.position.set(-1, -1, -1);
+        scene.add(axesHelper);
+
+        // === WALKER ===
+        const walker = {
+            x: 2, y: 4, z: 3,       // Empieza en C Mayor
+            vx: 0, vy: 0, vz: 0,
+            trail: []
+        };
+
+        const walkerGeometry = new THREE.SphereGeometry(0.4, 32, 32);
+        const walkerMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
+        const walkerMesh = new THREE.Mesh(walkerGeometry, walkerMaterial);
+        scene.add(walkerMesh);
+
+        // Walker glow
+        const walkerGlowGeometry = new THREE.SphereGeometry(0.7, 32, 32);
+        const walkerGlowMaterial = new THREE.MeshBasicMaterial({
+            color: 0x8b5cf6,
+            transparent: true,
+            opacity: 0.3
+        });
+        const walkerGlow = new THREE.Mesh(walkerGlowGeometry, walkerGlowMaterial);
+        scene.add(walkerGlow);
+
+        // Trail
+        const MAX_TRAIL = 500;
+        const trailPositions = new Float32Array(MAX_TRAIL * 3);
+        const trailGeometry = new THREE.BufferGeometry();
+        trailGeometry.setAttribute('position', new THREE.BufferAttribute(trailPositions, 3));
+        const trailMaterial = new THREE.LineBasicMaterial({
+            color: 0x8b5cf6,
+            transparent: true,
+            opacity: 0.6
+        });
+        const trailLine = new THREE.Line(trailGeometry, trailMaterial);
+        scene.add(trailLine);
+
+        function resetWalker() {
+            // Empezar LEJOS de los attractores (que están en y=3-4, z=3-4)
+            walker.x = Math.random() * 12;
+            walker.y = 1 + Math.random();  // y = 1-2 (lejos de attractores)
+            walker.z = 5 + Math.random();  // z = 5-6 (lejos de attractores)
+
+            // Velocidad inicial hacia el centro del espacio
+            walker.vx = (Math.random() - 0.5) * params.initialVelocity;
+            walker.vy = params.initialVelocity * 0.5;  // hacia arriba (hacia y=3-4)
+            walker.vz = -params.initialVelocity * 0.5; // hacia abajo (hacia z=3-4)
+            walker.trail = [];
+        }
+
+        // === FÍSICA: RK4 en 3D ===
+        function computeAcceleration(x, y, z, vx, vy, vz) {
+            let ax = 0, ay = 0, az = 0;
+
+            for (const att of attractors) {
+                const dx = att.x - x;
+                const dy = att.y - y;
+                const dz = att.z - z;
+                const distSq = dx * dx + dy * dy + dz * dz;
+                const dist = Math.sqrt(distSq);
+                const safeDist = Math.max(dist, 0.5);
+
+                const forceMag = params.force * 10 / Math.pow(safeDist, params.exponent);
+                ax += forceMag * dx / dist;
+                ay += forceMag * dy / dist;
+                az += forceMag * dz / dist;
+            }
+
+            // Fricción
+            ax -= params.friction * vx;
+            ay -= params.friction * vy;
+            az -= params.friction * vz;
+
+            return { ax, ay, az };
+        }
+
+        function rk4Step(dt) {
+            const p = walker;
+
+            const a1 = computeAcceleration(p.x, p.y, p.z, p.vx, p.vy, p.vz);
+            const k1 = { vx: a1.ax, vy: a1.ay, vz: a1.az, x: p.vx, y: p.vy, z: p.vz };
+
+            const a2 = computeAcceleration(
+                p.x + 0.5 * dt * k1.x, p.y + 0.5 * dt * k1.y, p.z + 0.5 * dt * k1.z,
+                p.vx + 0.5 * dt * k1.vx, p.vy + 0.5 * dt * k1.vy, p.vz + 0.5 * dt * k1.vz
+            );
+            const k2 = {
+                vx: a2.ax, vy: a2.ay, vz: a2.az,
+                x: p.vx + 0.5 * dt * k1.vx, y: p.vy + 0.5 * dt * k1.vy, z: p.vz + 0.5 * dt * k1.vz
+            };
+
+            const a3 = computeAcceleration(
+                p.x + 0.5 * dt * k2.x, p.y + 0.5 * dt * k2.y, p.z + 0.5 * dt * k2.z,
+                p.vx + 0.5 * dt * k2.vx, p.vy + 0.5 * dt * k2.vy, p.vz + 0.5 * dt * k2.vz
+            );
+            const k3 = {
+                vx: a3.ax, vy: a3.ay, vz: a3.az,
+                x: p.vx + 0.5 * dt * k2.vx, y: p.vy + 0.5 * dt * k2.vy, z: p.vz + 0.5 * dt * k2.vz
+            };
+
+            const a4 = computeAcceleration(
+                p.x + dt * k3.x, p.y + dt * k3.y, p.z + dt * k3.z,
+                p.vx + dt * k3.vx, p.vy + dt * k3.vy, p.vz + dt * k3.vz
+            );
+            const k4 = {
+                vx: a4.ax, vy: a4.ay, vz: a4.az,
+                x: p.vx + dt * k3.vx, y: p.vy + dt * k3.vy, z: p.vz + dt * k3.vz
+            };
+
+            p.x += (dt / 6) * (k1.x + 2 * k2.x + 2 * k3.x + k4.x);
+            p.y += (dt / 6) * (k1.y + 2 * k2.y + 2 * k3.y + k4.y);
+            p.z += (dt / 6) * (k1.z + 2 * k2.z + 2 * k3.z + k4.z);
+            p.vx += (dt / 6) * (k1.vx + 2 * k2.vx + 2 * k3.vx + k4.vx);
+            p.vy += (dt / 6) * (k1.vy + 2 * k2.vy + 2 * k3.vy + k4.vy);
+            p.vz += (dt / 6) * (k1.vz + 2 * k2.vz + 2 * k3.vz + k4.vz);
+        }
+
+        function wrapOrbifold() {
+            // X es periódico (transposición)
+            walker.x = ((walker.x % 12) + 12) % 12;
+
+            // Y y Z con reflexión en bordes
+            const bounce = -0.5;
+            if (walker.y < 0) { walker.y = -walker.y; walker.vy *= bounce; }
+            if (walker.y > 6) { walker.y = 12 - walker.y; walker.vy *= bounce; }
+            if (walker.z < 0) { walker.z = -walker.z; walker.vz *= bounce; }
+            if (walker.z > 6) { walker.z = 12 - walker.z; walker.vz *= bounce; }
+
+            // Constraint: y + z ≤ 12 (simplificado a ≤ 10 para mantenerse en zona musical)
+            if (walker.y + walker.z > 10) {
+                const excess = (walker.y + walker.z - 10) / 2;
+                walker.y -= excess;
+                walker.z -= excess;
+                walker.vy *= bounce;
+                walker.vz *= bounce;
+            }
+        }
+
+        function updatePhysics(dt) {
+            if (paused) return;
+
+            const steps = 4;
+            const subDt = dt / steps;
+
+            for (let i = 0; i < steps; i++) {
+                rk4Step(subDt);
+                wrapOrbifold();
+            }
+
+            // Trail
+            walker.trail.push({ x: walker.x, y: walker.y, z: walker.z });
+            if (walker.trail.length > params.trailLength) {
+                walker.trail.shift();
+            }
+        }
+
+        function updateTrailGeometry() {
+            const positions = trailLine.geometry.attributes.position.array;
+
+            for (let i = 0; i < walker.trail.length; i++) {
+                positions[i * 3] = walker.trail[i].x;
+                positions[i * 3 + 1] = walker.trail[i].y;
+                positions[i * 3 + 2] = walker.trail[i].z;
+            }
+
+            trailLine.geometry.setDrawRange(0, walker.trail.length);
+            trailLine.geometry.attributes.position.needsUpdate = true;
+        }
+
+        function findNearestAttractor() {
+            let nearest = null;
+            let minDist = Infinity;
+
+            for (const att of attractors) {
+                const dx = att.x - walker.x;
+                const dy = att.y - walker.y;
+                const dz = att.z - walker.z;
+                const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
+                if (dist < minDist) {
+                    minDist = dist;
+                    nearest = att;
+                }
+            }
+
+            return { nearest, dist: minDist };
+        }
+
+        function updateInfo() {
+            document.getElementById('infoPos').textContent =
+                `(${walker.x.toFixed(1)}, ${walker.y.toFixed(1)}, ${walker.z.toFixed(1)})`;
+
+            const speed = Math.sqrt(walker.vx * walker.vx + walker.vy * walker.vy + walker.vz * walker.vz);
+            document.getElementById('infoVel').textContent = `|v| = ${speed.toFixed(2)}`;
+
+            document.getElementById('infoInt1').textContent = `${walker.y.toFixed(1)} st`;
+            document.getElementById('infoInt2').textContent = `${walker.z.toFixed(1)} st`;
+
+            const { nearest, dist } = findNearestAttractor();
+            if (nearest) {
+                document.getElementById('infoNearest').textContent = `${nearest.name} (${dist.toFixed(1)})`;
+            }
+
+            updateChordDisplay();
+        }
+
+        // === LOOP ===
+        let lastTime = 0;
+
+        function animate(currentTime) {
+            requestAnimationFrame(animate);
+
+            const dt = Math.min((currentTime - lastTime) / 1000, 0.05);
+            lastTime = currentTime;
+
+            updatePhysics(dt);
+
+            // Actualizar posición del walker
+            walkerMesh.position.set(walker.x, walker.y, walker.z);
+            walkerGlow.position.set(walker.x, walker.y, walker.z);
+
+            // Trail
+            if (showTrail) {
+                updateTrailGeometry();
+                trailLine.visible = true;
+            } else {
+                trailLine.visible = false;
+            }
+
+            // Prisma
+            prismGroup.visible = showPrism;
+
+            // Auto-rotate
+            if (autoRotate && !isDragging) {
+                spherical.theta += 0.003;
+                updateCameraPosition();
+            }
+
+            updateInfo();
+
+            renderer.render(scene, camera);
+        }
+
+        // === CONTROLES ===
+        document.getElementById('force').addEventListener('input', (e) => {
+            params.force = parseFloat(e.target.value);
+            document.getElementById('forceVal').textContent = params.force;
+        });
+
+        document.getElementById('friction').addEventListener('input', (e) => {
+            params.friction = parseFloat(e.target.value) / 1000;
+            document.getElementById('frictionVal').textContent = params.friction.toFixed(3);
+        });
+
+        document.getElementById('exponent').addEventListener('input', (e) => {
+            params.exponent = parseFloat(e.target.value);
+            document.getElementById('exponentVal').textContent = params.exponent;
+        });
+
+        document.getElementById('velocity').addEventListener('input', (e) => {
+            params.initialVelocity = parseFloat(e.target.value);
+            document.getElementById('velocityVal').textContent = params.initialVelocity;
+        });
+
+        document.getElementById('trail').addEventListener('input', (e) => {
+            params.trailLength = parseInt(e.target.value);
+            document.getElementById('trailVal').textContent = params.trailLength;
+        });
+
+        document.getElementById('showPrism').addEventListener('change', (e) => {
+            showPrism = e.target.checked;
+        });
+
+        document.getElementById('showTrail').addEventListener('change', (e) => {
+            showTrail = e.target.checked;
+        });
+
+        document.getElementById('autoRotate').addEventListener('change', (e) => {
+            autoRotate = e.target.checked;
+        });
+
+        document.getElementById('resetBtn').addEventListener('click', resetWalker);
+
+        document.getElementById('pauseBtn').addEventListener('click', () => {
+            paused = !paused;
+            document.getElementById('pauseBtn').textContent = paused ? 'Reanudar' : 'Pausar';
+        });
+
+        document.getElementById('nudgeBtn').addEventListener('click', () => {
+            // Impulso aleatorio para sacar al walker de un attractor
+            const angle1 = Math.random() * Math.PI * 2;
+            const angle2 = Math.random() * Math.PI - Math.PI / 2;
+            const impulse = params.initialVelocity * 2;
+            walker.vx += impulse * Math.cos(angle1) * Math.cos(angle2);
+            walker.vy += impulse * Math.sin(angle2);
+            walker.vz += impulse * Math.sin(angle1) * Math.cos(angle2);
+        });
+
+        document.getElementById('clearBtn').addEventListener('click', () => {
+            walker.trail = [];
+        });
+
+        document.getElementById('resetCamBtn').addEventListener('click', () => {
+            spherical = { radius: 25, theta: Math.PI / 4, phi: Math.PI / 3 };
+            updateCameraPosition();
+        });
+
+        // Resize
+        window.addEventListener('resize', () => {
+            const newW = container.clientWidth;
+            const newH = container.clientHeight;
+            camera.aspect = newW / newH;
+            camera.updateProjectionMatrix();
+            renderer.setSize(newW, newH);
+        });
+
+        // === INICIALIZACIÓN ===
+        resetWalker();
+        animate(0);
+    </script>
+</body>
+</html>
