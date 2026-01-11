@@ -432,6 +432,65 @@
             border-color: var(--accent);
             color: var(--accent);
         }
+
+        /* File Warning */
+        .file-warning {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(15, 23, 42, 0.98);
+            border: 1px solid #f59e0b;
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            max-width: 400px;
+            z-index: 200;
+        }
+
+        .file-warning.hidden {
+            display: none;
+        }
+
+        .file-warning .warning-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .file-warning h2 {
+            color: #f59e0b;
+            font-size: 1.25rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .file-warning p {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+        }
+
+        .file-warning code {
+            background: #f59e0b20;
+            color: #f59e0b;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+        }
+
+        .file-warning .warning-code {
+            background: #000;
+            border-radius: 8px;
+            padding: 1rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            color: #22c55e;
+            text-align: left;
+            margin-bottom: 1rem;
+        }
+
+        .file-warning .warning-link a {
+            color: #22c55e;
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
@@ -456,6 +515,18 @@
             <div class="loading" id="loading">
                 <div class="loading-spinner"></div>
                 <div>Cargando motor WASM...</div>
+            </div>
+
+            <!-- File:// Warning -->
+            <div class="file-warning hidden" id="file-warning">
+                <div class="warning-icon">⚠️</div>
+                <h2>Servidor HTTP requerido</h2>
+                <p>WASM no funciona con <code>file://</code> por restricciones CORS.</p>
+                <div class="warning-code">
+                    cd /Users/carlos/Projects/EigenLab<br>
+                    python3 -m http.server 8080
+                </div>
+                <p class="warning-link">Luego abre: <a href="http://localhost:8080/Physics/Physics%20Visual%20Lab/ondas-2d-wasm.html">localhost:8080/.../ondas-2d-wasm.html</a></p>
             </div>
 
             <div class="hud">
@@ -599,6 +670,12 @@
 
     <script src="../../_wasm/eigenlab-core.js"></script>
     <script>
+        // Check for file:// protocol
+        if (window.location.protocol === 'file:') {
+            document.getElementById('loading').classList.add('hidden');
+            document.getElementById('file-warning').classList.remove('hidden');
+        }
+
         // State
         let Module = null;
         let solver = null;
