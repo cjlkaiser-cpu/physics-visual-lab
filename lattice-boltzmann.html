@@ -87,7 +87,7 @@
             height: 100%;
         }
 
-        .loading, .file-warning {
+        .loading {
             position: absolute;
             top: 50%;
             left: 50%;
@@ -96,7 +96,7 @@
             z-index: 100;
         }
 
-        .loading.hidden, .file-warning.hidden { display: none; }
+        .loading.hidden { display: none; }
 
         .loading-spinner {
             width: 48px;
@@ -109,19 +109,6 @@
         }
 
         @keyframes spin { to { transform: rotate(360deg); } }
-
-        .file-warning {
-            background: rgba(15, 23, 42, 0.98);
-            border: 1px solid #f59e0b;
-            border-radius: 12px;
-            padding: 2rem;
-            max-width: 400px;
-        }
-
-        .file-warning h2 { color: #f59e0b; margin-bottom: 0.75rem; }
-        .file-warning code { background: #f59e0b20; color: #f59e0b; padding: 0.2rem 0.5rem; border-radius: 4px; }
-        .file-warning .cmd { background: #000; border-radius: 8px; padding: 1rem; font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: #22c55e; text-align: left; margin: 1rem 0; }
-        .file-warning a { color: #22c55e; }
 
         .hud {
             position: absolute;
@@ -349,13 +336,6 @@
                 <div>Cargando tunel de viento...</div>
             </div>
 
-            <div class="file-warning hidden" id="file-warning">
-                <div style="font-size: 3rem; margin-bottom: 1rem;">⚠️</div>
-                <h2>Servidor HTTP requerido</h2>
-                <p style="color: var(--text-secondary); font-size: 0.875rem;">WASM no funciona con <code>file://</code></p>
-                <div class="cmd">cd /Users/carlos/Projects/EigenLab<br>python3 -m http.server 8080</div>
-                <p style="font-size: 0.8rem; color: var(--text-secondary);">Luego: <a href="http://localhost:8080/Physics/Physics%20Visual%20Lab/lattice-boltzmann.html">localhost:8080/.../lattice-boltzmann.html</a></p>
-            </div>
 
             <div class="hud">
                 <div class="hud-item">
@@ -477,12 +457,6 @@
 
     <script src="../../_wasm/eigenlab-core.js"></script>
     <script>
-        // Check for file:// protocol
-        if (window.location.protocol === 'file:') {
-            document.getElementById('loading').classList.add('hidden');
-            document.getElementById('file-warning').classList.remove('hidden');
-        }
-
         let Module = null;
         let sim = null;
         let paused = false;
