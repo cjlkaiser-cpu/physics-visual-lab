@@ -375,11 +375,11 @@
         }
 
         .legend-dot.positive {
-            background: var(--wave-positive);
+            background: linear-gradient(135deg, #60a5fa, #ffffff);
         }
 
         .legend-dot.negative {
-            background: var(--wave-negative);
+            background: linear-gradient(135deg, #c026d3, #7c3aed);
         }
 
         /* Checkbox */
@@ -797,7 +797,7 @@
             const heightField = Module.getWaveHeightField(solver);
             const obstacles = Module.getWaveObstacles(solver);
 
-            // Render to image data
+            // Render to image data with enhanced colors
             const data = imageData.data;
             for (let i = 0; i < gridWidth * gridHeight; i++) {
                 const h = heightField[i];
@@ -806,29 +806,45 @@
                 const idx = i * 4;
 
                 if (isObstacle) {
-                    // Obstacle: dark gray
-                    data[idx] = 40;
-                    data[idx + 1] = 40;
-                    data[idx + 2] = 50;
+                    // Obstacle: dark gray with slight glow
+                    data[idx] = 50;
+                    data[idx + 1] = 55;
+                    data[idx + 2] = 70;
                     data[idx + 3] = 255;
                 } else {
-                    // Map height to color
-                    // Positive: blue, Negative: pink, Zero: dark blue
-                    const normalizedH = Math.tanh(h * 2); // Normalize to [-1, 1]
+                    // Enhanced color mapping with more contrast
+                    // Use softer normalization for more visible gradients
+                    const normalizedH = Math.tanh(h * 3) * 1.2; // Amplify slightly
+                    const absH = Math.abs(normalizedH);
 
-                    if (normalizedH >= 0) {
-                        // Positive: lerp from dark blue to bright blue
-                        const t = normalizedH;
-                        data[idx] = Math.floor(10 + t * 86);      // R: 10 -> 96
-                        data[idx + 1] = Math.floor(20 + t * 145); // G: 20 -> 165
-                        data[idx + 2] = Math.floor(40 + t * 210); // B: 40 -> 250
+                    // Base color: deep ocean blue
+                    let r = 5, g = 15, b = 35;
+
+                    if (normalizedH > 0.02) {
+                        // Positive (crests): cyan -> white
+                        const t = Math.min(1, normalizedH);
+                        const t2 = t * t; // Quadratic for more punch at peaks
+                        r = Math.floor(20 + t * 80 + t2 * 155);   // -> 255 at peak
+                        g = Math.floor(40 + t * 140 + t2 * 75);   // -> 255 at peak
+                        b = Math.floor(80 + t * 120 + t2 * 55);   // -> 255 at peak
+                    } else if (normalizedH < -0.02) {
+                        // Negative (valleys): magenta -> deep purple
+                        const t = Math.min(1, -normalizedH);
+                        const t2 = t * t;
+                        r = Math.floor(30 + t * 180 + t2 * 45);   // -> 255 magenta
+                        g = Math.floor(10 + t * 40);               // stay dark
+                        b = Math.floor(50 + t * 100 + t2 * 80);   // -> 230 purple
                     } else {
-                        // Negative: lerp from dark blue to pink
-                        const t = -normalizedH;
-                        data[idx] = Math.floor(10 + t * 234);     // R: 10 -> 244
-                        data[idx + 1] = Math.floor(20 + t * 94);  // G: 20 -> 114
-                        data[idx + 2] = Math.floor(40 + t * 142); // B: 40 -> 182
+                        // Near zero: subtle blue gradient
+                        const micro = (normalizedH + 0.02) / 0.04; // 0 to 1
+                        r = 8;
+                        g = Math.floor(20 + micro * 15);
+                        b = Math.floor(45 + micro * 20);
                     }
+
+                    data[idx] = Math.min(255, r);
+                    data[idx + 1] = Math.min(255, g);
+                    data[idx + 2] = Math.min(255, b);
                     data[idx + 3] = 255;
                 }
             }
