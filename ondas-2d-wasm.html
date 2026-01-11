@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ondas 2D | EigenLab WASM</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #030712;
+            --bg-secondary: #0f172a;
+            --bg-panel: #1e293b;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent: #22c55e;
+            --accent-dim: rgba(34, 197, 94, 0.2);
+            --border: #334155;
+            --wave-positive: #60a5fa;
+            --wave-negative: #f472b6;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .header {
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+            padding: 0.75rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .header h1 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .badge {
+            background: var(--accent);
+            color: var(--bg-primary);
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+        }
+
+        .breadcrumb {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .breadcrumb a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .breadcrumb a:hover {
+            color: var(--accent);
+        }
+
+        /* Main layout */
+        .main {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* Canvas container */
+        .canvas-container {
+            flex: 1;
+            position: relative;
+            background: #000;
+            overflow: hidden;
+        }
+
+        #canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            cursor: crosshair;
+        }
+
+        /* Loading overlay */
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 100;
+        }
+
+        .loading.hidden {
+            display: none;
+        }
+
+        .loading-spinner {
+            width: 48px;
+            height: 48px;
+            border: 3px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* HUD */
+        .hud {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            pointer-events: none;
+        }
+
+        .hud-item {
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(8px);
+            padding: 0.5rem 0.75rem;
+            border-radius: 6px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .hud-label {
+            color: var(--text-secondary);
+        }
+
+        .hud-value {
+            color: var(--accent);
+            font-weight: 500;
+        }
+
+        /* Instructions */
+        .instructions {
+            position: absolute;
+            bottom: 1rem;
+            left: 1rem;
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(8px);
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            max-width: 300px;
+        }
+
+        .instructions strong {
+            color: var(--text-primary);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 320px;
+            background: var(--bg-secondary);
+            border-left: 1px solid var(--border);
+            overflow-y: auto;
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        /* Sections */
+        .section {
+            background: var(--bg-panel);
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        .section-title {
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-secondary);
+            margin-bottom: 0.75rem;
+        }
+
+        /* Equation */
+        .equation {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            color: var(--accent);
+            text-align: center;
+            padding: 1rem;
+            background: rgba(34, 197, 94, 0.1);
+            border-radius: 6px;
+            border: 1px solid var(--accent-dim);
+        }
+
+        /* Presets */
+        .preset-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
+        }
+
+        .preset-btn {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            padding: 0.5rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .preset-btn:hover {
+            border-color: var(--accent);
+        }
+
+        .preset-btn.active {
+            background: var(--accent-dim);
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        /* Controls */
+        .control-group {
+            margin-bottom: 1rem;
+        }
+
+        .control-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .control-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.4rem;
+            font-size: 0.75rem;
+        }
+
+        .control-label span:first-child {
+            color: var(--text-secondary);
+        }
+
+        .control-label span:last-child {
+            color: var(--accent);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            -webkit-appearance: none;
+            background: var(--bg-secondary);
+            border-radius: 3px;
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            background: var(--accent);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        /* Buttons */
+        .btn-row {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 0.6rem 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: var(--bg-primary);
+            font-weight: 500;
+        }
+
+        .btn-primary:hover {
+            background: #16a34a;
+            border-color: #16a34a;
+            color: white;
+        }
+
+        /* Select */
+        select {
+            width: 100%;
+            padding: 0.5rem;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-primary);
+            font-size: 0.8rem;
+            cursor: pointer;
+        }
+
+        select:hover {
+            border-color: var(--accent);
+        }
+
+        /* Color legend */
+        .color-legend {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-top: 0.5rem;
+            font-size: 0.7rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .legend-dot.positive {
+            background: var(--wave-positive);
+        }
+
+        .legend-dot.negative {
+            background: var(--wave-negative);
+        }
+
+        /* Checkbox */
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: var(--accent);
+            cursor: pointer;
+        }
+
+        .checkbox-group label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+        }
+
+        /* Tool buttons */
+        .tool-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.5rem;
+        }
+
+        .tool-btn {
+            padding: 0.5rem;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-secondary);
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .tool-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .tool-btn.active {
+            background: var(--accent-dim);
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-left">
+            <h1>
+                Ondas 2D
+                <span class="badge">WASM</span>
+            </h1>
+        </div>
+        <nav class="breadcrumb">
+            <a href="../../_portal/index.html">EigenLab</a> /
+            <a href="index.html">Physics Visual Lab</a> /
+            <a href="../../_portal/wasm-labs.html">WASM Labs</a>
+        </nav>
+    </header>
+
+    <main class="main">
+        <div class="canvas-container">
+            <canvas id="canvas"></canvas>
+
+            <div class="loading" id="loading">
+                <div class="loading-spinner"></div>
+                <div>Cargando motor WASM...</div>
+            </div>
+
+            <div class="hud">
+                <div class="hud-item">
+                    <span class="hud-label">Grid:</span>
+                    <span class="hud-value" id="hud-grid">512x512</span>
+                </div>
+                <div class="hud-item">
+                    <span class="hud-label">FPS:</span>
+                    <span class="hud-value" id="hud-fps">0</span>
+                </div>
+                <div class="hud-item">
+                    <span class="hud-label">Energia:</span>
+                    <span class="hud-value" id="hud-energy">0.00</span>
+                </div>
+                <div class="hud-item">
+                    <span class="hud-label">Amplitud:</span>
+                    <span class="hud-value" id="hud-amplitude">0.00</span>
+                </div>
+            </div>
+
+            <div class="instructions">
+                <strong>Click:</strong> Crear gota de agua<br>
+                <strong>Click + Arrastrar:</strong> Crear linea de onda<br>
+                <strong>Shift + Click:</strong> Crear obstaculo circular
+            </div>
+        </div>
+
+        <aside class="sidebar">
+            <!-- Equation -->
+            <div class="section">
+                <div class="section-title">Ecuacion de Onda 2D</div>
+                <div class="equation">
+                    d²u/dt² = c² · nabla²u
+                </div>
+                <div class="color-legend">
+                    <div class="legend-item">
+                        <div class="legend-dot positive"></div>
+                        <span>Cresta (+)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-dot negative"></div>
+                        <span>Valle (-)</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Presets -->
+            <div class="section">
+                <div class="section-title">Presets</div>
+                <div class="preset-grid">
+                    <button class="preset-btn active" data-preset="pond">Estanque</button>
+                    <button class="preset-btn" data-preset="calm">Calma</button>
+                    <button class="preset-btn" data-preset="ripple">Ripple</button>
+                    <button class="preset-btn" data-preset="slit">Rendija</button>
+                </div>
+            </div>
+
+            <!-- Tool -->
+            <div class="section">
+                <div class="section-title">Herramienta</div>
+                <div class="tool-grid">
+                    <button class="tool-btn active" data-tool="drop">Gota</button>
+                    <button class="tool-btn" data-tool="line">Linea</button>
+                    <button class="tool-btn" data-tool="obstacle">Obstaculo</button>
+                </div>
+            </div>
+
+            <!-- Wave Parameters -->
+            <div class="section">
+                <div class="section-title">Parametros de Onda</div>
+
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Velocidad de onda (c)</span>
+                        <span id="val-speed">1.0</span>
+                    </div>
+                    <input type="range" id="ctrl-speed" min="0.2" max="3" step="0.1" value="1.0">
+                </div>
+
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Amortiguamiento</span>
+                        <span id="val-damping">0.002</span>
+                    </div>
+                    <input type="range" id="ctrl-damping" min="0" max="0.02" step="0.0005" value="0.002">
+                </div>
+
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Amplitud de gota</span>
+                        <span id="val-amplitude">1.0</span>
+                    </div>
+                    <input type="range" id="ctrl-amplitude" min="0.2" max="3" step="0.1" value="1.0">
+                </div>
+
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Radio de gota</span>
+                        <span id="val-radius">5</span>
+                    </div>
+                    <input type="range" id="ctrl-radius" min="2" max="15" step="1" value="5">
+                </div>
+            </div>
+
+            <!-- Boundary -->
+            <div class="section">
+                <div class="section-title">Condiciones de Frontera</div>
+                <select id="boundary-select">
+                    <option value="0">Reflectivo (Dirichlet)</option>
+                    <option value="1" selected>Absorbente (Mur ABC)</option>
+                    <option value="2">Periodico</option>
+                </select>
+            </div>
+
+            <!-- Actions -->
+            <div class="section">
+                <div class="section-title">Acciones</div>
+                <div class="btn-row">
+                    <button class="btn" id="btn-pause">Pausar</button>
+                    <button class="btn" id="btn-reset">Reset</button>
+                </div>
+                <div class="btn-row" style="margin-top: 0.5rem;">
+                    <button class="btn" id="btn-clear-obstacles">Limpiar Obstaculos</button>
+                </div>
+                <div class="btn-row" style="margin-top: 0.5rem;">
+                    <button class="btn btn-primary" id="btn-plane-wave">Onda Plana</button>
+                </div>
+            </div>
+
+            <!-- Prebuilt Obstacles -->
+            <div class="section">
+                <div class="section-title">Obstaculos Predefinidos</div>
+                <div class="btn-row">
+                    <button class="btn" id="btn-single-slit">Rendija Simple</button>
+                    <button class="btn" id="btn-double-slit">Doble Rendija</button>
+                </div>
+            </div>
+        </aside>
+    </main>
+
+    <script src="../../_wasm/eigenlab-core.js"></script>
+    <script>
+        // State
+        let Module = null;
+        let solver = null;
+        let paused = false;
+        let currentPreset = 'pond';
+        let currentTool = 'drop';
+        let dropAmplitude = 1.0;
+        let dropRadius = 5;
+        let gridWidth = 512;
+        let gridHeight = 512;
+
+        // Canvas
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        let dpr = 1;
+
+        // Performance tracking
+        let frameCount = 0;
+        let fps = 0;
+        let lastFpsTime = performance.now();
+        let lastTime = performance.now();
+
+        // Mouse interaction
+        let isDragging = false;
+        let dragStartX = 0;
+        let dragStartY = 0;
+
+        // Image data for rendering
+        let imageData = null;
+
+        // Initialize WASM
+        async function initWASM() {
+            Module = await EigenLabCore();
+            console.log('EigenLab WASM loaded');
+            initSimulation();
+        }
+
+        function initSimulation() {
+            document.getElementById('loading').classList.add('hidden');
+
+            // Canvas setup
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+
+            // Create solver with pond preset
+            createSolver(currentPreset);
+
+            // Start loop
+            requestAnimationFrame(loop);
+
+            // Setup event listeners
+            setupEventListeners();
+        }
+
+        function resizeCanvas() {
+            const container = canvas.parentElement;
+            dpr = window.devicePixelRatio || 1;
+            canvas.width = container.clientWidth * dpr;
+            canvas.height = container.clientHeight * dpr;
+            canvas.style.width = container.clientWidth + 'px';
+            canvas.style.height = container.clientHeight + 'px';
+
+            // Recreate image data if solver exists
+            if (solver) {
+                imageData = ctx.createImageData(gridWidth, gridHeight);
+            }
+        }
+
+        function createSolver(preset) {
+            if (solver) {
+                solver.delete();
+            }
+
+            let config;
+            switch (preset) {
+                case 'calm':
+                    config = Module.wavePresetCalm();
+                    break;
+                case 'pond':
+                    config = Module.wavePresetPond();
+                    break;
+                case 'ripple':
+                    config = Module.wavePresetRipple();
+                    break;
+                case 'slit':
+                    config = Module.wavePresetSlit();
+                    break;
+                default:
+                    config = Module.wavePresetPond();
+            }
+
+            gridWidth = config.width;
+            gridHeight = config.height;
+
+            solver = new Module.WaveSolver2D(config);
+
+            // Update UI
+            document.getElementById('hud-grid').textContent = `${gridWidth}x${gridHeight}`;
+            document.getElementById('ctrl-speed').value = config.waveSpeed;
+            document.getElementById('val-speed').textContent = config.waveSpeed.toFixed(1);
+            document.getElementById('ctrl-damping').value = config.damping;
+            document.getElementById('val-damping').textContent = config.damping.toFixed(4);
+
+            // Create image data for rendering
+            imageData = ctx.createImageData(gridWidth, gridHeight);
+        }
+
+        function render() {
+            if (!solver || !imageData) return;
+
+            const width = canvas.width / dpr;
+            const height = canvas.height / dpr;
+
+            // Clear background
+            ctx.fillStyle = '#030712';
+            ctx.fillRect(0, 0, width, height);
+
+            // Get height field from WASM
+            const heightField = Module.getWaveHeightField(solver);
+            const obstacles = Module.getWaveObstacles(solver);
+
+            // Render to image data
+            const data = imageData.data;
+            for (let i = 0; i < gridWidth * gridHeight; i++) {
+                const h = heightField[i];
+                const isObstacle = obstacles[i] !== 0;
+
+                const idx = i * 4;
+
+                if (isObstacle) {
+                    // Obstacle: dark gray
+                    data[idx] = 40;
+                    data[idx + 1] = 40;
+                    data[idx + 2] = 50;
+                    data[idx + 3] = 255;
+                } else {
+                    // Map height to color
+                    // Positive: blue, Negative: pink, Zero: dark blue
+                    const normalizedH = Math.tanh(h * 2); // Normalize to [-1, 1]
+
+                    if (normalizedH >= 0) {
+                        // Positive: lerp from dark blue to bright blue
+                        const t = normalizedH;
+                        data[idx] = Math.floor(10 + t * 86);      // R: 10 -> 96
+                        data[idx + 1] = Math.floor(20 + t * 145); // G: 20 -> 165
+                        data[idx + 2] = Math.floor(40 + t * 210); // B: 40 -> 250
+                    } else {
+                        // Negative: lerp from dark blue to pink
+                        const t = -normalizedH;
+                        data[idx] = Math.floor(10 + t * 234);     // R: 10 -> 244
+                        data[idx + 1] = Math.floor(20 + t * 94);  // G: 20 -> 114
+                        data[idx + 2] = Math.floor(40 + t * 142); // B: 40 -> 182
+                    }
+                    data[idx + 3] = 255;
+                }
+            }
+
+            // Put image data (scaled to fit canvas)
+            ctx.save();
+            ctx.imageSmoothingEnabled = false;
+
+            // Create temporary canvas for scaling
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = gridWidth;
+            tempCanvas.height = gridHeight;
+            const tempCtx = tempCanvas.getContext('2d');
+            tempCtx.putImageData(imageData, 0, 0);
+
+            // Calculate scale to fit
+            const scale = Math.min(width / gridWidth, height / gridHeight);
+            const offsetX = (width - gridWidth * scale) / 2;
+            const offsetY = (height - gridHeight * scale) / 2;
+
+            ctx.drawImage(tempCanvas, offsetX, offsetY, gridWidth * scale, gridHeight * scale);
+            ctx.restore();
+        }
+
+        function updateHUD() {
+            if (!solver) return;
+
+            document.getElementById('hud-fps').textContent = fps.toFixed(0);
+            document.getElementById('hud-energy').textContent = solver.getEnergy().toFixed(4);
+            document.getElementById('hud-amplitude').textContent = solver.getMaxAmplitude().toFixed(3);
+        }
+
+        function loop(time) {
+            // FPS calculation
+            frameCount++;
+            if (time - lastFpsTime >= 1000) {
+                fps = frameCount;
+                frameCount = 0;
+                lastFpsTime = time;
+            }
+
+            // Simulation step
+            if (!paused && solver) {
+                const dt = Math.min((time - lastTime) / 1000, 0.033);
+                // Run multiple physics steps per frame for stability
+                for (let i = 0; i < 4; i++) {
+                    solver.step(dt / 4);
+                }
+            }
+            lastTime = time;
+
+            // Render
+            render();
+            updateHUD();
+
+            requestAnimationFrame(loop);
+        }
+
+        function canvasToGrid(clientX, clientY) {
+            const rect = canvas.getBoundingClientRect();
+            const canvasX = (clientX - rect.left) * dpr;
+            const canvasY = (clientY - rect.top) * dpr;
+
+            const width = canvas.width / dpr;
+            const height = canvas.height / dpr;
+            const scale = Math.min(width / gridWidth, height / gridHeight);
+            const offsetX = (width - gridWidth * scale) / 2;
+            const offsetY = (height - gridHeight * scale) / 2;
+
+            const gridX = (canvasX / dpr - offsetX) / scale;
+            const gridY = (canvasY / dpr - offsetY) / scale;
+
+            return { x: gridX, y: gridY };
+        }
+
+        function setupEventListeners() {
+            // Canvas interactions
+            canvas.addEventListener('mousedown', (e) => {
+                const pos = canvasToGrid(e.clientX, e.clientY);
+
+                if (e.shiftKey || currentTool === 'obstacle') {
+                    // Create obstacle
+                    if (solver) {
+                        solver.addCircleObstacle(pos.x, pos.y, dropRadius);
+                    }
+                } else if (currentTool === 'line') {
+                    isDragging = true;
+                    dragStartX = pos.x;
+                    dragStartY = pos.y;
+                } else {
+                    // Create drop
+                    if (solver) {
+                        solver.addDrop(pos.x, pos.y, dropAmplitude, dropRadius);
+                    }
+                }
+            });
+
+            canvas.addEventListener('mousemove', (e) => {
+                if (isDragging && currentTool === 'line') {
+                    // Could draw preview line here
+                }
+            });
+
+            canvas.addEventListener('mouseup', (e) => {
+                if (isDragging && currentTool === 'line') {
+                    const pos = canvasToGrid(e.clientX, e.clientY);
+                    if (solver) {
+                        solver.addLine(dragStartX, dragStartY, pos.x, pos.y, dropAmplitude);
+                    }
+                }
+                isDragging = false;
+            });
+
+            canvas.addEventListener('mouseleave', () => {
+                isDragging = false;
+            });
+
+            // Preset buttons
+            document.querySelectorAll('.preset-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentPreset = btn.dataset.preset;
+                    createSolver(currentPreset);
+                });
+            });
+
+            // Tool buttons
+            document.querySelectorAll('.tool-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentTool = btn.dataset.tool;
+                });
+            });
+
+            // Sliders
+            document.getElementById('ctrl-speed').addEventListener('input', (e) => {
+                const val = parseFloat(e.target.value);
+                document.getElementById('val-speed').textContent = val.toFixed(1);
+                if (solver) solver.setWaveSpeed(val);
+            });
+
+            document.getElementById('ctrl-damping').addEventListener('input', (e) => {
+                const val = parseFloat(e.target.value);
+                document.getElementById('val-damping').textContent = val.toFixed(4);
+                if (solver) solver.setDamping(val);
+            });
+
+            document.getElementById('ctrl-amplitude').addEventListener('input', (e) => {
+                dropAmplitude = parseFloat(e.target.value);
+                document.getElementById('val-amplitude').textContent = dropAmplitude.toFixed(1);
+            });
+
+            document.getElementById('ctrl-radius').addEventListener('input', (e) => {
+                dropRadius = parseInt(e.target.value);
+                document.getElementById('val-radius').textContent = dropRadius;
+            });
+
+            // Boundary select
+            document.getElementById('boundary-select').addEventListener('change', (e) => {
+                const val = parseInt(e.target.value);
+                if (solver) {
+                    if (val === 0) solver.setBoundaryCondition(Module.WaveBoundary.REFLECTIVE);
+                    else if (val === 1) solver.setBoundaryCondition(Module.WaveBoundary.ABSORBING);
+                    else if (val === 2) solver.setBoundaryCondition(Module.WaveBoundary.PERIODIC);
+                }
+            });
+
+            // Action buttons
+            document.getElementById('btn-pause').addEventListener('click', () => {
+                paused = !paused;
+                document.getElementById('btn-pause').textContent = paused ? 'Reanudar' : 'Pausar';
+            });
+
+            document.getElementById('btn-reset').addEventListener('click', () => {
+                if (solver) solver.reset();
+            });
+
+            document.getElementById('btn-clear-obstacles').addEventListener('click', () => {
+                if (solver) solver.clearObstacles();
+            });
+
+            document.getElementById('btn-plane-wave').addEventListener('click', () => {
+                if (solver) {
+                    solver.reset();
+                    solver.addPlaneWave(0, 30, dropAmplitude * 0.5);
+                }
+            });
+
+            // Preset obstacles
+            document.getElementById('btn-single-slit').addEventListener('click', () => {
+                if (!solver) return;
+                solver.clearObstacles();
+
+                const wallX = Math.floor(gridWidth * 0.3);
+                const gapY = Math.floor(gridHeight / 2);
+                const gapSize = 20;
+                const wallThickness = 5;
+
+                // Wall above gap
+                solver.addRectObstacle(wallX, 0, wallX + wallThickness, gapY - gapSize);
+                // Wall below gap
+                solver.addRectObstacle(wallX, gapY + gapSize, wallX + wallThickness, gridHeight);
+            });
+
+            document.getElementById('btn-double-slit').addEventListener('click', () => {
+                if (!solver) return;
+                solver.clearObstacles();
+
+                const wallX = Math.floor(gridWidth * 0.3);
+                const centerY = Math.floor(gridHeight / 2);
+                const slitSeparation = 40;
+                const slitWidth = 15;
+                const wallThickness = 5;
+
+                // Top wall
+                solver.addRectObstacle(wallX, 0, wallX + wallThickness, centerY - slitSeparation - slitWidth);
+                // Middle wall
+                solver.addRectObstacle(wallX, centerY - slitSeparation + slitWidth, wallX + wallThickness, centerY + slitSeparation - slitWidth);
+                // Bottom wall
+                solver.addRectObstacle(wallX, centerY + slitSeparation + slitWidth, wallX + wallThickness, gridHeight);
+            });
+        }
+
+        // Start
+        initWASM();
+    </script>
+</body>
+</html>
