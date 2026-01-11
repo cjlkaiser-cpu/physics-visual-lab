@@ -786,12 +786,12 @@
         function render() {
             if (!solver || !imageData) return;
 
-            const width = canvas.width / dpr;
-            const height = canvas.height / dpr;
+            const w = canvas.width;
+            const h = canvas.height;
 
             // Clear background
             ctx.fillStyle = '#030712';
-            ctx.fillRect(0, 0, width, height);
+            ctx.fillRect(0, 0, w, h);
 
             // Get height field from WASM
             const heightField = Module.getWaveHeightField(solver);
@@ -844,10 +844,10 @@
             const tempCtx = tempCanvas.getContext('2d');
             tempCtx.putImageData(imageData, 0, 0);
 
-            // Calculate scale to fit
-            const scale = Math.min(width / gridWidth, height / gridHeight);
-            const offsetX = (width - gridWidth * scale) / 2;
-            const offsetY = (height - gridHeight * scale) / 2;
+            // Calculate scale to fit (use actual canvas pixels)
+            const scale = Math.min(w / gridWidth, h / gridHeight);
+            const offsetX = (w - gridWidth * scale) / 2;
+            const offsetY = (h - gridHeight * scale) / 2;
 
             ctx.drawImage(tempCanvas, offsetX, offsetY, gridWidth * scale, gridHeight * scale);
             ctx.restore();
@@ -889,17 +889,18 @@
 
         function canvasToGrid(clientX, clientY) {
             const rect = canvas.getBoundingClientRect();
+            // Convert client coords to canvas pixel coords
             const canvasX = (clientX - rect.left) * dpr;
             const canvasY = (clientY - rect.top) * dpr;
 
-            const width = canvas.width / dpr;
-            const height = canvas.height / dpr;
-            const scale = Math.min(width / gridWidth, height / gridHeight);
-            const offsetX = (width - gridWidth * scale) / 2;
-            const offsetY = (height - gridHeight * scale) / 2;
+            const w = canvas.width;
+            const h = canvas.height;
+            const scale = Math.min(w / gridWidth, h / gridHeight);
+            const offsetX = (w - gridWidth * scale) / 2;
+            const offsetY = (h - gridHeight * scale) / 2;
 
-            const gridX = (canvasX / dpr - offsetX) / scale;
-            const gridY = (canvasY / dpr - offsetY) / scale;
+            const gridX = (canvasX - offsetX) / scale;
+            const gridY = (canvasY - offsetY) / scale;
 
             return { x: gridX, y: gridY };
         }
