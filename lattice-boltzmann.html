@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lattice Boltzmann | EigenLab WASM</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #030712;
+            --bg-secondary: #0f172a;
+            --bg-panel: #1e293b;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent: #3b82f6;
+            --accent-dim: rgba(59, 130, 246, 0.2);
+            --border: #334155;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+            padding: 0.75rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .badge {
+            background: var(--accent);
+            color: white;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 700;
+        }
+
+        .breadcrumb {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .breadcrumb a {
+            color: var(--text-secondary);
+            text-decoration: none;
+        }
+
+        .breadcrumb a:hover { color: var(--accent); }
+
+        .main {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+
+        .canvas-container {
+            flex: 1;
+            position: relative;
+            background: #000;
+            cursor: crosshair;
+        }
+
+        #canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .loading, .file-warning {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 100;
+        }
+
+        .loading.hidden, .file-warning.hidden { display: none; }
+
+        .loading-spinner {
+            width: 48px;
+            height: 48px;
+            border: 3px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .file-warning {
+            background: rgba(15, 23, 42, 0.98);
+            border: 1px solid #f59e0b;
+            border-radius: 12px;
+            padding: 2rem;
+            max-width: 400px;
+        }
+
+        .file-warning h2 { color: #f59e0b; margin-bottom: 0.75rem; }
+        .file-warning code { background: #f59e0b20; color: #f59e0b; padding: 0.2rem 0.5rem; border-radius: 4px; }
+        .file-warning .cmd { background: #000; border-radius: 8px; padding: 1rem; font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: #22c55e; text-align: left; margin: 1rem 0; }
+        .file-warning a { color: #22c55e; }
+
+        .hud {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            pointer-events: none;
+        }
+
+        .hud-item {
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(8px);
+            padding: 0.5rem 0.75rem;
+            border-radius: 6px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .hud-label { color: var(--text-secondary); }
+        .hud-value { color: var(--accent); font-weight: 500; }
+
+        .color-legend {
+            position: absolute;
+            bottom: 1rem;
+            left: 1rem;
+            background: rgba(15, 23, 42, 0.85);
+            padding: 0.5rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.7rem;
+        }
+
+        .legend-bar {
+            width: 150px;
+            height: 12px;
+            background: linear-gradient(to right, #3b82f6, #22c55e, #eab308, #ef4444);
+            border-radius: 4px;
+            margin: 0.25rem 0;
+        }
+
+        .legend-labels {
+            display: flex;
+            justify-content: space-between;
+            color: var(--text-secondary);
+            font-size: 0.65rem;
+        }
+
+        .sidebar {
+            width: 300px;
+            background: var(--bg-secondary);
+            border-left: 1px solid var(--border);
+            overflow-y: auto;
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .section {
+            background: var(--bg-panel);
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        .section-title {
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-secondary);
+            margin-bottom: 0.75rem;
+        }
+
+        .equation {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--accent);
+            text-align: center;
+            padding: 0.75rem;
+            background: rgba(59, 130, 246, 0.1);
+            border-radius: 6px;
+            border: 1px solid var(--accent-dim);
+        }
+
+        .preset-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
+        }
+
+        .preset-btn {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            padding: 0.5rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .preset-btn:hover { border-color: var(--accent); }
+        .preset-btn.active { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
+
+        .control-group { margin-bottom: 1rem; }
+        .control-group:last-child { margin-bottom: 0; }
+
+        .control-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.4rem;
+            font-size: 0.75rem;
+        }
+
+        .control-label span:first-child { color: var(--text-secondary); }
+        .control-label span:last-child { color: var(--accent); font-family: 'JetBrains Mono', monospace; }
+
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            -webkit-appearance: none;
+            background: var(--bg-secondary);
+            border-radius: 3px;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            background: var(--accent);
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .btn-row { display: flex; gap: 0.5rem; }
+
+        .btn {
+            flex: 1;
+            padding: 0.6rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn:hover { border-color: var(--accent); color: var(--accent); }
+        .btn-primary { background: var(--accent); border-color: var(--accent); color: white; font-weight: 500; }
+        .btn-primary:hover { background: #2563eb; }
+        .btn-danger { border-color: #ef4444; color: #ef4444; }
+        .btn-danger:hover { background: rgba(239, 68, 68, 0.1); }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+        }
+
+        .stat-item {
+            background: var(--bg-secondary);
+            padding: 0.5rem;
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        .stat-label { font-size: 0.65rem; color: var(--text-secondary); }
+        .stat-value { font-size: 0.9rem; font-weight: 500; color: var(--accent); font-family: 'JetBrains Mono', monospace; }
+
+        .view-toggle {
+            display: flex;
+            gap: 0.25rem;
+            background: var(--bg-secondary);
+            padding: 0.25rem;
+            border-radius: 6px;
+        }
+
+        .view-btn {
+            flex: 1;
+            padding: 0.4rem;
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            font-size: 0.7rem;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .view-btn.active {
+            background: var(--accent);
+            color: white;
+        }
+
+        .obstacle-info {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-align: center;
+            padding: 0.5rem;
+            border: 1px dashed var(--border);
+            border-radius: 6px;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <h1>Lattice Boltzmann <span class="badge">WASM</span></h1>
+        <nav class="breadcrumb">
+            <a href="../../_portal/index.html">EigenLab</a> /
+            <a href="index.html">Physics Visual Lab</a> /
+            <a href="../../_portal/wasm-labs.html">WASM Labs</a>
+        </nav>
+    </header>
+
+    <main class="main">
+        <div class="canvas-container" id="canvas-container">
+            <canvas id="canvas"></canvas>
+
+            <div class="loading" id="loading">
+                <div class="loading-spinner"></div>
+                <div>Cargando tunel de viento...</div>
+            </div>
+
+            <div class="file-warning hidden" id="file-warning">
+                <div style="font-size: 3rem; margin-bottom: 1rem;">⚠️</div>
+                <h2>Servidor HTTP requerido</h2>
+                <p style="color: var(--text-secondary); font-size: 0.875rem;">WASM no funciona con <code>file://</code></p>
+                <div class="cmd">cd /Users/carlos/Projects/EigenLab<br>python3 -m http.server 8080</div>
+                <p style="font-size: 0.8rem; color: var(--text-secondary);">Luego: <a href="http://localhost:8080/Physics/Physics%20Visual%20Lab/lattice-boltzmann.html">localhost:8080/.../lattice-boltzmann.html</a></p>
+            </div>
+
+            <div class="hud">
+                <div class="hud-item">
+                    <span class="hud-label">Grid:</span>
+                    <span class="hud-value" id="hud-grid">0x0</span>
+                </div>
+                <div class="hud-item">
+                    <span class="hud-label">FPS:</span>
+                    <span class="hud-value" id="hud-fps">0</span>
+                </div>
+                <div class="hud-item">
+                    <span class="hud-label">Re:</span>
+                    <span class="hud-value" id="hud-reynolds">0</span>
+                </div>
+            </div>
+
+            <div class="color-legend">
+                <div style="color: var(--text-secondary); margin-bottom: 0.25rem;" id="legend-title">Velocidad</div>
+                <div class="legend-bar" id="legend-bar"></div>
+                <div class="legend-labels">
+                    <span>0</span>
+                    <span id="legend-max">0.3</span>
+                </div>
+            </div>
+        </div>
+
+        <aside class="sidebar">
+            <div class="section">
+                <div class="section-title">Metodo Lattice Boltzmann</div>
+                <div class="equation">f_i(x+c_i,t+1) = f_i - (f_i - f_i^eq)/tau</div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">Visualizacion</div>
+                <div class="view-toggle">
+                    <button class="view-btn active" data-view="velocity">Velocidad</button>
+                    <button class="view-btn" data-view="vorticity">Vorticidad</button>
+                    <button class="view-btn" data-view="density">Densidad</button>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">Presets</div>
+                <div class="preset-grid">
+                    <button class="preset-btn active" data-preset="windTunnel">Tunel Viento</button>
+                    <button class="preset-btn" data-preset="channel">Canal</button>
+                    <button class="preset-btn" data-preset="highRe">Alto Re</button>
+                    <button class="preset-btn" data-preset="lowVisc">Baja Visc.</button>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">Parametros</div>
+
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Tau (relajacion)</span>
+                        <span id="val-tau">0.60</span>
+                    </div>
+                    <input type="range" id="ctrl-tau" min="0.51" max="1.5" step="0.01" value="0.6">
+                </div>
+
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Velocidad entrada</span>
+                        <span id="val-velocity">0.10</span>
+                    </div>
+                    <input type="range" id="ctrl-velocity" min="0.01" max="0.25" step="0.01" value="0.1">
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">Obstaculos</div>
+                <div class="obstacle-info">
+                    Click izq: Circulo<br>
+                    Click der: Rectangulo<br>
+                    Shift+Click: Perfil alar
+                </div>
+                <div class="btn-row" style="margin-top: 0.75rem;">
+                    <button class="btn" id="btn-cylinder">Cilindro</button>
+                    <button class="btn" id="btn-airfoil">Ala</button>
+                </div>
+                <div class="btn-row" style="margin-top: 0.5rem;">
+                    <button class="btn btn-danger" id="btn-clear">Limpiar</button>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">Acciones</div>
+                <div class="btn-row">
+                    <button class="btn" id="btn-pause">Pausar</button>
+                    <button class="btn btn-primary" id="btn-reset">Reset</button>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">Estadisticas</div>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-label">Vel. Max</div>
+                        <div class="stat-value" id="stat-maxv">0.00</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Reynolds</div>
+                        <div class="stat-value" id="stat-re">0</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Viscosidad</div>
+                        <div class="stat-value" id="stat-visc">0.00</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Obstaculos</div>
+                        <div class="stat-value" id="stat-obs">0</div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </main>
+
+    <script src="../../_wasm/eigenlab-core.js"></script>
+    <script>
+        // Check for file:// protocol
+        if (window.location.protocol === 'file:') {
+            document.getElementById('loading').classList.add('hidden');
+            document.getElementById('file-warning').classList.remove('hidden');
+        }
+
+        let Module = null;
+        let sim = null;
+        let paused = false;
+        let currentPreset = 'windTunnel';
+        let viewMode = 'velocity';
+
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        let dpr = 1;
+
+        let frameCount = 0;
+        let fps = 0;
+        let lastFpsTime = performance.now();
+        let statsCounter = 0;
+
+        async function initWASM() {
+            try {
+                Module = await EigenLabCore();
+                console.log('EigenLab WASM loaded');
+                initSimulation();
+            } catch (e) {
+                console.error('WASM load error:', e);
+                document.getElementById('loading').innerHTML = '<div style="color:#f87171;">Error cargando WASM</div>';
+            }
+        }
+
+        function initSimulation() {
+            document.getElementById('loading').classList.add('hidden');
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+            createSimulator(currentPreset);
+            setupEventListeners();
+            requestAnimationFrame(loop);
+        }
+
+        function resizeCanvas() {
+            const container = canvas.parentElement;
+            dpr = window.devicePixelRatio || 1;
+            canvas.width = container.clientWidth * dpr;
+            canvas.height = container.clientHeight * dpr;
+            canvas.style.width = container.clientWidth + 'px';
+            canvas.style.height = container.clientHeight + 'px';
+        }
+
+        function createSimulator(preset) {
+            if (sim) sim.delete();
+
+            let config;
+            switch (preset) {
+                case 'windTunnel': config = Module.lbmPresetWindTunnel(); break;
+                case 'channel': config = Module.lbmPresetChannel(); break;
+                case 'highRe': config = Module.lbmPresetHighReynolds(); break;
+                case 'lowVisc': config = Module.lbmPresetLowViscosity(); break;
+                default: config = Module.lbmPresetWindTunnel();
+            }
+
+            sim = new Module.LatticeBoltzmann(config);
+
+            // Add default cylinder obstacle
+            const cx = Math.floor(config.width * 0.25);
+            const cy = Math.floor(config.height * 0.5);
+            sim.addCircleObstacle(cx, cy, Math.floor(config.height * 0.1));
+
+            // Update UI
+            document.getElementById('ctrl-tau').value = config.tau;
+            document.getElementById('val-tau').textContent = config.tau.toFixed(2);
+            document.getElementById('ctrl-velocity').value = config.inletVelocity;
+            document.getElementById('val-velocity').textContent = config.inletVelocity.toFixed(2);
+            document.getElementById('hud-grid').textContent = `${config.width}x${config.height}`;
+        }
+
+        function render() {
+            if (!sim) return;
+
+            const w = canvas.width;
+            const h = canvas.height;
+            const gridW = sim.width();
+            const gridH = sim.height();
+
+            // Get data based on view mode
+            let data;
+            if (viewMode === 'velocity') {
+                data = { vx: Module.getLBMVelocityX(sim), vy: Module.getLBMVelocityY(sim) };
+            } else if (viewMode === 'vorticity') {
+                data = Module.getLBMVorticity(sim);
+            } else {
+                data = Module.getLBMDensity(sim);
+            }
+            const obstacles = Module.getLBMObstacles(sim);
+
+            // Create image
+            const imageData = ctx.createImageData(gridW, gridH);
+            const pixels = imageData.data;
+
+            for (let y = 0; y < gridH; y++) {
+                for (let x = 0; x < gridW; x++) {
+                    const idx = y * gridW + x;
+                    const pIdx = idx * 4;
+
+                    if (obstacles[idx]) {
+                        // Obstacle - dark gray
+                        pixels[pIdx] = 40;
+                        pixels[pIdx + 1] = 40;
+                        pixels[pIdx + 2] = 50;
+                        pixels[pIdx + 3] = 255;
+                    } else if (viewMode === 'velocity') {
+                        // Velocity magnitude
+                        const vx = data.vx[idx];
+                        const vy = data.vy[idx];
+                        const speed = Math.sqrt(vx * vx + vy * vy);
+                        const t = Math.min(1, speed / 0.2);
+
+                        // Blue -> Green -> Yellow -> Red
+                        let r, g, b;
+                        if (t < 0.33) {
+                            const s = t / 0.33;
+                            r = 59; g = 130 + s * 70; b = 246 - s * 200;
+                        } else if (t < 0.66) {
+                            const s = (t - 0.33) / 0.33;
+                            r = 34 + s * 200; g = 197 - s * 20; b = 46 - s * 46;
+                        } else {
+                            const s = (t - 0.66) / 0.34;
+                            r = 234 + s * 5; g = 177 - s * 109; b = 0 + s * 68;
+                        }
+
+                        pixels[pIdx] = r;
+                        pixels[pIdx + 1] = g;
+                        pixels[pIdx + 2] = b;
+                        pixels[pIdx + 3] = 255;
+                    } else if (viewMode === 'vorticity') {
+                        // Vorticity (curl)
+                        const vort = data[idx];
+                        const t = Math.min(1, Math.abs(vort) * 50);
+
+                        if (vort > 0) {
+                            // Positive vorticity - red/orange
+                            pixels[pIdx] = 239;
+                            pixels[pIdx + 1] = Math.floor(68 + (1 - t) * 100);
+                            pixels[pIdx + 2] = Math.floor(68 + (1 - t) * 100);
+                        } else {
+                            // Negative vorticity - blue/cyan
+                            pixels[pIdx] = Math.floor(59 + (1 - t) * 100);
+                            pixels[pIdx + 1] = Math.floor(130 + (1 - t) * 50);
+                            pixels[pIdx + 2] = 246;
+                        }
+                        pixels[pIdx + 3] = 255;
+                    } else {
+                        // Density
+                        const rho = data[idx];
+                        const t = (rho - 0.9) / 0.2;  // Normalize around 1.0
+                        const c = Math.floor(128 + t * 127);
+
+                        pixels[pIdx] = c;
+                        pixels[pIdx + 1] = c;
+                        pixels[pIdx + 2] = c;
+                        pixels[pIdx + 3] = 255;
+                    }
+                }
+            }
+
+            // Scale to canvas
+            ctx.putImageData(imageData, 0, 0);
+
+            // Scale up
+            ctx.save();
+            ctx.imageSmoothingEnabled = false;
+            ctx.drawImage(canvas, 0, 0, gridW, gridH, 0, 0, w, h);
+            ctx.restore();
+        }
+
+        function updateHUD() {
+            if (!sim) return;
+
+            sim.computeStatistics();
+            const stats = sim.stats();
+
+            document.getElementById('hud-fps').textContent = fps.toFixed(0);
+            document.getElementById('hud-reynolds').textContent = stats.reynoldsNumber.toFixed(0);
+
+            document.getElementById('stat-maxv').textContent = stats.maxVelocity.toFixed(3);
+            document.getElementById('stat-re').textContent = stats.reynoldsNumber.toFixed(0);
+            document.getElementById('stat-visc').textContent = sim.getViscosity().toFixed(4);
+            document.getElementById('stat-obs').textContent = stats.obstacleCount;
+        }
+
+        function loop(time) {
+            frameCount++;
+            if (time - lastFpsTime >= 1000) {
+                fps = frameCount;
+                frameCount = 0;
+                lastFpsTime = time;
+            }
+
+            if (!paused && sim) {
+                sim.stepMultiple(5);
+            }
+
+            render();
+
+            statsCounter++;
+            if (statsCounter >= 10) {
+                statsCounter = 0;
+                updateHUD();
+            }
+
+            requestAnimationFrame(loop);
+        }
+
+        function setupEventListeners() {
+            // Presets
+            document.querySelectorAll('.preset-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentPreset = btn.dataset.preset;
+                    createSimulator(currentPreset);
+                });
+            });
+
+            // View mode
+            document.querySelectorAll('.view-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    viewMode = btn.dataset.view;
+
+                    // Update legend
+                    const legendTitle = document.getElementById('legend-title');
+                    const legendBar = document.getElementById('legend-bar');
+                    if (viewMode === 'velocity') {
+                        legendTitle.textContent = 'Velocidad';
+                        legendBar.style.background = 'linear-gradient(to right, #3b82f6, #22c55e, #eab308, #ef4444)';
+                    } else if (viewMode === 'vorticity') {
+                        legendTitle.textContent = 'Vorticidad';
+                        legendBar.style.background = 'linear-gradient(to right, #3b82f6, #888, #ef4444)';
+                    } else {
+                        legendTitle.textContent = 'Densidad';
+                        legendBar.style.background = 'linear-gradient(to right, #333, #888, #fff)';
+                    }
+                });
+            });
+
+            // Parameters
+            document.getElementById('ctrl-tau').addEventListener('input', (e) => {
+                const val = parseFloat(e.target.value);
+                document.getElementById('val-tau').textContent = val.toFixed(2);
+                if (sim) sim.setTau(val);
+            });
+
+            document.getElementById('ctrl-velocity').addEventListener('input', (e) => {
+                const val = parseFloat(e.target.value);
+                document.getElementById('val-velocity').textContent = val.toFixed(2);
+                if (sim) sim.setInletVelocity(val);
+            });
+
+            // Canvas click for obstacles
+            const container = document.getElementById('canvas-container');
+            container.addEventListener('click', (e) => {
+                if (!sim) return;
+
+                const rect = canvas.getBoundingClientRect();
+                const scaleX = sim.width() / rect.width;
+                const scaleY = sim.height() / rect.height;
+                const x = Math.floor((e.clientX - rect.left) * scaleX);
+                const y = Math.floor((e.clientY - rect.top) * scaleY);
+
+                if (e.shiftKey) {
+                    // Airfoil
+                    sim.addAirfoil(x, y, Math.floor(sim.height() * 0.3), 0.1);
+                } else {
+                    // Circle
+                    sim.addCircleObstacle(x, y, Math.floor(sim.height() * 0.08));
+                }
+            });
+
+            container.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+                if (!sim) return;
+
+                const rect = canvas.getBoundingClientRect();
+                const scaleX = sim.width() / rect.width;
+                const scaleY = sim.height() / rect.height;
+                const x = Math.floor((e.clientX - rect.left) * scaleX);
+                const y = Math.floor((e.clientY - rect.top) * scaleY);
+
+                // Rectangle
+                const w = Math.floor(sim.height() * 0.15);
+                const h = Math.floor(sim.height() * 0.08);
+                sim.addRectObstacle(x - w/2, y - h/2, w, h);
+            });
+
+            // Obstacle buttons
+            document.getElementById('btn-cylinder').addEventListener('click', () => {
+                if (!sim) return;
+                const cx = Math.floor(sim.width() * 0.3);
+                const cy = Math.floor(sim.height() * 0.5);
+                sim.addCircleObstacle(cx, cy, Math.floor(sim.height() * 0.12));
+            });
+
+            document.getElementById('btn-airfoil').addEventListener('click', () => {
+                if (!sim) return;
+                const cx = Math.floor(sim.width() * 0.3);
+                const cy = Math.floor(sim.height() * 0.5);
+                sim.addAirfoil(cx, cy, Math.floor(sim.height() * 0.4), 0.15);
+            });
+
+            document.getElementById('btn-clear').addEventListener('click', () => {
+                if (sim) {
+                    sim.clearObstacles();
+                    sim.reset();
+                }
+            });
+
+            // Actions
+            document.getElementById('btn-pause').addEventListener('click', () => {
+                paused = !paused;
+                document.getElementById('btn-pause').textContent = paused ? 'Reanudar' : 'Pausar';
+            });
+
+            document.getElementById('btn-reset').addEventListener('click', () => {
+                createSimulator(currentPreset);
+            });
+        }
+
+        initWASM();
+    </script>
+</body>
+</html>
