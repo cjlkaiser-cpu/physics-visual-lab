@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Partículas de Plasma - EigenLab</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        :root {
+            --bg-primary: #030712;
+            --bg-secondary: #0f172a;
+            --bg-panel: #1e293b;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent: #22c55e;
+            --accent-dim: rgba(34, 197, 94, 0.2);
+            --border: #334155;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            padding: 1rem 1.5rem;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--accent);
+        }
+
+        .breadcrumb {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .breadcrumb a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .breadcrumb a:hover {
+            color: var(--accent);
+        }
+
+        .main {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .canvas-container {
+            flex: 1;
+            position: relative;
+            background: var(--bg-primary);
+        }
+
+        #canvas-3d {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .controls {
+            width: 320px;
+            background: var(--bg-secondary);
+            border-left: 1px solid var(--border);
+            padding: 1.5rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .equation-box {
+            background: var(--bg-panel);
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+            font-family: 'Times New Roman', serif;
+            font-size: 1.1rem;
+            border: 1px solid var(--border);
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .control-group h3 {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-secondary);
+        }
+
+        .slider-row {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .slider-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.875rem;
+        }
+
+        .slider-value {
+            color: var(--accent);
+            font-weight: 500;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: var(--bg-panel);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--accent);
+            cursor: pointer;
+        }
+
+        .button-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
+        }
+
+        button {
+            padding: 0.625rem 1rem;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid var(--border);
+            background: var(--bg-panel);
+            color: var(--text-primary);
+        }
+
+        button:hover {
+            background: var(--accent-dim);
+            border-color: var(--accent);
+        }
+
+        button.primary {
+            background: var(--accent);
+            color: var(--bg-primary);
+            border-color: var(--accent);
+        }
+
+        button.primary:hover {
+            background: #16a34a;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+        }
+
+        .stat-box {
+            background: var(--bg-panel);
+            border-radius: 6px;
+            padding: 0.75rem;
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-value {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--accent);
+        }
+
+        .checkbox-row {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: var(--accent);
+        }
+
+        .legend {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.75rem;
+            justify-content: center;
+            padding: 0.5rem;
+            background: var(--bg-panel);
+            border-radius: 6px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .electron-color { background: #00ffff; }
+        .ion-color { background: #ff8800; }
+
+        #loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        @media (max-width: 900px) {
+            .main {
+                flex-direction: column;
+            }
+            .controls {
+                width: 100%;
+                border-left: none;
+                border-top: 1px solid var(--border);
+                max-height: 50vh;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <h1>Partículas de Plasma</h1>
+        <nav class="breadcrumb">
+            <a href="../../_portal/index.html">EigenLab</a> /
+            <a href="index.html">Physics Visual Lab</a>
+        </nav>
+    </header>
+
+    <main class="main">
+        <div class="canvas-container">
+            <div id="canvas-3d"></div>
+            <div id="loading">Cargando WASM...</div>
+        </div>
+
+        <aside class="controls">
+            <div class="equation-box">
+                <strong>F</strong> = q(<strong>E</strong> + <strong>v</strong> × <strong>B</strong>)
+            </div>
+
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="legend-color electron-color"></div>
+                    <span>Electrones</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color ion-color"></div>
+                    <span>Iones</span>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <h3>Campos Electromagnéticos</h3>
+                <div class="slider-row">
+                    <div class="slider-header">
+                        <span>Campo Magnético B</span>
+                        <span class="slider-value" id="bFieldValue">1.0 T</span>
+                    </div>
+                    <input type="range" id="bField" min="0" max="5" step="0.1" value="1">
+                </div>
+                <div class="slider-row">
+                    <div class="slider-header">
+                        <span>Campo Eléctrico E</span>
+                        <span class="slider-value" id="eFieldValue">0.5 V/m</span>
+                    </div>
+                    <input type="range" id="eField" min="0" max="2" step="0.05" value="0.5">
+                </div>
+                <div class="slider-row">
+                    <div class="slider-header">
+                        <span>Ángulo B</span>
+                        <span class="slider-value" id="bAngleValue">0°</span>
+                    </div>
+                    <input type="range" id="bAngle" min="0" max="90" step="1" value="0">
+                </div>
+            </div>
+
+            <div class="control-group">
+                <h3>Propiedades del Plasma</h3>
+                <div class="slider-row">
+                    <div class="slider-header">
+                        <span>Temperatura</span>
+                        <span class="slider-value" id="tempValue">1000 K</span>
+                    </div>
+                    <input type="range" id="temp" min="100" max="20000" step="100" value="1000">
+                </div>
+                <div class="slider-row">
+                    <div class="slider-header">
+                        <span>Ratio e⁻/iones</span>
+                        <span class="slider-value" id="ratioValue">70%</span>
+                    </div>
+                    <input type="range" id="ratio" min="0.1" max="0.9" step="0.05" value="0.7">
+                </div>
+            </div>
+
+            <div class="control-group">
+                <h3>Opciones de Física</h3>
+                <label class="checkbox-row">
+                    <input type="checkbox" id="coulombCheck">
+                    <span>Interacciones de Coulomb</span>
+                </label>
+                <label class="checkbox-row">
+                    <input type="checkbox" id="mirrorCheck">
+                    <span>Espejo magnético</span>
+                </label>
+            </div>
+
+            <div class="control-group">
+                <h3>Presets</h3>
+                <div class="button-grid">
+                    <button id="presetTokamak">Tokamak</button>
+                    <button id="presetAurora">Aurora</button>
+                    <button id="presetCyclotron">Ciclotrón</button>
+                    <button id="presetBottle">Botella Magnética</button>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <h3>Simulación</h3>
+                <div class="button-grid">
+                    <button id="resetBtn" class="primary">Reiniciar</button>
+                    <button id="pauseBtn">Pausar</button>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <h3>Estadísticas</h3>
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <div class="stat-label">Partículas</div>
+                        <div class="stat-value" id="statParticles">0</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">Energía (KE)</div>
+                        <div class="stat-value" id="statEnergy">0</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">Vel. Prom.</div>
+                        <div class="stat-value" id="statSpeed">0</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">Radio Giración</div>
+                        <div class="stat-value" id="statGyro">0</div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </main>
+
+    <script type="module">
+        // === CONFIG ===
+        const CONFIG = {
+            numParticles: 500,
+            domainSize: 10,
+            stepsPerFrame: 2
+        };
+
+        let Module = null;
+        let plasma = null;
+        let paused = false;
+        let scene, camera, renderer, particles;
+        let frameCount = 0;
+
+        // === THREE.JS SETUP ===
+        function initThreeJS() {
+            const container = document.getElementById('canvas-3d');
+            const width = container.clientWidth;
+            const height = container.clientHeight;
+
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x030712);
+
+            camera = new THREE.PerspectiveCamera(60, width / height, 0.1, 1000);
+            camera.position.set(12, 10, 12);
+            camera.lookAt(0, 0, 0);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(width, height);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            container.appendChild(renderer.domElement);
+
+            // Particle system with BufferGeometry
+            const geometry = new THREE.BufferGeometry();
+            const positions = new Float32Array(CONFIG.numParticles * 3);
+            const colors = new Float32Array(CONFIG.numParticles * 3);
+
+            geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+            const material = new THREE.PointsMaterial({
+                size: 0.15,
+                vertexColors: true,
+                transparent: true,
+                opacity: 0.9,
+                sizeAttenuation: true
+            });
+
+            particles = new THREE.Points(geometry, material);
+            scene.add(particles);
+
+            // Add grid helper
+            const gridHelper = new THREE.GridHelper(CONFIG.domainSize, 10, 0x334155, 0x1e293b);
+            scene.add(gridHelper);
+
+            // Add axes helper
+            const axesHelper = new THREE.AxesHelper(CONFIG.domainSize * 0.6);
+            scene.add(axesHelper);
+
+            // Add domain box wireframe
+            const boxGeometry = new THREE.BoxGeometry(CONFIG.domainSize, CONFIG.domainSize, CONFIG.domainSize);
+            const boxEdges = new THREE.EdgesGeometry(boxGeometry);
+            const boxLine = new THREE.LineSegments(boxEdges, new THREE.LineBasicMaterial({ color: 0x334155 }));
+            scene.add(boxLine);
+
+            // Mouse controls for camera rotation
+            let mouseDown = false;
+            let mouseX = 0, mouseY = 0;
+            let theta = Math.PI / 4, phi = Math.PI / 4;
+            const radius = 18;
+
+            renderer.domElement.addEventListener('mousedown', (e) => {
+                mouseDown = true;
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+            });
+
+            window.addEventListener('mouseup', () => {
+                mouseDown = false;
+            });
+
+            renderer.domElement.addEventListener('mousemove', (e) => {
+                if (!mouseDown) return;
+                const dx = e.clientX - mouseX;
+                const dy = e.clientY - mouseY;
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+
+                theta -= dx * 0.01;
+                phi = Math.max(0.1, Math.min(Math.PI - 0.1, phi + dy * 0.01));
+
+                camera.position.x = radius * Math.sin(phi) * Math.cos(theta);
+                camera.position.y = radius * Math.cos(phi);
+                camera.position.z = radius * Math.sin(phi) * Math.sin(theta);
+                camera.lookAt(0, 0, 0);
+            });
+
+            window.addEventListener('resize', () => {
+                const w = container.clientWidth;
+                const h = container.clientHeight;
+                camera.aspect = w / h;
+                camera.updateProjectionMatrix();
+                renderer.setSize(w, h);
+            });
+        }
+
+        // === WASM LOADING ===
+        async function loadWASM() {
+            const script = document.createElement('script');
+            script.src = '../../_wasm/eigenlab-core.js';
+            document.head.appendChild(script);
+
+            return new Promise((resolve, reject) => {
+                script.onload = async () => {
+                    try {
+                        Module = await EigenLabCore({
+                            locateFile: (path) => '../../_wasm/' + path
+                        });
+                        resolve(Module);
+                    } catch (e) {
+                        reject(e);
+                    }
+                };
+                script.onerror = reject;
+            });
+        }
+
+        // === SIMULATION ===
+        function createSimulation() {
+            const config = new Module.PlasmaConfig();
+            config.numParticles = CONFIG.numParticles;
+            config.domainSize = CONFIG.domainSize;
+            config.magneticFieldStrength = parseFloat(document.getElementById('bField').value);
+            config.electricFieldStrength = parseFloat(document.getElementById('eField').value);
+            config.magneticFieldAngle = parseFloat(document.getElementById('bAngle').value) * Math.PI / 180;
+            config.temperature = parseFloat(document.getElementById('temp').value);
+            config.electronRatio = parseFloat(document.getElementById('ratio').value);
+            config.enableCoulomb = document.getElementById('coulombCheck').checked;
+            config.enableMagneticMirror = document.getElementById('mirrorCheck').checked;
+            config.dt = 0.01;
+
+            if (plasma) plasma.delete();
+            plasma = new Module.PlasmaParticles(config);
+            config.delete();
+        }
+
+        function updateParticles() {
+            if (!plasma) return;
+
+            const positions = Module.getPlasmaPositions(plasma);
+            const colors = Module.getPlasmaColors(plasma);
+            const count = plasma.particleCount();
+
+            const posAttr = particles.geometry.getAttribute('position');
+            const colAttr = particles.geometry.getAttribute('color');
+
+            for (let i = 0; i < count; i++) {
+                posAttr.array[i * 3] = positions[i * 3];
+                posAttr.array[i * 3 + 1] = positions[i * 3 + 1];
+                posAttr.array[i * 3 + 2] = positions[i * 3 + 2];
+
+                colAttr.array[i * 3] = colors[i * 3];
+                colAttr.array[i * 3 + 1] = colors[i * 3 + 1];
+                colAttr.array[i * 3 + 2] = colors[i * 3 + 2];
+            }
+
+            posAttr.needsUpdate = true;
+            colAttr.needsUpdate = true;
+        }
+
+        function updateStats() {
+            const stats = plasma.getStats();
+
+            document.getElementById('statParticles').textContent = stats.particleCount;
+            document.getElementById('statEnergy').textContent = stats.totalKineticEnergy.toFixed(2);
+            document.getElementById('statSpeed').textContent = stats.avgSpeed.toFixed(4);
+            document.getElementById('statGyro').textContent = stats.gyrationRadius.toFixed(4);
+        }
+
+        // === CONTROLS ===
+        function setupControls() {
+            // Sliders
+            document.getElementById('bField').addEventListener('input', (e) => {
+                document.getElementById('bFieldValue').textContent = e.target.value + ' T';
+                if (plasma) {
+                    plasma.setMagneticField(
+                        parseFloat(e.target.value),
+                        parseFloat(document.getElementById('bAngle').value) * Math.PI / 180
+                    );
+                }
+            });
+
+            document.getElementById('eField').addEventListener('input', (e) => {
+                document.getElementById('eFieldValue').textContent = e.target.value + ' V/m';
+                if (plasma) plasma.setElectricField(parseFloat(e.target.value));
+            });
+
+            document.getElementById('bAngle').addEventListener('input', (e) => {
+                document.getElementById('bAngleValue').textContent = e.target.value + '°';
+                if (plasma) {
+                    plasma.setMagneticField(
+                        parseFloat(document.getElementById('bField').value),
+                        parseFloat(e.target.value) * Math.PI / 180
+                    );
+                }
+            });
+
+            document.getElementById('temp').addEventListener('input', (e) => {
+                document.getElementById('tempValue').textContent = e.target.value + ' K';
+                if (plasma) plasma.setTemperature(parseFloat(e.target.value));
+            });
+
+            document.getElementById('ratio').addEventListener('input', (e) => {
+                document.getElementById('ratioValue').textContent = Math.round(e.target.value * 100) + '%';
+            });
+
+            // Checkboxes
+            document.getElementById('coulombCheck').addEventListener('change', (e) => {
+                if (plasma) plasma.enableCoulombInteractions(e.target.checked);
+            });
+
+            document.getElementById('mirrorCheck').addEventListener('change', (e) => {
+                if (plasma) plasma.enableMagneticMirror(e.target.checked, 4.0);
+            });
+
+            // Presets
+            document.getElementById('presetTokamak').addEventListener('click', () => {
+                if (plasma) {
+                    plasma.presetTokamak();
+                    syncUIFromPlasma();
+                }
+            });
+
+            document.getElementById('presetAurora').addEventListener('click', () => {
+                if (plasma) {
+                    plasma.presetAurora();
+                    syncUIFromPlasma();
+                }
+            });
+
+            document.getElementById('presetCyclotron').addEventListener('click', () => {
+                if (plasma) {
+                    plasma.presetCyclotron();
+                    syncUIFromPlasma();
+                }
+            });
+
+            document.getElementById('presetBottle').addEventListener('click', () => {
+                if (plasma) {
+                    plasma.presetMagneticBottle();
+                    syncUIFromPlasma();
+                }
+            });
+
+            // Simulation controls
+            document.getElementById('resetBtn').addEventListener('click', () => {
+                createSimulation();
+            });
+
+            document.getElementById('pauseBtn').addEventListener('click', () => {
+                paused = !paused;
+                document.getElementById('pauseBtn').textContent = paused ? 'Reanudar' : 'Pausar';
+            });
+        }
+
+        function syncUIFromPlasma() {
+            // Update UI to match preset values
+            document.getElementById('bField').value = 1.5;
+            document.getElementById('bFieldValue').textContent = '1.5 T';
+            document.getElementById('eField').value = 0.5;
+            document.getElementById('eFieldValue').textContent = '0.5 V/m';
+        }
+
+        // === ANIMATION LOOP ===
+        function animate() {
+            requestAnimationFrame(animate);
+
+            if (!paused && plasma) {
+                plasma.stepMultiple(CONFIG.stepsPerFrame);
+                updateParticles();
+
+                frameCount++;
+                if (frameCount % 10 === 0) {
+                    updateStats();
+                }
+            }
+
+            renderer.render(scene, camera);
+        }
+
+        // === INIT ===
+        async function init() {
+            initThreeJS();
+            setupControls();
+
+            try {
+                await loadWASM();
+                document.getElementById('loading').style.display = 'none';
+                createSimulation();
+                updateParticles();
+                updateStats();
+                animate();
+            } catch (error) {
+                console.error('Failed to load WASM:', error);
+                document.getElementById('loading').textContent = 'Error cargando simulación';
+            }
+        }
+
+        init();
+    </script>
+</body>
+</html>
