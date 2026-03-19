@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Termodinámica - Ciclos y Leyes | Physics Visual Lab</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+        .glow-text { text-shadow: 0 0 20px rgba(34, 197, 94, 0.5); }
+        input[type="range"] {
+            -webkit-appearance: none;
+            background: #1f2937;
+            border-radius: 4px;
+            height: 6px;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            background: #22c55e;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        .math-box {
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(34, 211, 238, 0.05));
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+        .energy-bar {
+            height: 20px;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+        .process-btn {
+            transition: all 0.2s;
+        }
+        .process-btn.active {
+            background: #22c55e !important;
+            color: #000 !important;
+        }
+        .guide-link {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 12px;
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            border-radius: 8px;
+            color: #86efac;
+            text-decoration: none;
+            font-size: 0.8rem;
+            transition: all 0.3s;
+            margin-top: 16px;
+        }
+        .guide-link:hover {
+            background: rgba(34, 197, 94, 0.2);
+            border-color: #22c55e;
+        }
+        .guide-icon {
+            width: 18px;
+            height: 18px;
+            background: #22c55e;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: bold;
+            color: white;
+            flex-shrink: 0;
+        }
+    </style>
+</head>
+<body class="bg-black text-gray-100 min-h-screen">
+    <header class="border-b border-gray-900 bg-black/80 backdrop-blur-sm sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-3">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center gap-4">
+                    <a href="index.html" class="text-gray-500 hover:text-green-400 transition flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                        </svg>
+                        Volver
+                    </a>
+                    <div class="h-4 w-px bg-gray-800"></div>
+                    <h1 class="text-lg font-light">
+                        <span class="text-green-400 font-medium">Termodinámica</span>
+                        <span class="text-gray-600 text-sm ml-2">Ciclos y Leyes</span>
+                    </h1>
+                </div>
+                <div class="flex items-center gap-4 text-sm mono">
+                    <span class="text-gray-500">Proceso: <span id="process-display" class="text-green-400">Carnot</span></span>
+                    <span class="text-gray-500">η: <span id="efficiency-display" class="text-cyan-400">--</span></span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex h-[calc(100vh-57px)]">
+        <div class="flex-1 flex items-center justify-center bg-gray-950 p-4">
+            <canvas id="canvas"></canvas>
+        </div>
+
+        <aside class="w-96 border-l border-gray-900 bg-gray-950 p-6 overflow-y-auto">
+            <h2 class="text-lg font-medium mb-6 text-green-400 glow-text">Controles</h2>
+
+            <!-- Ciclo predefinido -->
+            <div class="mb-6">
+                <label class="block text-sm text-gray-400 mb-2">Ciclo Termodinámico</label>
+                <select id="cycle-select" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-3 py-2 text-sm focus:border-green-500 focus:outline-none">
+                    <option value="carnot">Ciclo de Carnot</option>
+                    <option value="otto">Ciclo Otto (Motor gasolina)</option>
+                    <option value="diesel">Ciclo Diesel</option>
+                    <option value="custom">Proceso personalizado</option>
+                </select>
+            </div>
+
+            <!-- Tipo de proceso (solo para custom) -->
+            <div id="process-controls" class="mb-6 hidden">
+                <label class="block text-sm text-gray-400 mb-2">Tipo de Proceso</label>
+                <div class="grid grid-cols-2 gap-2">
+                    <button onclick="setProcess('isothermal')" class="process-btn px-3 py-2 bg-gray-900 hover:bg-gray-800 rounded-lg text-xs transition">Isotérmico (T=cte)</button>
+                    <button onclick="setProcess('adiabatic')" class="process-btn px-3 py-2 bg-gray-900 hover:bg-gray-800 rounded-lg text-xs transition">Adiabático (Q=0)</button>
+                    <button onclick="setProcess('isobaric')" class="process-btn px-3 py-2 bg-gray-900 hover:bg-gray-800 rounded-lg text-xs transition">Isobárico (P=cte)</button>
+                    <button onclick="setProcess('isochoric')" class="process-btn px-3 py-2 bg-gray-900 hover:bg-gray-800 rounded-lg text-xs transition">Isocórico (V=cte)</button>
+                </div>
+            </div>
+
+            <!-- Temperaturas -->
+            <div class="mb-6">
+                <label class="block text-sm text-gray-400 mb-2">
+                    Temperatura Caliente (T<sub>H</sub>): <span id="th-value" class="text-red-400 mono">600</span> K
+                </label>
+                <input type="range" id="th-slider" min="400" max="1000" value="600" class="w-full">
+            </div>
+
+            <div class="mb-6">
+                <label class="block text-sm text-gray-400 mb-2">
+                    Temperatura Fría (T<sub>C</sub>): <span id="tc-value" class="text-blue-400 mono">300</span> K
+                </label>
+                <input type="range" id="tc-slider" min="200" max="500" value="300" class="w-full">
+            </div>
+
+            <!-- Razón de compresión -->
+            <div class="mb-6">
+                <label class="block text-sm text-gray-400 mb-2">
+                    Razón de Compresión (r): <span id="r-value" class="text-green-400 mono">8</span>
+                </label>
+                <input type="range" id="r-slider" min="2" max="20" value="8" class="w-full">
+            </div>
+
+            <!-- Controles de animación -->
+            <div class="mb-6 flex gap-2">
+                <button onclick="toggleAnimation()" id="play-btn" class="flex-1 px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg text-sm font-medium transition">
+                    ▶ Animar Ciclo
+                </button>
+                <button onclick="resetCycle()" class="flex-1 px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg text-sm font-medium transition">
+                    ↺ Reiniciar
+                </button>
+            </div>
+
+            <!-- Balance energético -->
+            <div class="mb-6 p-4 bg-gray-900 rounded-lg">
+                <h3 class="text-sm font-medium text-gray-300 mb-3">Balance Energético</h3>
+
+                <div class="mb-3">
+                    <div class="flex justify-between text-xs mb-1">
+                        <span class="text-red-400">Q<sub>in</sub> (Calor absorbido)</span>
+                        <span id="qin-value" class="mono text-red-400">-- J</span>
+                    </div>
+                    <div class="bg-gray-800 rounded-full h-3 overflow-hidden">
+                        <div id="qin-bar" class="energy-bar bg-red-500 h-full" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <div class="flex justify-between text-xs mb-1">
+                        <span class="text-blue-400">Q<sub>out</sub> (Calor cedido)</span>
+                        <span id="qout-value" class="mono text-blue-400">-- J</span>
+                    </div>
+                    <div class="bg-gray-800 rounded-full h-3 overflow-hidden">
+                        <div id="qout-bar" class="energy-bar bg-blue-500 h-full" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <div class="flex justify-between text-xs mb-1">
+                        <span class="text-green-400">W (Trabajo neto)</span>
+                        <span id="w-value" class="mono text-green-400">-- J</span>
+                    </div>
+                    <div class="bg-gray-800 rounded-full h-3 overflow-hidden">
+                        <div id="w-bar" class="energy-bar bg-green-500 h-full" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <div class="pt-3 border-t border-gray-800">
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-400">Eficiencia (η)</span>
+                        <span id="eff-value" class="mono text-cyan-400 font-bold">-- %</span>
+                    </div>
+                    <div class="flex justify-between text-xs mt-1">
+                        <span class="text-gray-500">Carnot máx.</span>
+                        <span id="carnot-max" class="mono text-gray-500">-- %</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Primera y Segunda Ley -->
+            <div class="mb-6 p-4 bg-gray-900 rounded-lg">
+                <h3 class="text-sm font-medium text-gray-300 mb-2">Las Leyes</h3>
+                <ul class="text-xs text-gray-500 space-y-2">
+                    <li>
+                        <span class="text-yellow-400 font-medium">1ª Ley:</span>
+                        <span class="mono">ΔU = Q - W</span>
+                        <div class="text-gray-600 mt-1">La energía se conserva</div>
+                    </li>
+                    <li>
+                        <span class="text-purple-400 font-medium">2ª Ley:</span>
+                        <span class="mono">η ≤ 1 - T<sub>C</sub>/T<sub>H</sub></span>
+                        <div class="text-gray-600 mt-1">Ninguna máquina supera a Carnot</div>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Math box -->
+            <div class="math-box rounded-xl p-4">
+                <h3 class="text-sm font-medium text-green-400 mb-3">La Matemática</h3>
+                <div id="equations" class="mono text-xs text-center space-y-2">
+                    <div class="text-cyan-400">Ciclo de Carnot</div>
+                    <div class="text-gray-300">η<sub>Carnot</sub> = 1 - T<sub>C</sub>/T<sub>H</sub></div>
+                    <div class="text-gray-300">W = Q<sub>H</sub> - Q<sub>C</sub></div>
+                </div>
+                <div class="mt-3 pt-3 border-t border-gray-800">
+                    <p class="text-xs text-gray-500" id="cycle-description">
+                        El ciclo de Carnot es el ciclo termodinámico más eficiente posible
+                        entre dos temperaturas. Consiste en dos procesos isotérmicos y
+                        dos adiabáticos.
+                    </p>
+                </div>
+            </div>
+
+            <a href="guides/termodinamica.html" class="guide-link">
+                <span class="guide-icon">?</span>
+                Guía completa: leyes, ciclos, eficiencia y la flecha del tiempo
+            </a>
+        </aside>
+    </main>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        // Estado
+        let cycle = 'carnot';
+        let process = 'isothermal';
+        let Th = 600;  // K
+        let Tc = 300;  // K
+        let r = 8;     // Razón de compresión
+        let gamma = 1.4; // Cp/Cv para gas ideal diatómico
+        let n = 1;     // Moles de gas
+        let R = 8.314; // J/(mol·K)
+
+        // Animación
+        let animating = false;
+        let animationPhase = 0;
+        let animationProgress = 0;
+        let animationId = null;
+
+        // Escalas del diagrama PV
+        let Vmin, Vmax, Pmin, Pmax;
+
+        // Puntos del ciclo actual
+        let cyclePoints = [];
+        let currentPoint = null;
+
+        function resize() {
+            const container = canvas.parentElement;
+            const size = Math.min(container.clientWidth - 40, container.clientHeight - 40, 600);
+            canvas.width = size;
+            canvas.height = size;
+        }
+
+        // Calcular puntos del ciclo de Carnot
+        function calculateCarnot() {
+            const V1 = 1;          // Volumen mínimo (arbitrario)
+            const V2 = V1 * r;     // Volumen máximo
+            const P1 = n * R * Th / V1;
+
+            // Estado 1: (V1, P1) - inicio expansión isotérmica a Th
+            // Estado 2: (V2, P2) - fin expansión isotérmica, inicio expansión adiabática
+            const P2 = n * R * Th / V2;
+
+            // Expansión adiabática: T*V^(γ-1) = constante
+            // Th * V2^(γ-1) = Tc * V3^(γ-1)
+            const V3 = V2 * Math.pow(Th / Tc, 1 / (gamma - 1));
+            const P3 = n * R * Tc / V3;
+
+            // Compresión isotérmica a Tc
+            const V4 = V1 * Math.pow(Th / Tc, 1 / (gamma - 1));
+            const P4 = n * R * Tc / V4;
+
+            return [
+                { V: V1, P: P1, T: Th, label: '1' },
+                { V: V2, P: P2, T: Th, label: '2' },
+                { V: V3, P: P3, T: Tc, label: '3' },
+                { V: V4, P: P4, T: Tc, label: '4' }
+            ];
+        }
+
+        // Calcular puntos del ciclo Otto
+        function calculateOtto() {
+            const V1 = r;          // Volumen máximo (BDC)
+            const V2 = 1;          // Volumen mínimo (TDC)
+
+            // Estado 1: inicio compresión adiabática (BDC, T baja)
+            const T1 = Tc;
+            const P1 = n * R * T1 / V1;
+
+            // Estado 2: fin compresión adiabática (TDC)
+            const T2 = T1 * Math.pow(r, gamma - 1);
+            const P2 = n * R * T2 / V2;
+
+            // Estado 3: fin combustión isocórica (TDC, T alta)
+            const T3 = Th;
+            const P3 = n * R * T3 / V2;
+
+            // Estado 4: fin expansión adiabática (BDC)
+            const T4 = T3 / Math.pow(r, gamma - 1);
+            const P4 = n * R * T4 / V1;
+
+            return [
+                { V: V1, P: P1, T: T1, label: '1' },
+                { V: V2, P: P2, T: T2, label: '2' },
+                { V: V2, P: P3, T: T3, label: '3' },
+                { V: V1, P: P4, T: T4, label: '4' }
+            ];
+        }
+
+        // Calcular puntos del ciclo Diesel
+        function calculateDiesel() {
+            const V1 = r;          // Volumen máximo
+            const V2 = 1;          // Volumen mínimo
+
+            const T1 = Tc;
+            const P1 = n * R * T1 / V1;
+
+            // Compresión adiabática
+            const T2 = T1 * Math.pow(r, gamma - 1);
+            const P2 = n * R * T2 / V2;
+
+            // Expansión isobárica (combustión)
+            const T3 = Th;
+            const V3 = V2 * (T3 / T2);
+            const P3 = P2;
+
+            // Expansión adiabática
+            const T4 = T3 * Math.pow(V3 / V1, gamma - 1);
+            const P4 = n * R * T4 / V1;
+
+            return [
+                { V: V1, P: P1, T: T1, label: '1' },
+                { V: V2, P: P2, T: T2, label: '2' },
+                { V: V3, P: P3, T: T3, label: '3' },
+                { V: V1, P: P4, T: T4, label: '4' }
+            ];
+        }
+
+        // Calcular escalas basadas en los puntos del ciclo
+        function calculateScales(points) {
+            const Vs = points.map(p => p.V);
+            const Ps = points.map(p => p.P);
+
+            Vmin = Math.min(...Vs) * 0.5;
+            Vmax = Math.max(...Vs) * 1.3;
+            Pmin = 0;
+            Pmax = Math.max(...Ps) * 1.2;
+        }
+
+        // Convertir coordenadas PV a canvas
+        function toCanvas(V, P) {
+            const margin = 60;
+            const x = margin + (V - Vmin) / (Vmax - Vmin) * (canvas.width - 2 * margin);
+            const y = canvas.height - margin - (P - Pmin) / (Pmax - Pmin) * (canvas.height - 2 * margin);
+            return { x, y };
+        }
+
+        // Dibujar ejes
+        function drawAxes() {
+            const margin = 60;
+
+            ctx.strokeStyle = '#374151';
+            ctx.lineWidth = 1;
+
+            // Eje V
+            ctx.beginPath();
+            ctx.moveTo(margin, canvas.height - margin);
+            ctx.lineTo(canvas.width - margin / 2, canvas.height - margin);
+            ctx.stroke();
+
+            // Eje P
+            ctx.beginPath();
+            ctx.moveTo(margin, margin / 2);
+            ctx.lineTo(margin, canvas.height - margin);
+            ctx.stroke();
+
+            // Labels
+            ctx.fillStyle = '#9ca3af';
+            ctx.font = '14px Inter, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('V (Volumen)', canvas.width / 2, canvas.height - 15);
+
+            ctx.save();
+            ctx.translate(20, canvas.height / 2);
+            ctx.rotate(-Math.PI / 2);
+            ctx.fillText('P (Presión)', 0, 0);
+            ctx.restore();
+
+            // Marcas en ejes
+            ctx.font = '10px JetBrains Mono, monospace';
+            ctx.fillStyle = '#6b7280';
+
+            // Marcas V
+            for (let i = 0; i <= 4; i++) {
+                const V = Vmin + (Vmax - Vmin) * i / 4;
+                const pos = toCanvas(V, Pmin);
+                ctx.fillText(V.toFixed(1), pos.x, canvas.height - margin + 15);
+            }
+
+            // Marcas P
+            ctx.textAlign = 'right';
+            for (let i = 0; i <= 4; i++) {
+                const P = Pmin + (Pmax - Pmin) * i / 4;
+                const pos = toCanvas(Vmin, P);
+                ctx.fillText((P / 1000).toFixed(0) + 'k', margin - 8, pos.y + 4);
+            }
+        }
+
+        // Dibujar isoterma
+        function drawIsotherm(T, color, dashed = false) {
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 1;
+            if (dashed) ctx.setLineDash([5, 5]);
+            else ctx.setLineDash([]);
+
+            ctx.beginPath();
+            for (let i = 0; i <= 100; i++) {
+                const V = Vmin + (Vmax - Vmin) * i / 100;
+                const P = n * R * T / V;
+                if (P > Pmax * 1.5 || P < Pmin) continue;
+
+                const pos = toCanvas(V, P);
+                if (i === 0 || P > Pmax) ctx.moveTo(pos.x, pos.y);
+                else ctx.lineTo(pos.x, pos.y);
+            }
+            ctx.stroke();
+            ctx.setLineDash([]);
+        }
+
+        // Dibujar adiabática desde un punto
+        function drawAdiabatic(V0, P0, color, dashed = false) {
+            const C = P0 * Math.pow(V0, gamma);
+
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 1;
+            if (dashed) ctx.setLineDash([5, 5]);
+            else ctx.setLineDash([]);
+
+            ctx.beginPath();
+            let started = false;
+            for (let i = 0; i <= 100; i++) {
+                const V = Vmin + (Vmax - Vmin) * i / 100;
+                const P = C / Math.pow(V, gamma);
+                if (P > Pmax * 1.5 || P < Pmin) continue;
+
+                const pos = toCanvas(V, P);
+                if (!started) {
+                    ctx.moveTo(pos.x, pos.y);
+                    started = true;
+                } else {
+                    ctx.lineTo(pos.x, pos.y);
+                }
+            }
+            ctx.stroke();
+            ctx.setLineDash([]);
+        }
+
+        // Interpolar entre dos puntos del ciclo
+        function interpolate(p1, p2, t, processType) {
+            if (processType === 'isothermal') {
+                const V = p1.V + (p2.V - p1.V) * t;
+                const P = n * R * p1.T / V;
+                return { V, P, T: p1.T };
+            } else if (processType === 'adiabatic') {
+                const C = p1.P * Math.pow(p1.V, gamma);
+                const V = p1.V + (p2.V - p1.V) * t;
+                const P = C / Math.pow(V, gamma);
+                return { V, P, T: P * V / (n * R) };
+            } else if (processType === 'isochoric') {
+                const P = p1.P + (p2.P - p1.P) * t;
+                return { V: p1.V, P, T: P * p1.V / (n * R) };
+            } else if (processType === 'isobaric') {
+                const V = p1.V + (p2.V - p1.V) * t;
+                return { V, P: p1.P, T: p1.P * V / (n * R) };
+            }
+            // Linear fallback
+            return {
+                V: p1.V + (p2.V - p1.V) * t,
+                P: p1.P + (p2.P - p1.P) * t,
+                T: p1.T + (p2.T - p1.T) * t
+            };
+        }
+
+        // Obtener los tipos de proceso para cada segmento del ciclo
+        function getProcessTypes() {
+            if (cycle === 'carnot') {
+                return ['isothermal', 'adiabatic', 'isothermal', 'adiabatic'];
+            } else if (cycle === 'otto') {
+                return ['adiabatic', 'isochoric', 'adiabatic', 'isochoric'];
+            } else if (cycle === 'diesel') {
+                return ['adiabatic', 'isobaric', 'adiabatic', 'isochoric'];
+            }
+            return ['linear', 'linear', 'linear', 'linear'];
+        }
+
+        // Dibujar el ciclo
+        function drawCycle() {
+            if (cyclePoints.length < 4) return;
+
+            const processTypes = getProcessTypes();
+            const colors = ['#ef4444', '#f59e0b', '#3b82f6', '#8b5cf6'];
+
+            for (let i = 0; i < 4; i++) {
+                const p1 = cyclePoints[i];
+                const p2 = cyclePoints[(i + 1) % 4];
+                const type = processTypes[i];
+
+                ctx.strokeStyle = colors[i];
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+
+                const steps = 50;
+                for (let j = 0; j <= steps; j++) {
+                    const t = j / steps;
+                    const pt = interpolate(p1, p2, t, type);
+                    const pos = toCanvas(pt.V, pt.P);
+
+                    if (j === 0) ctx.moveTo(pos.x, pos.y);
+                    else ctx.lineTo(pos.x, pos.y);
+                }
+                ctx.stroke();
+
+                // Flecha direccional
+                const mid = interpolate(p1, p2, 0.5, type);
+                const midNext = interpolate(p1, p2, 0.52, type);
+                const posMid = toCanvas(mid.V, mid.P);
+                const posNext = toCanvas(midNext.V, midNext.P);
+
+                const angle = Math.atan2(posNext.y - posMid.y, posNext.x - posMid.x);
+                ctx.fillStyle = colors[i];
+                ctx.beginPath();
+                ctx.moveTo(posMid.x + 8 * Math.cos(angle), posMid.y + 8 * Math.sin(angle));
+                ctx.lineTo(posMid.x + 8 * Math.cos(angle + 2.5), posMid.y + 8 * Math.sin(angle + 2.5));
+                ctx.lineTo(posMid.x + 8 * Math.cos(angle - 2.5), posMid.y + 8 * Math.sin(angle - 2.5));
+                ctx.closePath();
+                ctx.fill();
+            }
+
+            // Dibujar puntos de estado
+            cyclePoints.forEach((p, i) => {
+                const pos = toCanvas(p.V, p.P);
+
+                ctx.beginPath();
+                ctx.arc(pos.x, pos.y, 8, 0, Math.PI * 2);
+                ctx.fillStyle = '#1f2937';
+                ctx.fill();
+                ctx.strokeStyle = '#22c55e';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                ctx.fillStyle = '#22c55e';
+                ctx.font = 'bold 12px JetBrains Mono, monospace';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(p.label, pos.x, pos.y);
+            });
+        }
+
+        // Dibujar punto de estado actual durante la animación
+        function drawCurrentPoint() {
+            if (!currentPoint) return;
+
+            const pos = toCanvas(currentPoint.V, currentPoint.P);
+
+            // Glow
+            ctx.beginPath();
+            ctx.arc(pos.x, pos.y, 15, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(34, 197, 94, 0.3)';
+            ctx.fill();
+
+            // Punto
+            ctx.beginPath();
+            ctx.arc(pos.x, pos.y, 8, 0, Math.PI * 2);
+            ctx.fillStyle = '#22c55e';
+            ctx.fill();
+
+            // Etiqueta de estado
+            ctx.fillStyle = '#22c55e';
+            ctx.font = '12px JetBrains Mono, monospace';
+            ctx.textAlign = 'left';
+            ctx.fillText(`T: ${currentPoint.T.toFixed(0)} K`, pos.x + 15, pos.y - 5);
+            ctx.fillText(`P: ${(currentPoint.P / 1000).toFixed(1)} kPa`, pos.x + 15, pos.y + 10);
+        }
+
+        // Calcular balance energético
+        function calculateEnergy() {
+            if (cyclePoints.length < 4) return { Qin: 0, Qout: 0, W: 0, efficiency: 0 };
+
+            let Qin = 0, Qout = 0;
+            const processTypes = getProcessTypes();
+
+            for (let i = 0; i < 4; i++) {
+                const p1 = cyclePoints[i];
+                const p2 = cyclePoints[(i + 1) % 4];
+                const type = processTypes[i];
+
+                let Q = 0;
+
+                if (type === 'isothermal') {
+                    // Q = nRT ln(V2/V1)
+                    Q = n * R * p1.T * Math.log(p2.V / p1.V);
+                } else if (type === 'isochoric') {
+                    // Q = nCv ΔT = n(R/(γ-1)) ΔT
+                    const Cv = R / (gamma - 1);
+                    Q = n * Cv * (p2.T - p1.T);
+                } else if (type === 'isobaric') {
+                    // Q = nCp ΔT = n(γR/(γ-1)) ΔT
+                    const Cp = gamma * R / (gamma - 1);
+                    Q = n * Cp * (p2.T - p1.T);
+                }
+                // Adiabático: Q = 0
+
+                if (Q > 0) Qin += Q;
+                else Qout += Math.abs(Q);
+            }
+
+            const W = Qin - Qout;
+            const efficiency = Qin > 0 ? (W / Qin) * 100 : 0;
+
+            return { Qin, Qout, W, efficiency };
+        }
+
+        // Actualizar displays de energía
+        function updateEnergyDisplay() {
+            const energy = calculateEnergy();
+            const maxQ = Math.max(energy.Qin, energy.Qout, energy.W) || 1;
+
+            document.getElementById('qin-value').textContent = energy.Qin.toFixed(0) + ' J';
+            document.getElementById('qout-value').textContent = energy.Qout.toFixed(0) + ' J';
+            document.getElementById('w-value').textContent = energy.W.toFixed(0) + ' J';
+            document.getElementById('eff-value').textContent = energy.efficiency.toFixed(1) + ' %';
+
+            document.getElementById('qin-bar').style.width = (energy.Qin / maxQ * 100) + '%';
+            document.getElementById('qout-bar').style.width = (energy.Qout / maxQ * 100) + '%';
+            document.getElementById('w-bar').style.width = (energy.W / maxQ * 100) + '%';
+
+            // Eficiencia de Carnot máxima
+            const carnotMax = (1 - Tc / Th) * 100;
+            document.getElementById('carnot-max').textContent = carnotMax.toFixed(1) + ' %';
+            document.getElementById('efficiency-display').textContent = energy.efficiency.toFixed(1) + '%';
+        }
+
+        // Dibujar todo
+        function draw() {
+            ctx.fillStyle = '#030712';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Calcular puntos según el ciclo
+            if (cycle === 'carnot') {
+                cyclePoints = calculateCarnot();
+            } else if (cycle === 'otto') {
+                cyclePoints = calculateOtto();
+            } else if (cycle === 'diesel') {
+                cyclePoints = calculateDiesel();
+            }
+
+            calculateScales(cyclePoints);
+
+            // Isotermas de fondo
+            drawIsotherm(Th, 'rgba(239, 68, 68, 0.2)', true);
+            drawIsotherm(Tc, 'rgba(59, 130, 246, 0.2)', true);
+
+            // Etiquetas de isotermas
+            ctx.font = '11px JetBrains Mono, monospace';
+            ctx.fillStyle = 'rgba(239, 68, 68, 0.6)';
+            const posHot = toCanvas(Vmax * 0.9, n * R * Th / (Vmax * 0.9));
+            if (posHot.y > 60) ctx.fillText(`T=${Th}K`, posHot.x - 40, posHot.y - 10);
+
+            ctx.fillStyle = 'rgba(59, 130, 246, 0.6)';
+            const posCold = toCanvas(Vmax * 0.9, n * R * Tc / (Vmax * 0.9));
+            if (posCold.y < canvas.height - 80) ctx.fillText(`T=${Tc}K`, posCold.x - 40, posCold.y + 15);
+
+            drawAxes();
+            drawCycle();
+            drawCurrentPoint();
+            updateEnergyDisplay();
+
+            // Título del ciclo
+            ctx.font = 'bold 16px Inter, sans-serif';
+            ctx.fillStyle = '#22c55e';
+            ctx.textAlign = 'center';
+            const titles = {
+                carnot: 'Ciclo de Carnot',
+                otto: 'Ciclo Otto',
+                diesel: 'Ciclo Diesel'
+            };
+            ctx.fillText(titles[cycle] || 'Diagrama P-V', canvas.width / 2, 30);
+        }
+
+        // Animación
+        function animate() {
+            if (!animating) return;
+
+            const processTypes = getProcessTypes();
+            const p1 = cyclePoints[animationPhase];
+            const p2 = cyclePoints[(animationPhase + 1) % 4];
+            const type = processTypes[animationPhase];
+
+            currentPoint = interpolate(p1, p2, animationProgress, type);
+
+            animationProgress += 0.015;
+
+            if (animationProgress >= 1) {
+                animationProgress = 0;
+                animationPhase = (animationPhase + 1) % 4;
+            }
+
+            draw();
+            animationId = requestAnimationFrame(animate);
+        }
+
+        function toggleAnimation() {
+            animating = !animating;
+            const btn = document.getElementById('play-btn');
+
+            if (animating) {
+                btn.textContent = '⏸ Pausar';
+                btn.classList.remove('bg-green-600', 'hover:bg-green-700');
+                btn.classList.add('bg-yellow-600', 'hover:bg-yellow-700');
+                animate();
+            } else {
+                btn.textContent = '▶ Animar Ciclo';
+                btn.classList.remove('bg-yellow-600', 'hover:bg-yellow-700');
+                btn.classList.add('bg-green-600', 'hover:bg-green-700');
+                if (animationId) cancelAnimationFrame(animationId);
+            }
+        }
+
+        function resetCycle() {
+            animating = false;
+            animationPhase = 0;
+            animationProgress = 0;
+            currentPoint = null;
+
+            const btn = document.getElementById('play-btn');
+            btn.textContent = '▶ Animar Ciclo';
+            btn.classList.remove('bg-yellow-600', 'hover:bg-yellow-700');
+            btn.classList.add('bg-green-600', 'hover:bg-green-700');
+
+            if (animationId) cancelAnimationFrame(animationId);
+            draw();
+        }
+
+        function setProcess(p) {
+            process = p;
+            document.querySelectorAll('.process-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+
+        // Actualizar descripciones y ecuaciones según el ciclo
+        function updateCycleInfo() {
+            const descriptions = {
+                carnot: 'El ciclo de Carnot es el ciclo termodinámico más eficiente posible entre dos temperaturas. Consiste en dos procesos isotérmicos y dos adiabáticos.',
+                otto: 'El ciclo Otto modela motores de gasolina. Consiste en dos procesos adiabáticos (compresión/expansión) y dos isocóricos (combustión/escape).',
+                diesel: 'El ciclo Diesel modela motores diésel. Similar al Otto pero la combustión ocurre a presión constante (isobárico) en lugar de volumen constante.'
+            };
+
+            const equations = {
+                carnot: `
+                    <div class="text-cyan-400">Ciclo de Carnot</div>
+                    <div class="text-gray-300">η = 1 - T<sub>C</sub>/T<sub>H</sub></div>
+                    <div class="text-gray-300">W = Q<sub>H</sub> - Q<sub>C</sub></div>
+                `,
+                otto: `
+                    <div class="text-cyan-400">Ciclo Otto</div>
+                    <div class="text-gray-300">η = 1 - 1/r<sup>γ-1</sup></div>
+                    <div class="text-gray-300">r = V<sub>max</sub>/V<sub>min</sub></div>
+                `,
+                diesel: `
+                    <div class="text-cyan-400">Ciclo Diesel</div>
+                    <div class="text-gray-300">η = 1 - (1/r<sup>γ-1</sup>)·f(r<sub>c</sub>)</div>
+                    <div class="text-gray-300">Mayor eficiencia a alta compresión</div>
+                `
+            };
+
+            document.getElementById('cycle-description').textContent = descriptions[cycle] || '';
+            document.getElementById('equations').innerHTML = equations[cycle] || '';
+            document.getElementById('process-display').textContent = cycle.charAt(0).toUpperCase() + cycle.slice(1);
+        }
+
+        // Event listeners
+        document.getElementById('cycle-select').addEventListener('change', (e) => {
+            cycle = e.target.value;
+            document.getElementById('process-controls').classList.toggle('hidden', cycle !== 'custom');
+            updateCycleInfo();
+            resetCycle();
+        });
+
+        document.getElementById('th-slider').addEventListener('input', (e) => {
+            Th = parseInt(e.target.value);
+            document.getElementById('th-value').textContent = Th;
+            if (Th <= Tc) {
+                Tc = Th - 50;
+                document.getElementById('tc-slider').value = Tc;
+                document.getElementById('tc-value').textContent = Tc;
+            }
+            draw();
+        });
+
+        document.getElementById('tc-slider').addEventListener('input', (e) => {
+            Tc = parseInt(e.target.value);
+            document.getElementById('tc-value').textContent = Tc;
+            if (Tc >= Th) {
+                Th = Tc + 50;
+                document.getElementById('th-slider').value = Th;
+                document.getElementById('th-value').textContent = Th;
+            }
+            draw();
+        });
+
+        document.getElementById('r-slider').addEventListener('input', (e) => {
+            r = parseInt(e.target.value);
+            document.getElementById('r-value').textContent = r;
+            draw();
+        });
+
+        window.addEventListener('resize', () => {
+            resize();
+            draw();
+        });
+
+        // Inicialización
+        resize();
+        updateCycleInfo();
+        draw();
+    </script>
+</body>
+</html>

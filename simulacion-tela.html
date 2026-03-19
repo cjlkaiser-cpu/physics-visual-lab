@@ -1,0 +1,970 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulacion de Tela - Physics Visual Lab</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #030712;
+            --bg-secondary: #0f172a;
+            --bg-tertiary: #1e293b;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --accent: #22c55e;
+            --accent-dim: rgba(34, 197, 94, 0.15);
+            --border: #334155;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        header {
+            padding: 1rem 2rem;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .breadcrumb a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .breadcrumb a:hover {
+            color: var(--accent);
+        }
+
+        .breadcrumb span {
+            color: var(--text-muted);
+        }
+
+        .breadcrumb .current {
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        main {
+            display: flex;
+            height: calc(100vh - 60px);
+        }
+
+        #canvas-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            position: relative;
+        }
+
+        #canvas {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+            cursor: grab;
+        }
+
+        #canvas:active {
+            cursor: grabbing;
+        }
+
+        aside.controls {
+            width: 360px;
+            background: var(--bg-secondary);
+            border-left: 1px solid var(--border);
+            padding: 1.5rem;
+            overflow-y: auto;
+        }
+
+        h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--accent);
+        }
+
+        .equation {
+            background: var(--bg-tertiary);
+            padding: 1rem;
+            border-radius: 8px;
+            font-family: 'Times New Roman', serif;
+            font-size: 1.1rem;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--border);
+        }
+
+        .section {
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            margin-bottom: 0.75rem;
+        }
+
+        .control-group {
+            margin-bottom: 1rem;
+        }
+
+        .control-group label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.375rem;
+        }
+
+        .control-group label span.value {
+            color: var(--accent);
+            font-weight: 500;
+            font-family: 'SF Mono', Monaco, monospace;
+            font-size: 0.8rem;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            -webkit-appearance: none;
+            background: var(--bg-tertiary);
+            border-radius: 3px;
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            background: var(--accent);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: transform 0.15s;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.15);
+        }
+
+        .button-group {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        button {
+            padding: 0.625rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        button:hover {
+            background: var(--accent-dim);
+            border-color: var(--accent);
+        }
+
+        button.primary {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: var(--bg-primary);
+        }
+
+        button.primary:hover {
+            background: #16a34a;
+        }
+
+        button.full-width {
+            grid-column: span 2;
+        }
+
+        .presets {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .preset-btn {
+            padding: 0.375rem 0.75rem;
+            font-size: 0.75rem;
+            border-radius: 999px;
+        }
+
+        .preset-btn.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: var(--bg-primary);
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+        }
+
+        .stat {
+            background: var(--bg-tertiary);
+            padding: 0.75rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--accent);
+            font-family: 'SF Mono', Monaco, monospace;
+        }
+
+        .stat-label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            margin-top: 0.25rem;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: var(--accent);
+        }
+
+        .checkbox-group label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+        }
+
+        .wind-controls {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+        }
+
+        .loading {
+            position: fixed;
+            inset: 0;
+            background: var(--bg-primary);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .loading.hidden {
+            display: none;
+        }
+
+        .spinner {
+            width: 48px;
+            height: 48px;
+            border: 3px solid var(--bg-tertiary);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            margin-top: 1rem;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .info-text {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+            margin-top: 0.5rem;
+        }
+
+        .divider {
+            height: 1px;
+            background: var(--border);
+            margin: 1rem 0;
+        }
+
+        .guide-link {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem;
+            background: var(--accent-dim);
+            border: 1px solid var(--accent);
+            border-radius: 8px;
+            color: var(--accent);
+            text-decoration: none;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .guide-link:hover {
+            background: var(--accent);
+            color: var(--bg-primary);
+        }
+
+        @media (max-width: 1024px) {
+            main {
+                flex-direction: column;
+                height: auto;
+            }
+
+            aside.controls {
+                width: 100%;
+                border-left: none;
+                border-top: 1px solid var(--border);
+            }
+
+            #canvas-container {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="loading" id="loading">
+        <div class="spinner"></div>
+        <div class="loading-text">Cargando motor WASM...</div>
+    </div>
+
+    <header>
+        <nav class="breadcrumb">
+            <a href="https://cjlkaiser-cpu.github.io/eigenlab/_portal/index.html">EigenLab</a>
+            <span>/</span>
+            <a href="index.html">Physics Visual Lab</a>
+            <span>/</span>
+            <span class="current">Simulacion de Tela</span>
+        </nav>
+    </header>
+
+    <main>
+        <div id="canvas-container">
+            <canvas id="canvas" width="800" height="600"></canvas>
+        </div>
+
+        <aside class="controls">
+            <h2>Simulacion de Tela</h2>
+            <div class="equation">
+                x<sub>n+1</sub> = 2x<sub>n</sub> - x<sub>n-1</sub> + a · dt²
+            </div>
+
+            <div class="section">
+                <div class="section-title">Presets</div>
+                <div class="presets">
+                    <button class="preset-btn active" data-preset="silk">Seda</button>
+                    <button class="preset-btn" data-preset="denim">Mezclilla</button>
+                    <button class="preset-btn" data-preset="rubber">Goma</button>
+                    <button class="preset-btn" data-preset="flag">Bandera</button>
+                    <button class="preset-btn" data-preset="net">Red</button>
+                    <button class="preset-btn" data-preset="cobweb">Telarana</button>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">Fisica</div>
+
+                <div class="control-group">
+                    <label>
+                        Gravedad
+                        <span class="value" id="gravity-value">980</span>
+                    </label>
+                    <input type="range" id="gravity" min="0" max="2000" value="980" step="10">
+                </div>
+
+                <div class="control-group">
+                    <label>
+                        Rigidez
+                        <span class="value" id="stiffness-value">0.50</span>
+                    </label>
+                    <input type="range" id="stiffness" min="0.1" max="1" value="0.5" step="0.05">
+                </div>
+
+                <div class="control-group">
+                    <label>
+                        Amortiguacion
+                        <span class="value" id="damping-value">0.99</span>
+                    </label>
+                    <input type="range" id="damping" min="0.9" max="1" value="0.99" step="0.005">
+                </div>
+
+                <div class="control-group">
+                    <label>
+                        Iteraciones
+                        <span class="value" id="iterations-value">8</span>
+                    </label>
+                    <input type="range" id="iterations" min="1" max="20" value="8" step="1">
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">Viento</div>
+                <div class="wind-controls">
+                    <div class="control-group">
+                        <label>
+                            Fuerza X
+                            <span class="value" id="windX-value">0</span>
+                        </label>
+                        <input type="range" id="windX" min="-300" max="300" value="0" step="10">
+                    </div>
+
+                    <div class="control-group">
+                        <label>
+                            Fuerza Y
+                            <span class="value" id="windY-value">0</span>
+                        </label>
+                        <input type="range" id="windY" min="-300" max="300" value="0" step="10">
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label>
+                        Turbulencia
+                        <span class="value" id="turbulence-value">0</span>
+                    </label>
+                    <input type="range" id="turbulence" min="0" max="200" value="0" step="5">
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">Colision</div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="sphereEnabled">
+                    <label for="sphereEnabled">Habilitar esfera de colision</label>
+                </div>
+
+                <div class="control-group">
+                    <label>
+                        Radio de esfera
+                        <span class="value" id="sphereRadius-value">80</span>
+                    </label>
+                    <input type="range" id="sphereRadius" min="20" max="150" value="80" step="5">
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">Desgarro</div>
+                <div class="control-group">
+                    <label>
+                        Umbral (0 = deshabilitado)
+                        <span class="value" id="tear-value">0.00</span>
+                    </label>
+                    <input type="range" id="tear" min="0" max="2" value="0" step="0.1">
+                </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="section">
+                <div class="section-title">Visualizacion</div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="showStructural" checked>
+                    <label for="showStructural">Resortes estructurales</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="showShear">
+                    <label for="showShear">Resortes de corte</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="showBend">
+                    <label for="showBend">Resortes de flexion</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="showParticles" checked>
+                    <label for="showParticles">Particulas</label>
+                </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="section">
+                <div class="button-group">
+                    <button id="btn-pause" class="primary">Pausar</button>
+                    <button id="btn-reset">Reiniciar</button>
+                </div>
+                <p class="info-text">
+                    Clic y arrastra para interactuar con la tela.
+                    Shift+clic para fijar/soltar puntos.
+                </p>
+            </div>
+
+            <div class="section">
+                <div class="section-title">Estadisticas</div>
+                <div class="stats">
+                    <div class="stat">
+                        <div class="stat-value" id="stat-particles">0</div>
+                        <div class="stat-label">Particulas</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value" id="stat-springs">0</div>
+                        <div class="stat-label">Resortes</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value" id="stat-active">0</div>
+                        <div class="stat-label">Activos</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value" id="stat-fps">0</div>
+                        <div class="stat-label">FPS</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <a href="guides/simulacion-tela.md" class="guide-link" target="_blank">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14,2 14,8 20,8"/>
+                    <line x1="16" y1="13" x2="8" y2="13"/>
+                    <line x1="16" y1="17" x2="8" y2="17"/>
+                    <line x1="10" y1="9" x2="8" y2="9"/>
+                </svg>
+                Ver guia educativa
+            </a>
+        </aside>
+    </main>
+
+    <script src="eigenlab-core.js"></script>
+    <script>
+        // =====================================================================
+        // Configuration
+        // =====================================================================
+
+        const CONFIG = {
+            gridWidth: 40,
+            gridHeight: 30,
+            spacing: 12,
+            dt: 1/60
+        };
+
+        // =====================================================================
+        // State
+        // =====================================================================
+
+        let EigenLab = null;
+        let simulator = null;
+        let animationId = null;
+        let isPaused = false;
+        let grabbedParticle = -1;
+        let spherePos = { x: 400, y: 400 };
+        let lastTime = performance.now();
+        let frameCount = 0;
+        let fps = 0;
+
+        // Display options
+        let showStructural = true;
+        let showShear = false;
+        let showBend = false;
+        let showParticles = true;
+
+        // Canvas
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        // =====================================================================
+        // Initialization
+        // =====================================================================
+
+        async function init() {
+            try {
+                EigenLab = await EigenLabCore();
+                console.log('EigenLab WASM loaded');
+
+                // Create simulator
+                simulator = new EigenLab.ClothSimulator();
+
+                // Initialize with default config (use preset as base)
+                const config = EigenLab.clothPresetSilk();
+                config.width = CONFIG.gridWidth;
+                config.height = CONFIG.gridHeight;
+                config.spacing = CONFIG.spacing;
+                simulator.initialize(config);
+
+                // Hide loading
+                document.getElementById('loading').classList.add('hidden');
+
+                // Setup UI
+                setupEventListeners();
+                updateStats();
+
+                // Start loop
+                loop();
+
+            } catch (error) {
+                console.error('Failed to load WASM:', error);
+                document.querySelector('.loading-text').textContent =
+                    'Error al cargar el motor. Recarga la pagina.';
+            }
+        }
+
+        // =====================================================================
+        // Main Loop
+        // =====================================================================
+
+        function loop() {
+            if (!isPaused) {
+                simulator.update(CONFIG.dt);
+            }
+
+            draw();
+            updateFPS();
+
+            animationId = requestAnimationFrame(loop);
+        }
+
+        function draw() {
+            ctx.fillStyle = '#0f172a';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Get particle positions
+            const positions = new Float32Array(
+                EigenLab.getClothPositions(simulator)
+            );
+            const particleCount = positions.length / 2;
+
+            // Draw collision sphere if enabled
+            const config = simulator.getConfig();
+            if (config.sphereEnabled) {
+                ctx.beginPath();
+                ctx.arc(spherePos.x, spherePos.y, config.sphereRadius, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(34, 197, 94, 0.2)';
+                ctx.fill();
+                ctx.strokeStyle = 'rgba(34, 197, 94, 0.5)';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            }
+
+            // Draw springs by type
+            const gridWidth = CONFIG.gridWidth;
+
+            if (showBend) {
+                drawSpringsByType(positions, 2, 'rgba(147, 51, 234, 0.3)'); // purple
+            }
+
+            if (showShear) {
+                drawSpringsByType(positions, 1, 'rgba(249, 115, 22, 0.4)'); // orange
+            }
+
+            if (showStructural) {
+                drawSpringsByType(positions, 0, 'rgba(34, 197, 94, 0.8)'); // green
+            }
+
+            // Draw particles
+            if (showParticles) {
+                const particleData = new Float32Array(
+                    EigenLab.getClothParticleData(simulator)
+                );
+
+                for (let i = 0; i < particleCount; i++) {
+                    const x = particleData[i * 5];
+                    const y = particleData[i * 5 + 1];
+                    const pinned = particleData[i * 5 + 4] > 0.5;
+
+                    ctx.beginPath();
+                    ctx.arc(x, y, pinned ? 5 : 2, 0, Math.PI * 2);
+                    ctx.fillStyle = pinned ? '#22c55e' : 'rgba(248, 250, 252, 0.6)';
+                    ctx.fill();
+                }
+            }
+
+            // Draw grabbed particle indicator
+            if (grabbedParticle >= 0 && grabbedParticle < particleCount) {
+                const x = positions[grabbedParticle * 2];
+                const y = positions[grabbedParticle * 2 + 1];
+                ctx.beginPath();
+                ctx.arc(x, y, 8, 0, Math.PI * 2);
+                ctx.strokeStyle = '#22c55e';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            }
+        }
+
+        function drawSpringsByType(positions, type, color) {
+            const springs = new Uint32Array(
+                EigenLab.getClothSpringsByType(simulator, type)
+            );
+
+            ctx.beginPath();
+            ctx.strokeStyle = color;
+            ctx.lineWidth = type === 0 ? 1.5 : 1;
+
+            for (let i = 0; i < springs.length; i += 2) {
+                const p1 = springs[i];
+                const p2 = springs[i + 1];
+
+                const x1 = positions[p1 * 2];
+                const y1 = positions[p1 * 2 + 1];
+                const x2 = positions[p2 * 2];
+                const y2 = positions[p2 * 2 + 1];
+
+                ctx.moveTo(x1, y1);
+                ctx.lineTo(x2, y2);
+            }
+
+            ctx.stroke();
+        }
+
+        // =====================================================================
+        // UI Event Handlers
+        // =====================================================================
+
+        function setupEventListeners() {
+            // Slider controls
+            setupSlider('gravity', val => {
+                simulator.setGravity(val);
+            });
+
+            setupSlider('stiffness', val => {
+                simulator.setStiffness(val);
+            }, v => v.toFixed(2));
+
+            setupSlider('damping', val => {
+                simulator.setDamping(val);
+            }, v => v.toFixed(3));
+
+            setupSlider('iterations', val => {
+                simulator.setIterations(Math.floor(val));
+            });
+
+            setupSlider('windX', val => {
+                const windY = parseFloat(document.getElementById('windY').value);
+                simulator.setWind(val, windY);
+            });
+
+            setupSlider('windY', val => {
+                const windX = parseFloat(document.getElementById('windX').value);
+                simulator.setWind(windX, val);
+            });
+
+            setupSlider('turbulence', val => {
+                simulator.setWindTurbulence(val);
+            });
+
+            setupSlider('sphereRadius', val => {
+                const enabled = document.getElementById('sphereEnabled').checked;
+                simulator.setSphereCollision(spherePos.x, spherePos.y, val, enabled);
+            });
+
+            setupSlider('tear', val => {
+                simulator.setTearThreshold(val);
+            }, v => v.toFixed(2));
+
+            // Sphere collision toggle
+            document.getElementById('sphereEnabled').addEventListener('change', e => {
+                const radius = parseFloat(document.getElementById('sphereRadius').value);
+                simulator.setSphereCollision(spherePos.x, spherePos.y, radius, e.target.checked);
+            });
+
+            // Visualization toggles
+            document.getElementById('showStructural').addEventListener('change', e => {
+                showStructural = e.target.checked;
+            });
+
+            document.getElementById('showShear').addEventListener('change', e => {
+                showShear = e.target.checked;
+            });
+
+            document.getElementById('showBend').addEventListener('change', e => {
+                showBend = e.target.checked;
+            });
+
+            document.getElementById('showParticles').addEventListener('change', e => {
+                showParticles = e.target.checked;
+            });
+
+            // Buttons
+            document.getElementById('btn-pause').addEventListener('click', () => {
+                isPaused = !isPaused;
+                document.getElementById('btn-pause').textContent = isPaused ? 'Reanudar' : 'Pausar';
+            });
+
+            document.getElementById('btn-reset').addEventListener('click', () => {
+                simulator.reset();
+                updateUIFromConfig();
+            });
+
+            // Presets
+            document.querySelectorAll('.preset-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    simulator.setPreset(btn.dataset.preset);
+                    updateUIFromConfig();
+                });
+            });
+
+            // Canvas interaction
+            canvas.addEventListener('mousedown', onMouseDown);
+            canvas.addEventListener('mousemove', onMouseMove);
+            canvas.addEventListener('mouseup', onMouseUp);
+            canvas.addEventListener('mouseleave', onMouseUp);
+        }
+
+        function setupSlider(id, callback, formatter = v => Math.round(v).toString()) {
+            const slider = document.getElementById(id);
+            const valueDisplay = document.getElementById(`${id}-value`);
+
+            slider.addEventListener('input', () => {
+                const val = parseFloat(slider.value);
+                valueDisplay.textContent = formatter(val);
+                callback(val);
+            });
+        }
+
+        function updateUIFromConfig() {
+            const config = simulator.getConfig();
+
+            setSliderValue('gravity', config.gravity);
+            setSliderValue('stiffness', config.stiffness, v => v.toFixed(2));
+            setSliderValue('damping', config.damping, v => v.toFixed(3));
+            setSliderValue('iterations', config.iterations);
+            setSliderValue('windX', config.windX);
+            setSliderValue('windY', config.windY);
+            setSliderValue('turbulence', config.windTurbulence);
+            setSliderValue('tear', config.tearThreshold, v => v.toFixed(2));
+
+            updateStats();
+        }
+
+        function setSliderValue(id, value, formatter = v => Math.round(v).toString()) {
+            document.getElementById(id).value = value;
+            document.getElementById(`${id}-value`).textContent = formatter(value);
+        }
+
+        // =====================================================================
+        // Mouse Interaction
+        // =====================================================================
+
+        function getMousePos(e) {
+            const rect = canvas.getBoundingClientRect();
+            return {
+                x: (e.clientX - rect.left) * (canvas.width / rect.width),
+                y: (e.clientY - rect.top) * (canvas.height / rect.height)
+            };
+        }
+
+        function onMouseDown(e) {
+            const pos = getMousePos(e);
+
+            // Check if clicking on sphere
+            if (document.getElementById('sphereEnabled').checked) {
+                const dx = pos.x - spherePos.x;
+                const dy = pos.y - spherePos.y;
+                const radius = parseFloat(document.getElementById('sphereRadius').value);
+                if (dx * dx + dy * dy < radius * radius) {
+                    grabbedParticle = -2; // Special value for sphere
+                    return;
+                }
+            }
+
+            // Shift+click to toggle pin
+            if (e.shiftKey) {
+                const nearest = simulator.grabNearest(pos.x, pos.y, 20);
+                if (nearest >= 0) {
+                    const data = new Float32Array(EigenLab.getClothParticleData(simulator));
+                    const isPinned = data[nearest * 5 + 4] > 0.5;
+                    simulator.setPinnedIndex(nearest, !isPinned);
+                }
+                return;
+            }
+
+            // Normal grab
+            grabbedParticle = simulator.grabNearest(pos.x, pos.y, 30);
+        }
+
+        function onMouseMove(e) {
+            const pos = getMousePos(e);
+
+            if (grabbedParticle === -2) {
+                // Moving sphere
+                spherePos.x = pos.x;
+                spherePos.y = pos.y;
+                const radius = parseFloat(document.getElementById('sphereRadius').value);
+                simulator.setSphereCollision(spherePos.x, spherePos.y, radius, true);
+            } else if (grabbedParticle >= 0) {
+                simulator.moveGrabbed(grabbedParticle, pos.x, pos.y);
+            }
+        }
+
+        function onMouseUp(e) {
+            if (grabbedParticle >= 0) {
+                simulator.releaseGrabbed(grabbedParticle);
+            }
+            grabbedParticle = -1;
+        }
+
+        // =====================================================================
+        // Stats
+        // =====================================================================
+
+        function updateStats() {
+            document.getElementById('stat-particles').textContent = simulator.getParticleCount();
+            document.getElementById('stat-springs').textContent = simulator.getSpringCount();
+            document.getElementById('stat-active').textContent = simulator.getActiveSpringCount();
+        }
+
+        function updateFPS() {
+            frameCount++;
+            const now = performance.now();
+            if (now - lastTime >= 1000) {
+                fps = Math.round(frameCount * 1000 / (now - lastTime));
+                document.getElementById('stat-fps').textContent = fps;
+                frameCount = 0;
+                lastTime = now;
+                updateStats();
+            }
+        }
+
+        // =====================================================================
+        // Start
+        // =====================================================================
+
+        init();
+    </script>
+</body>
+</html>

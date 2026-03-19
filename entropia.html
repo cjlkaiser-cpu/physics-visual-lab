@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entropía - Segunda Ley de la Termodinámica</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: linear-gradient(135deg, #030712 0%, #0f172a 100%);
+            min-height: 100vh;
+            color: #e2e8f0;
+        }
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: 1fr 360px;
+            gap: 24px;
+            min-height: 100vh;
+        }
+        @media (max-width: 1100px) {
+            .container { grid-template-columns: 1fr; }
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+        h1 {
+            font-size: 1.6rem;
+            font-weight: 300;
+            letter-spacing: -0.5px;
+        }
+        h1 span { color: #f97316; font-weight: 600; }
+        .breadcrumb {
+            font-size: 0.75rem;
+            color: #64748b;
+        }
+        .breadcrumb a { color: #22c55e; text-decoration: none; }
+        .breadcrumb a:hover { text-decoration: underline; }
+        .canvas-wrapper {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        .canvas-container {
+            position: relative;
+            background: #000;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid #1e293b;
+        }
+        .canvas-container.full {
+            grid-column: span 2;
+        }
+        canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+        #mainCanvas {
+            height: 350px;
+        }
+        #graphCanvas {
+            height: 200px;
+        }
+        #histCanvas {
+            height: 200px;
+        }
+        .canvas-label {
+            position: absolute;
+            top: 8px;
+            left: 12px;
+            font-size: 0.65rem;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            background: rgba(0,0,0,0.6);
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+        .controls {
+            background: #0f172a;
+            border-radius: 16px;
+            padding: 24px;
+            border: 1px solid #1e293b;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            height: fit-content;
+        }
+        .section-title {
+            font-size: 0.7rem;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .section-title::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: #f97316;
+            border-radius: 2px;
+        }
+        .equations {
+            background: rgba(249, 115, 22, 0.08);
+            border: 1px solid rgba(249, 115, 22, 0.2);
+            border-radius: 12px;
+            padding: 16px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            color: #f97316;
+            line-height: 2;
+        }
+        .slider-group { margin-bottom: 12px; }
+        .slider-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+        .slider-label {
+            font-size: 0.8rem;
+            color: #94a3b8;
+        }
+        .slider-value {
+            font-size: 0.9rem;
+            color: #f97316;
+            font-weight: 600;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            background: #1e293b;
+            border-radius: 3px;
+            outline: none;
+            -webkit-appearance: none;
+            cursor: pointer;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            background: #f97316;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        .info-card {
+            background: rgba(255,255,255,0.02);
+            padding: 14px;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid #1e293b;
+        }
+        .info-card .label {
+            font-size: 0.6rem;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+        .info-card .value {
+            font-size: 1.1rem;
+            font-weight: 600;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .info-card .value.orange { color: #f97316; }
+        .info-card .value.blue { color: #60a5fa; }
+        .info-card .value.red { color: #ef4444; }
+        .info-card .value.green { color: #22c55e; }
+        .buttons {
+            display: flex;
+            gap: 10px;
+        }
+        button {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-primary {
+            background: #f97316;
+            color: #000;
+        }
+        .btn-primary:hover { background: #ea580c; }
+        .btn-secondary {
+            background: #1e293b;
+            color: #e2e8f0;
+            border: 1px solid #334155;
+        }
+        .btn-secondary:hover { background: #334155; }
+        .scenario-btns {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+        .scenario-btn {
+            padding: 12px 8px;
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            color: #94a3b8;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .scenario-btn.active {
+            background: rgba(249, 115, 22, 0.2);
+            border-color: #f97316;
+            color: #f97316;
+        }
+        .scenario-btn:hover:not(.active) {
+            background: #334155;
+        }
+        .entropy-meter {
+            background: #0a0a1a;
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+        }
+        .entropy-bar {
+            height: 20px;
+            background: #1e293b;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        .entropy-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #22c55e, #fbbf24, #ef4444);
+            transition: width 0.3s;
+        }
+        .entropy-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.7rem;
+            color: #64748b;
+        }
+        .guide-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: #64748b;
+            font-size: 0.75rem;
+            text-decoration: none;
+            padding: 8px 12px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+        .guide-link:hover {
+            color: #f97316;
+            background: rgba(249, 115, 22, 0.1);
+        }
+        .arrow-label {
+            position: absolute;
+            font-size: 0.7rem;
+            color: #64748b;
+            background: rgba(0,0,0,0.7);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="main">
+            <div class="header">
+                <div>
+                    <p class="breadcrumb"><a href="index.html">Physics Visual Lab</a> / Entropía</p>
+                    <h1>Segunda Ley: <span>Entropía</span></h1>
+                </div>
+                <a href="guides/entropia.html" class="guide-link">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                        <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+                    </svg>
+                    Guía pedagógica
+                </a>
+            </div>
+            <div class="canvas-wrapper">
+                <div class="canvas-container full">
+                    <canvas id="mainCanvas"></canvas>
+                    <span class="canvas-label">Sistema de Partículas</span>
+                </div>
+                <div class="canvas-container">
+                    <canvas id="graphCanvas"></canvas>
+                    <span class="canvas-label">S(t) - Entropía</span>
+                </div>
+                <div class="canvas-container">
+                    <canvas id="histCanvas"></canvas>
+                    <span class="canvas-label">Distribución de Velocidades</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="section">
+                <div class="section-title">Ecuaciones Fundamentales</div>
+                <div class="equations">
+                    S = k<sub>B</sub> ln(Ω)<br>
+                    ΔS ≥ 0 (aislado)<br>
+                    dS = δQ/T<br>
+                    S = -k<sub>B</sub> Σ p<sub>i</sub> ln(p<sub>i</sub>)
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">Escenario</div>
+                <div class="scenario-btns">
+                    <button class="scenario-btn active" data-scenario="expansion">Expansión Libre</button>
+                    <button class="scenario-btn" data-scenario="mixing">Mezcla de Gases</button>
+                    <button class="scenario-btn" data-scenario="equilibrium">Equilibrio Térmico</button>
+                    <button class="scenario-btn" data-scenario="demon">Demonio de Maxwell</button>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">Parámetros</div>
+                <div class="slider-group">
+                    <div class="slider-header">
+                        <span class="slider-label">Número de partículas</span>
+                        <span class="slider-value" id="nValue">100</span>
+                    </div>
+                    <input type="range" id="numParticles" min="20" max="300" value="100">
+                </div>
+                <div class="slider-group">
+                    <div class="slider-header">
+                        <span class="slider-label">Temperatura inicial</span>
+                        <span class="slider-value" id="tValue">300 K</span>
+                    </div>
+                    <input type="range" id="temperature" min="100" max="600" value="300">
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">Entropía del Sistema</div>
+                <div class="entropy-meter">
+                    <div class="entropy-bar">
+                        <div class="entropy-fill" id="entropyBar" style="width: 20%"></div>
+                    </div>
+                    <div class="entropy-labels">
+                        <span>Orden</span>
+                        <span>Desorden</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">Mediciones</div>
+                <div class="info-grid">
+                    <div class="info-card">
+                        <div class="label">Entropía S</div>
+                        <div class="value orange" id="entropyVal">0.00</div>
+                    </div>
+                    <div class="info-card">
+                        <div class="label">Microestados Ω</div>
+                        <div class="value blue" id="microstatesVal">1</div>
+                    </div>
+                    <div class="info-card">
+                        <div class="label">Temp. Izq</div>
+                        <div class="value red" id="tempLeftVal">300 K</div>
+                    </div>
+                    <div class="info-card">
+                        <div class="label">Temp. Der</div>
+                        <div class="value blue" id="tempRightVal">300 K</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="buttons">
+                <button class="btn-primary" id="btnStart">▶ Iniciar</button>
+                <button class="btn-secondary" id="btnReset">↺ Reset</button>
+            </div>
+
+            <div class="section" style="margin-top: auto;">
+                <p style="font-size: 0.75rem; color: #64748b; line-height: 1.5;">
+                    <strong style="color: #f97316;">Nota:</strong> La entropía mide el número de microestados
+                    compatibles con un macroestado. Un sistema aislado evoluciona naturalmente hacia
+                    estados de mayor entropía (mayor número de configuraciones posibles).
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Canvases
+        const mainCanvas = document.getElementById('mainCanvas');
+        const graphCanvas = document.getElementById('graphCanvas');
+        const histCanvas = document.getElementById('histCanvas');
+        const mainCtx = mainCanvas.getContext('2d');
+        const graphCtx = graphCanvas.getContext('2d');
+        const histCtx = histCanvas.getContext('2d');
+
+        // State
+        let state = {
+            running: false,
+            scenario: 'expansion',
+            numParticles: 100,
+            temperature: 300,
+            time: 0,
+            particles: [],
+            entropyHistory: [],
+            barrierOpen: false,
+            demonActive: false
+        };
+
+        const kB = 1.380649e-23; // Boltzmann constant (for display)
+
+        // Resize canvases
+        function resizeCanvases() {
+            const dpr = window.devicePixelRatio || 1;
+
+            mainCanvas.width = mainCanvas.offsetWidth * dpr;
+            mainCanvas.height = mainCanvas.offsetHeight * dpr;
+            mainCtx.scale(dpr, dpr);
+
+            graphCanvas.width = graphCanvas.offsetWidth * dpr;
+            graphCanvas.height = graphCanvas.offsetHeight * dpr;
+            graphCtx.scale(dpr, dpr);
+
+            histCanvas.width = histCanvas.offsetWidth * dpr;
+            histCanvas.height = histCanvas.offsetHeight * dpr;
+            histCtx.scale(dpr, dpr);
+        }
+
+        // Initialize particles
+        function initParticles() {
+            state.particles = [];
+            state.entropyHistory = [];
+            state.time = 0;
+            state.barrierOpen = false;
+
+            const W = mainCanvas.offsetWidth;
+            const H = mainCanvas.offsetHeight;
+
+            // Speed based on temperature (Maxwell-Boltzmann)
+            const avgSpeed = Math.sqrt(3 * state.temperature / 300) * 2;
+
+            for (let i = 0; i < state.numParticles; i++) {
+                let x, y, type;
+
+                switch(state.scenario) {
+                    case 'expansion':
+                        // All particles in left half
+                        x = Math.random() * (W * 0.4) + W * 0.05;
+                        y = Math.random() * (H * 0.8) + H * 0.1;
+                        type = 'hot';
+                        break;
+
+                    case 'mixing':
+                        // Two types on different sides
+                        if (i < state.numParticles / 2) {
+                            x = Math.random() * (W * 0.4) + W * 0.05;
+                            type = 'red';
+                        } else {
+                            x = Math.random() * (W * 0.4) + W * 0.55;
+                            type = 'blue';
+                        }
+                        y = Math.random() * (H * 0.8) + H * 0.1;
+                        break;
+
+                    case 'equilibrium':
+                        // Hot on left, cold on right
+                        if (i < state.numParticles / 2) {
+                            x = Math.random() * (W * 0.4) + W * 0.05;
+                            type = 'hot';
+                        } else {
+                            x = Math.random() * (W * 0.4) + W * 0.55;
+                            type = 'cold';
+                        }
+                        y = Math.random() * (H * 0.8) + H * 0.1;
+                        break;
+
+                    case 'demon':
+                        // Uniform distribution initially
+                        x = Math.random() * (W * 0.9) + W * 0.05;
+                        y = Math.random() * (H * 0.8) + H * 0.1;
+                        type = Math.random() > 0.5 ? 'hot' : 'cold';
+                        break;
+                }
+
+                // Velocity from Maxwell-Boltzmann
+                const speedMult = type === 'hot' ? 1.5 : (type === 'cold' ? 0.6 : 1);
+                const angle = Math.random() * Math.PI * 2;
+                const speed = (Math.random() * 0.5 + 0.75) * avgSpeed * speedMult;
+
+                state.particles.push({
+                    x, y,
+                    vx: Math.cos(angle) * speed,
+                    vy: Math.sin(angle) * speed,
+                    type,
+                    radius: 4
+                });
+            }
+        }
+
+        // Update physics
+        function updatePhysics() {
+            if (!state.running) return;
+
+            const W = mainCanvas.offsetWidth;
+            const H = mainCanvas.offsetHeight;
+            const barrier = W / 2;
+
+            state.particles.forEach(p => {
+                // Move
+                p.x += p.vx;
+                p.y += p.vy;
+
+                // Wall collisions
+                if (p.x - p.radius < 0) { p.x = p.radius; p.vx *= -1; }
+                if (p.x + p.radius > W) { p.x = W - p.radius; p.vx *= -1; }
+                if (p.y - p.radius < 0) { p.y = p.radius; p.vy *= -1; }
+                if (p.y + p.radius > H) { p.y = H - p.radius; p.vy *= -1; }
+
+                // Barrier collision (if not open)
+                if (!state.barrierOpen && state.scenario !== 'demon') {
+                    if (p.x < barrier && p.x + p.vx > barrier - 10) {
+                        p.vx *= -1;
+                    } else if (p.x > barrier && p.x + p.vx < barrier + 10) {
+                        p.vx *= -1;
+                    }
+                }
+
+                // Demon scenario: selective barrier
+                if (state.scenario === 'demon' && state.demonActive) {
+                    const gateY = H / 2;
+                    const gateSize = 30;
+                    const nearGate = Math.abs(p.y - gateY) < gateSize;
+
+                    if (nearGate) {
+                        // Let fast particles go left, slow go right
+                        const speed = Math.sqrt(p.vx * p.vx + p.vy * p.vy);
+                        const isFast = speed > 2;
+
+                        if (p.x < barrier && p.vx > 0 && !isFast) {
+                            // Slow particle trying to go right - block
+                            p.vx *= -1;
+                        } else if (p.x > barrier && p.vx < 0 && isFast) {
+                            // Fast particle trying to go left - block
+                            p.vx *= -1;
+                        }
+                    } else {
+                        // Not near gate - barrier is solid
+                        if (Math.abs(p.x - barrier) < 5) {
+                            p.vx *= -1;
+                        }
+                    }
+                }
+            });
+
+            // Particle-particle collisions
+            for (let i = 0; i < state.particles.length; i++) {
+                for (let j = i + 1; j < state.particles.length; j++) {
+                    const p1 = state.particles[i];
+                    const p2 = state.particles[j];
+
+                    const dx = p2.x - p1.x;
+                    const dy = p2.y - p1.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+
+                    if (dist < p1.radius + p2.radius) {
+                        // Elastic collision
+                        const nx = dx / dist;
+                        const ny = dy / dist;
+
+                        const dvx = p1.vx - p2.vx;
+                        const dvy = p1.vy - p2.vy;
+                        const dvn = dvx * nx + dvy * ny;
+
+                        if (dvn > 0) {
+                            p1.vx -= dvn * nx;
+                            p1.vy -= dvn * ny;
+                            p2.vx += dvn * nx;
+                            p2.vy += dvn * ny;
+
+                            // Separate particles
+                            const overlap = (p1.radius + p2.radius - dist) / 2;
+                            p1.x -= overlap * nx;
+                            p1.y -= overlap * ny;
+                            p2.x += overlap * nx;
+                            p2.y += overlap * ny;
+                        }
+                    }
+                }
+            }
+
+            state.time += 0.016;
+        }
+
+        // Calculate entropy (simplified model)
+        function calculateEntropy() {
+            const W = mainCanvas.offsetWidth;
+            const H = mainCanvas.offsetHeight;
+            const barrier = W / 2;
+
+            // Count particles in each half
+            let left = 0, right = 0;
+            let leftSpeed = 0, rightSpeed = 0;
+
+            state.particles.forEach(p => {
+                const speed = Math.sqrt(p.vx * p.vx + p.vy * p.vy);
+                if (p.x < barrier) {
+                    left++;
+                    leftSpeed += speed;
+                } else {
+                    right++;
+                    rightSpeed += speed;
+                }
+            });
+
+            // Calculate temperatures (proportional to average speed squared)
+            const tempLeft = left > 0 ? Math.pow(leftSpeed / left, 2) * 100 : 0;
+            const tempRight = right > 0 ? Math.pow(rightSpeed / right, 2) * 100 : 0;
+
+            // Mixing entropy (combinatorial)
+            const N = state.particles.length;
+            if (left === 0 || right === 0) {
+                // All on one side - low entropy
+                return { entropy: 0, microStates: 1, tempLeft, tempRight, left, right };
+            }
+
+            // Binomial coefficient approximation using Stirling
+            // Ω = N! / (left! * right!)
+            const logOmega = N * Math.log(N) - left * Math.log(left) - right * Math.log(right);
+            const entropy = logOmega; // In units of kB
+
+            // Number of microstates (capped for display)
+            const microStates = Math.min(Math.exp(logOmega), 1e15);
+
+            return { entropy, microStates, tempLeft, tempRight, left, right };
+        }
+
+        // Draw main simulation
+        function drawMain() {
+            const W = mainCanvas.offsetWidth;
+            const H = mainCanvas.offsetHeight;
+
+            mainCtx.fillStyle = '#030712';
+            mainCtx.fillRect(0, 0, W, H);
+
+            // Draw container
+            mainCtx.strokeStyle = '#374151';
+            mainCtx.lineWidth = 3;
+            mainCtx.strokeRect(10, 10, W - 20, H - 20);
+
+            // Draw barrier
+            const barrier = W / 2;
+            if (state.scenario !== 'demon' || !state.demonActive) {
+                if (!state.barrierOpen) {
+                    mainCtx.strokeStyle = '#64748b';
+                    mainCtx.lineWidth = 4;
+                    mainCtx.beginPath();
+                    mainCtx.moveTo(barrier, 10);
+                    mainCtx.lineTo(barrier, H - 10);
+                    mainCtx.stroke();
+                }
+            } else {
+                // Demon barrier with gate
+                const gateY = H / 2;
+                const gateSize = 30;
+
+                mainCtx.strokeStyle = '#64748b';
+                mainCtx.lineWidth = 4;
+                mainCtx.beginPath();
+                mainCtx.moveTo(barrier, 10);
+                mainCtx.lineTo(barrier, gateY - gateSize);
+                mainCtx.moveTo(barrier, gateY + gateSize);
+                mainCtx.lineTo(barrier, H - 10);
+                mainCtx.stroke();
+
+                // Demon indicator
+                mainCtx.fillStyle = '#a855f7';
+                mainCtx.beginPath();
+                mainCtx.arc(barrier, gateY, 12, 0, Math.PI * 2);
+                mainCtx.fill();
+                mainCtx.fillStyle = '#fff';
+                mainCtx.font = 'bold 14px Inter';
+                mainCtx.textAlign = 'center';
+                mainCtx.textBaseline = 'middle';
+                mainCtx.fillText('D', barrier, gateY);
+            }
+
+            // Draw particles
+            state.particles.forEach(p => {
+                let color;
+                switch(p.type) {
+                    case 'hot':
+                        const speed = Math.sqrt(p.vx * p.vx + p.vy * p.vy);
+                        const hue = Math.max(0, 60 - speed * 15);
+                        color = `hsl(${hue}, 80%, 55%)`;
+                        break;
+                    case 'cold':
+                        color = '#60a5fa';
+                        break;
+                    case 'red':
+                        color = '#ef4444';
+                        break;
+                    case 'blue':
+                        color = '#3b82f6';
+                        break;
+                    default:
+                        color = '#22c55e';
+                }
+
+                mainCtx.fillStyle = color;
+                mainCtx.beginPath();
+                mainCtx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                mainCtx.fill();
+            });
+
+            // Labels
+            mainCtx.fillStyle = '#64748b';
+            mainCtx.font = '12px Inter';
+            mainCtx.textAlign = 'center';
+
+            const calc = calculateEntropy();
+            mainCtx.fillText(`n = ${calc.left}`, W * 0.25, H - 25);
+            mainCtx.fillText(`n = ${calc.right}`, W * 0.75, H - 25);
+        }
+
+        // Draw entropy graph
+        function drawGraph() {
+            const W = graphCanvas.offsetWidth;
+            const H = graphCanvas.offsetHeight;
+
+            graphCtx.fillStyle = '#030712';
+            graphCtx.fillRect(0, 0, W, H);
+
+            const margin = { left: 50, right: 20, top: 20, bottom: 30 };
+            const plotW = W - margin.left - margin.right;
+            const plotH = H - margin.top - margin.bottom;
+
+            // Axes
+            graphCtx.strokeStyle = '#374151';
+            graphCtx.lineWidth = 1;
+            graphCtx.beginPath();
+            graphCtx.moveTo(margin.left, margin.top);
+            graphCtx.lineTo(margin.left, H - margin.bottom);
+            graphCtx.lineTo(W - margin.right, H - margin.bottom);
+            graphCtx.stroke();
+
+            // Labels
+            graphCtx.fillStyle = '#64748b';
+            graphCtx.font = '10px Inter';
+            graphCtx.textAlign = 'center';
+            graphCtx.fillText('Tiempo', W / 2, H - 5);
+
+            graphCtx.save();
+            graphCtx.translate(15, H / 2);
+            graphCtx.rotate(-Math.PI / 2);
+            graphCtx.fillText('Entropía S', 0, 0);
+            graphCtx.restore();
+
+            // Record entropy
+            const calc = calculateEntropy();
+            state.entropyHistory.push(calc.entropy);
+            if (state.entropyHistory.length > 200) {
+                state.entropyHistory.shift();
+            }
+
+            // Find max entropy for scaling
+            const maxEntropy = Math.max(Math.log(state.numParticles), ...state.entropyHistory);
+
+            // Draw entropy line
+            if (state.entropyHistory.length > 1) {
+                graphCtx.strokeStyle = '#f97316';
+                graphCtx.lineWidth = 2;
+                graphCtx.beginPath();
+
+                state.entropyHistory.forEach((s, i) => {
+                    const x = margin.left + (i / 200) * plotW;
+                    const y = H - margin.bottom - (s / maxEntropy) * plotH * 0.9;
+                    if (i === 0) graphCtx.moveTo(x, y);
+                    else graphCtx.lineTo(x, y);
+                });
+                graphCtx.stroke();
+            }
+
+            // Max entropy line (equilibrium)
+            const maxS = Math.log(state.numParticles);
+            const maxY = H - margin.bottom - (maxS / maxEntropy) * plotH * 0.9;
+            graphCtx.setLineDash([4, 4]);
+            graphCtx.strokeStyle = '#22c55e40';
+            graphCtx.beginPath();
+            graphCtx.moveTo(margin.left, maxY);
+            graphCtx.lineTo(W - margin.right, maxY);
+            graphCtx.stroke();
+            graphCtx.setLineDash([]);
+
+            graphCtx.fillStyle = '#22c55e';
+            graphCtx.font = '9px JetBrains Mono';
+            graphCtx.textAlign = 'right';
+            graphCtx.fillText('S_max', W - margin.right - 5, maxY - 5);
+        }
+
+        // Draw velocity histogram (Maxwell-Boltzmann)
+        function drawHistogram() {
+            const W = histCanvas.offsetWidth;
+            const H = histCanvas.offsetHeight;
+
+            histCtx.fillStyle = '#030712';
+            histCtx.fillRect(0, 0, W, H);
+
+            const margin = { left: 40, right: 20, top: 20, bottom: 30 };
+            const plotW = W - margin.left - margin.right;
+            const plotH = H - margin.top - margin.bottom;
+
+            // Axes
+            histCtx.strokeStyle = '#374151';
+            histCtx.lineWidth = 1;
+            histCtx.beginPath();
+            histCtx.moveTo(margin.left, H - margin.bottom);
+            histCtx.lineTo(W - margin.right, H - margin.bottom);
+            histCtx.stroke();
+
+            // Labels
+            histCtx.fillStyle = '#64748b';
+            histCtx.font = '10px Inter';
+            histCtx.textAlign = 'center';
+            histCtx.fillText('Velocidad |v|', W / 2, H - 5);
+
+            // Calculate velocity distribution
+            const bins = 20;
+            const maxSpeed = 6;
+            const histogram = new Array(bins).fill(0);
+
+            state.particles.forEach(p => {
+                const speed = Math.sqrt(p.vx * p.vx + p.vy * p.vy);
+                const bin = Math.min(Math.floor(speed / maxSpeed * bins), bins - 1);
+                histogram[bin]++;
+            });
+
+            const maxCount = Math.max(...histogram, 1);
+
+            // Draw bars
+            const barWidth = plotW / bins - 2;
+            histogram.forEach((count, i) => {
+                const x = margin.left + i * (plotW / bins) + 1;
+                const barH = (count / maxCount) * plotH * 0.85;
+                const y = H - margin.bottom - barH;
+
+                // Gradient based on speed
+                const hue = 200 - (i / bins) * 200;
+                histCtx.fillStyle = `hsla(${hue}, 70%, 55%, 0.8)`;
+                histCtx.fillRect(x, y, barWidth, barH);
+            });
+
+            // Maxwell-Boltzmann theoretical curve
+            histCtx.strokeStyle = '#fbbf24';
+            histCtx.lineWidth = 2;
+            histCtx.beginPath();
+
+            const avgSpeed = Math.sqrt(3 * state.temperature / 300) * 2;
+            for (let i = 0; i < plotW; i++) {
+                const v = (i / plotW) * maxSpeed;
+                // 2D Maxwell-Boltzmann: f(v) = (v/σ²) * exp(-v²/2σ²)
+                const sigma = avgSpeed / Math.sqrt(2);
+                const fv = (v / (sigma * sigma)) * Math.exp(-v * v / (2 * sigma * sigma));
+                const normFv = fv * sigma * 1.5; // Normalize for display
+                const y = H - margin.bottom - normFv * plotH * 0.85;
+
+                if (i === 0) histCtx.moveTo(margin.left + i, Math.max(y, margin.top));
+                else histCtx.lineTo(margin.left + i, Math.max(y, margin.top));
+            }
+            histCtx.stroke();
+        }
+
+        // Update UI
+        function updateUI() {
+            const calc = calculateEntropy();
+
+            // Format entropy
+            document.getElementById('entropyVal').textContent = calc.entropy.toFixed(2) + ' k_B';
+
+            // Format microstates
+            if (calc.microStates < 1000) {
+                document.getElementById('microstatesVal').textContent = calc.microStates.toFixed(0);
+            } else if (calc.microStates < 1e6) {
+                document.getElementById('microstatesVal').textContent = (calc.microStates / 1000).toFixed(1) + 'k';
+            } else {
+                document.getElementById('microstatesVal').textContent = calc.microStates.toExponential(1);
+            }
+
+            // Temperatures
+            document.getElementById('tempLeftVal').textContent = Math.round(calc.tempLeft) + ' K';
+            document.getElementById('tempRightVal').textContent = Math.round(calc.tempRight) + ' K';
+
+            // Entropy bar
+            const maxEntropy = Math.log(state.numParticles);
+            const entropyPercent = Math.min((calc.entropy / maxEntropy) * 100, 100);
+            document.getElementById('entropyBar').style.width = entropyPercent + '%';
+        }
+
+        // Animation loop
+        function animate() {
+            updatePhysics();
+            drawMain();
+            drawGraph();
+            drawHistogram();
+            updateUI();
+
+            requestAnimationFrame(animate);
+        }
+
+        // Event listeners
+        document.getElementById('numParticles').addEventListener('input', (e) => {
+            state.numParticles = parseInt(e.target.value);
+            document.getElementById('nValue').textContent = state.numParticles;
+        });
+
+        document.getElementById('temperature').addEventListener('input', (e) => {
+            state.temperature = parseInt(e.target.value);
+            document.getElementById('tValue').textContent = state.temperature + ' K';
+        });
+
+        document.querySelectorAll('.scenario-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.scenario-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                state.scenario = btn.dataset.scenario;
+                state.demonActive = state.scenario === 'demon';
+                initParticles();
+            });
+        });
+
+        document.getElementById('btnStart').addEventListener('click', () => {
+            if (!state.running) {
+                state.running = true;
+                state.barrierOpen = true;
+                document.getElementById('btnStart').textContent = '⏸ Pausar';
+            } else {
+                state.running = false;
+                document.getElementById('btnStart').textContent = '▶ Iniciar';
+            }
+        });
+
+        document.getElementById('btnReset').addEventListener('click', () => {
+            state.running = false;
+            document.getElementById('btnStart').textContent = '▶ Iniciar';
+            initParticles();
+        });
+
+        window.addEventListener('resize', () => {
+            resizeCanvases();
+            initParticles();
+        });
+
+        // Initialize
+        resizeCanvases();
+        initParticles();
+        animate();
+    </script>
+</body>
+</html>

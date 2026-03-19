@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guía: Termodinámica | Physics Visual Lab</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-bg: #0a0a0a;
+            --color-surface: #141414;
+            --color-surface-elevated: #1a1a1a;
+            --color-border: #262626;
+            --color-text: #e5e5e5;
+            --color-text-secondary: #a3a3a3;
+            --color-accent: #22c55e;
+            --color-accent-dim: rgba(34, 197, 94, 0.1);
+            --font-serif: 'Crimson Pro', Georgia, serif;
+            --font-sans: 'Inter', system-ui, sans-serif;
+            --font-mono: 'Fira Code', monospace;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-serif);
+            font-size: 19px;
+            line-height: 1.7;
+            color: var(--color-text);
+            background-color: var(--color-bg);
+            padding: 2rem;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        header {
+            margin-bottom: 3rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .breadcrumb {
+            font-family: var(--font-sans);
+            font-size: 0.85rem;
+            color: var(--color-text-secondary);
+            margin-bottom: 1rem;
+        }
+
+        .breadcrumb a {
+            color: var(--color-accent);
+            text-decoration: none;
+        }
+
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+
+        h1 {
+            font-family: var(--font-serif);
+            font-size: 2.5rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--color-text);
+            letter-spacing: -0.02em;
+        }
+
+        .subtitle {
+            font-size: 1.25rem;
+            color: var(--color-text-secondary);
+            font-style: italic;
+        }
+
+        h2 {
+            font-family: var(--font-sans);
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--color-accent);
+            margin-top: 3rem;
+            margin-bottom: 1.25rem;
+        }
+
+        h3 {
+            font-family: var(--font-serif);
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-top: 2rem;
+            margin-bottom: 0.75rem;
+        }
+
+        p {
+            margin-bottom: 1.25rem;
+        }
+
+        .intro {
+            font-size: 1.15rem;
+            color: var(--color-text-secondary);
+            border-left: 3px solid var(--color-accent);
+            padding-left: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .concept-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .concept-card {
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+
+        .concept-card h4 {
+            font-family: var(--font-sans);
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            color: var(--color-accent);
+        }
+
+        .concept-card p {
+            font-size: 0.95rem;
+            margin-bottom: 0;
+            color: var(--color-text-secondary);
+        }
+
+        .equation-block {
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            padding: 2rem;
+            margin: 1.5rem 0;
+            text-align: center;
+        }
+
+        .equation {
+            font-family: var(--font-mono);
+            font-size: 1.4rem;
+            color: var(--color-accent);
+            margin-bottom: 0.75rem;
+        }
+
+        .equation-label {
+            font-family: var(--font-sans);
+            font-size: 0.85rem;
+            color: var(--color-text-secondary);
+        }
+
+        .laws-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .law-card {
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+
+        .law-card h4 {
+            font-family: var(--font-sans);
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .law-card.law-0 h4 { color: #a855f7; }
+        .law-card.law-1 h4 { color: #f59e0b; }
+        .law-card.law-2 h4 { color: #3b82f6; }
+        .law-card.law-3 h4 { color: #06b6d4; }
+
+        .law-card .equation {
+            font-size: 1.1rem;
+            margin: 0.75rem 0;
+        }
+
+        .law-card p {
+            font-size: 0.9rem;
+            color: var(--color-text-secondary);
+            margin-bottom: 0;
+        }
+
+        .cycles-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            font-size: 0.9rem;
+        }
+
+        .cycles-table th {
+            font-family: var(--font-sans);
+            font-weight: 600;
+            text-align: left;
+            padding: 1rem;
+            background: var(--color-surface);
+            border-bottom: 2px solid var(--color-accent);
+        }
+
+        .cycles-table td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .cycles-table tr:hover {
+            background: var(--color-surface);
+        }
+
+        .cycle-name {
+            font-family: var(--font-mono);
+            font-weight: 600;
+            color: var(--color-accent);
+        }
+
+        .process-flow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin: 1.5rem 0;
+            padding: 1.5rem;
+            background: var(--color-surface);
+            border-radius: 8px;
+        }
+
+        .process-step {
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+        }
+
+        .process-step.isothermal { background: rgba(239, 68, 68, 0.2); color: #f87171; }
+        .process-step.adiabatic { background: rgba(168, 85, 247, 0.2); color: #c4b5fd; }
+        .process-step.isochoric { background: rgba(59, 130, 246, 0.2); color: #93c5fd; }
+        .process-step.isobaric { background: rgba(34, 197, 94, 0.2); color: #86efac; }
+
+        .process-arrow {
+            color: var(--color-text-secondary);
+            font-size: 1.2rem;
+        }
+
+        .experiment-block {
+            background: var(--color-surface-elevated);
+            border-radius: 8px;
+            padding: 1.75rem;
+            margin: 1.5rem 0;
+            border-left: 3px solid var(--color-accent);
+        }
+
+        .experiment-block h4 {
+            font-family: var(--font-sans);
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .experiment-block ol {
+            margin-left: 1.25rem;
+            color: var(--color-text-secondary);
+        }
+
+        .experiment-block li {
+            margin-bottom: 0.5rem;
+        }
+
+        .key-insight {
+            background: var(--color-accent-dim);
+            border: 1px solid var(--color-accent);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .key-insight strong {
+            color: var(--color-accent);
+        }
+
+        .timeline {
+            border-left: 2px solid var(--color-border);
+            padding-left: 2rem;
+            margin: 1.5rem 0;
+        }
+
+        .timeline-event {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+
+        .timeline-event::before {
+            content: '';
+            position: absolute;
+            left: -2.35rem;
+            top: 0.5rem;
+            width: 10px;
+            height: 10px;
+            background: var(--color-accent);
+            border-radius: 50%;
+        }
+
+        .timeline-year {
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            color: var(--color-accent);
+        }
+
+        .timeline-text {
+            color: var(--color-text-secondary);
+        }
+
+        .connections-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .connection-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem;
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            text-decoration: none;
+            color: var(--color-text);
+            transition: border-color 0.2s, background-color 0.2s;
+        }
+
+        .connection-item:hover {
+            border-color: var(--color-accent);
+            background: var(--color-surface-elevated);
+        }
+
+        .connection-icon {
+            font-size: 1.5rem;
+        }
+
+        .connection-text {
+            font-family: var(--font-sans);
+            font-size: 0.9rem;
+        }
+
+        ul {
+            margin-left: 1.25rem;
+            margin-bottom: 1.25rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        footer {
+            margin-top: 4rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--color-border);
+            text-align: center;
+        }
+
+        .btn-launch {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-family: var(--font-sans);
+            font-size: 1rem;
+            font-weight: 500;
+            padding: 1rem 2rem;
+            background: var(--color-accent);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: opacity 0.2s;
+        }
+
+        .btn-launch:hover {
+            opacity: 0.9;
+        }
+
+        .warning-box {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 8px;
+            padding: 1.25rem;
+            margin: 1.5rem 0;
+        }
+
+        .warning-box strong {
+            color: #f87171;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 1rem;
+                font-size: 17px;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .equation {
+                font-size: 1.1rem;
+            }
+
+            .laws-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="breadcrumb">
+            <a href="../index.html">Physics Visual Lab</a> → Guía
+        </nav>
+        <h1>Termodinámica</h1>
+        <p class="subtitle">Las leyes que gobiernan la energía y la flecha del tiempo</p>
+    </header>
+
+    <main>
+        <p class="intro">
+            La termodinámica estudia cómo fluye la energía. Sus leyes son tan fundamentales
+            que Einstein dijo: "Es la única teoría física de contenido universal de la que
+            estoy convencido de que nunca será derrocada." Aquí exploraremos cómo las máquinas
+            térmicas convierten calor en trabajo, y por qué la eficiencia perfecta es imposible.
+        </p>
+
+        <h2>¿Qué Observarás?</h2>
+        <p>
+            La simulación muestra un <strong>diagrama P-V</strong> (Presión vs Volumen), la herramienta
+            fundamental para analizar procesos termodinámicos. Cada ciclo cerrado representa una máquina
+            térmica que convierte calor en trabajo mecánico.
+        </p>
+
+        <div class="concept-grid">
+            <div class="concept-card">
+                <h4>Diagrama P-V</h4>
+                <p>El área encerrada por el ciclo equivale al trabajo neto producido por la máquina.</p>
+            </div>
+            <div class="concept-card">
+                <h4>Isotermas</h4>
+                <p>Curvas a temperatura constante (T=cte). Siguen la ley PV=nRT del gas ideal.</p>
+            </div>
+            <div class="concept-card">
+                <h4>Ciclo cerrado</h4>
+                <p>El gas vuelve a su estado inicial. La energía interna neta es cero (ΔU=0).</p>
+            </div>
+            <div class="concept-card">
+                <h4>Eficiencia η</h4>
+                <p>Fracción del calor absorbido que se convierte en trabajo útil.</p>
+            </div>
+        </div>
+
+        <h2>Las Leyes de la Termodinámica</h2>
+
+        <div class="laws-grid">
+            <div class="law-card law-0">
+                <h4>Ley Cero</h4>
+                <p>Si A está en equilibrio térmico con B, y B con C, entonces A está en equilibrio con C.</p>
+                <p style="margin-top: 0.5rem; font-style: italic;">"Define la temperatura"</p>
+            </div>
+            <div class="law-card law-1">
+                <h4>Primera Ley</h4>
+                <div class="equation">ΔU = Q - W</div>
+                <p>La energía se conserva. El cambio de energía interna es el calor absorbido menos el trabajo realizado.</p>
+            </div>
+            <div class="law-card law-2">
+                <h4>Segunda Ley</h4>
+                <div class="equation">ΔS ≥ 0</div>
+                <p>La entropía del universo siempre aumenta. El calor fluye espontáneamente de caliente a frío, nunca al revés.</p>
+            </div>
+            <div class="law-card law-3">
+                <h4>Tercera Ley</h4>
+                <p>Es imposible alcanzar el cero absoluto (0 K) mediante un número finito de procesos.</p>
+            </div>
+        </div>
+
+        <h2>Procesos Termodinámicos</h2>
+
+        <p>
+            Un proceso termodinámico describe cómo un sistema cambia de un estado a otro.
+            Cada proceso mantiene constante alguna variable:
+        </p>
+
+        <table class="cycles-table">
+            <thead>
+                <tr>
+                    <th>Proceso</th>
+                    <th>Constante</th>
+                    <th>Ecuación</th>
+                    <th>Ejemplo físico</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><span class="cycle-name">Isotérmico</span></td>
+                    <td>Temperatura (T)</td>
+                    <td style="font-family: var(--font-mono);">PV = cte</td>
+                    <td>Expansión lenta con intercambio de calor</td>
+                </tr>
+                <tr>
+                    <td><span class="cycle-name">Adiabático</span></td>
+                    <td>Calor (Q=0)</td>
+                    <td style="font-family: var(--font-mono);">PV<sup>γ</sup> = cte</td>
+                    <td>Compresión rápida sin pérdida de calor</td>
+                </tr>
+                <tr>
+                    <td><span class="cycle-name">Isobárico</span></td>
+                    <td>Presión (P)</td>
+                    <td style="font-family: var(--font-mono);">V/T = cte</td>
+                    <td>Calentamiento a presión atmosférica</td>
+                </tr>
+                <tr>
+                    <td><span class="cycle-name">Isocórico</span></td>
+                    <td>Volumen (V)</td>
+                    <td style="font-family: var(--font-mono);">P/T = cte</td>
+                    <td>Calentamiento en recipiente cerrado</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>El Ciclo de Carnot</h2>
+
+        <p>
+            El ciclo de Carnot es el ciclo termodinámico <em>más eficiente posible</em> que opera
+            entre dos temperaturas. Fue propuesto por Sadi Carnot en 1824 y establece el límite
+            teórico de eficiencia para cualquier máquina térmica.
+        </p>
+
+        <div class="process-flow">
+            <span class="process-step isothermal">1→2 Isotérmico (T<sub>H</sub>)</span>
+            <span class="process-arrow">→</span>
+            <span class="process-step adiabatic">2→3 Adiabático</span>
+            <span class="process-arrow">→</span>
+            <span class="process-step isothermal">3→4 Isotérmico (T<sub>C</sub>)</span>
+            <span class="process-arrow">→</span>
+            <span class="process-step adiabatic">4→1 Adiabático</span>
+        </div>
+
+        <div class="equation-block">
+            <div class="equation">η<sub>Carnot</sub> = 1 - T<sub>C</sub>/T<sub>H</sub></div>
+            <div class="equation-label">Eficiencia máxima teórica de Carnot</div>
+        </div>
+
+        <div class="key-insight">
+            <strong>La Segunda Ley en acción:</strong> Ninguna máquina térmica real puede superar
+            la eficiencia de Carnot. Si T<sub>C</sub> = 300 K y T<sub>H</sub> = 600 K, la eficiencia
+            máxima es 50%. El otro 50% del calor <em>debe</em> ser expulsado al reservorio frío.
+            No hay escape a esta restricción fundamental.
+        </div>
+
+        <h2>Ciclos de Motores Reales</h2>
+
+        <h3>Ciclo Otto (Motor de gasolina)</h3>
+        <p>
+            El motor de combustión interna de cuatro tiempos. La combustión ocurre a volumen
+            constante (chispa instantánea). La eficiencia depende solo de la razón de compresión.
+        </p>
+
+        <div class="process-flow">
+            <span class="process-step adiabatic">1→2 Compresión</span>
+            <span class="process-arrow">→</span>
+            <span class="process-step isochoric">2→3 Combustión</span>
+            <span class="process-arrow">→</span>
+            <span class="process-step adiabatic">3→4 Expansión</span>
+            <span class="process-arrow">→</span>
+            <span class="process-step isochoric">4→1 Escape</span>
+        </div>
+
+        <div class="equation-block">
+            <div class="equation">η<sub>Otto</sub> = 1 - 1/r<sup>γ-1</sup></div>
+            <div class="equation-label">Donde r = V<sub>max</sub>/V<sub>min</sub> es la razón de compresión</div>
+        </div>
+
+        <h3>Ciclo Diesel</h3>
+        <p>
+            Similar al Otto, pero la combustión ocurre a presión constante (inyección de combustible).
+            Permite mayores razones de compresión y mejor eficiencia a costa de mayor peso.
+        </p>
+
+        <div class="process-flow">
+            <span class="process-step adiabatic">1→2 Compresión</span>
+            <span class="process-arrow">→</span>
+            <span class="process-step isobaric">2→3 Combustión</span>
+            <span class="process-arrow">→</span>
+            <span class="process-step adiabatic">3→4 Expansión</span>
+            <span class="process-arrow">→</span>
+            <span class="process-step isochoric">4→1 Escape</span>
+        </div>
+
+        <h2>Experimentos Sugeridos</h2>
+
+        <div class="experiment-block">
+            <h4>1. La eficiencia de Carnot</h4>
+            <ol>
+                <li>Selecciona el ciclo de Carnot</li>
+                <li>Fija T<sub>C</sub> = 300 K y varía T<sub>H</sub> de 400 K a 1000 K</li>
+                <li>Observa cómo aumenta la eficiencia</li>
+                <li>Calcula mentalmente: η = 1 - 300/T<sub>H</sub>. ¿Coincide?</li>
+                <li>Pregunta: ¿Por qué los motores funcionan mejor en frío que en calor?</li>
+            </ol>
+        </div>
+
+        <div class="experiment-block">
+            <h4>2. El límite imposible</h4>
+            <ol>
+                <li>Con cualquier ciclo, intenta hacer T<sub>C</sub> = T<sub>H</sub></li>
+                <li>Observa qué pasa con la eficiencia y el trabajo neto</li>
+                <li>¿Por qué una máquina no puede funcionar sin diferencia de temperatura?</li>
+            </ol>
+        </div>
+
+        <div class="experiment-block">
+            <h4>3. Razón de compresión en Otto</h4>
+            <ol>
+                <li>Selecciona el ciclo Otto</li>
+                <li>Varía la razón de compresión r de 2 a 20</li>
+                <li>Observa cómo cambia la forma del ciclo y la eficiencia</li>
+                <li>Los autos reales usan r ≈ 10-12. ¿Por qué no más alto?</li>
+            </ol>
+        </div>
+
+        <div class="experiment-block">
+            <h4>4. Carnot vs Otto vs Diesel</h4>
+            <ol>
+                <li>Con las mismas temperaturas, compara los tres ciclos</li>
+                <li>¿Cuál tiene mayor eficiencia?</li>
+                <li>¿Cuál produce más trabajo (área del ciclo)?</li>
+                <li>¿Por qué usamos Otto y Diesel si Carnot es más eficiente?</li>
+            </ol>
+        </div>
+
+        <h2>Contexto Histórico</h2>
+
+        <div class="timeline">
+            <div class="timeline-event">
+                <div class="timeline-year">1824</div>
+                <div class="timeline-text">
+                    <strong>Sadi Carnot</strong> publica "Reflexiones sobre la potencia motriz del fuego",
+                    estableciendo los fundamentos de la termodinámica antes de que se entendiera
+                    qué era realmente el calor.
+                </div>
+            </div>
+            <div class="timeline-event">
+                <div class="timeline-year">1843</div>
+                <div class="timeline-text">
+                    <strong>James Joule</strong> demuestra la equivalencia mecánica del calor,
+                    mostrando que calor y trabajo son formas de energía intercambiables.
+                </div>
+            </div>
+            <div class="timeline-event">
+                <div class="timeline-year">1850</div>
+                <div class="timeline-text">
+                    <strong>Rudolf Clausius</strong> formula la primera y segunda ley de la termodinámica,
+                    introduciendo el concepto de entropía.
+                </div>
+            </div>
+            <div class="timeline-event">
+                <div class="timeline-year">1876</div>
+                <div class="timeline-text">
+                    <strong>Nikolaus Otto</strong> patenta el motor de cuatro tiempos,
+                    aplicando la termodinámica a la revolución industrial.
+                </div>
+            </div>
+            <div class="timeline-event">
+                <div class="timeline-year">1893</div>
+                <div class="timeline-text">
+                    <strong>Rudolf Diesel</strong> patenta su motor de alta compresión,
+                    buscando acercarse al ideal de Carnot.
+                </div>
+            </div>
+        </div>
+
+        <h2>La Flecha del Tiempo</h2>
+
+        <p>
+            La segunda ley de la termodinámica es especial: es la única ley de la física que
+            distingue pasado de futuro. Todas las demás ecuaciones fundamentales funcionan
+            igual si invertimos el tiempo.
+        </p>
+
+        <div class="warning-box">
+            <strong>Irreversibilidad:</strong> Un huevo puede romperse, pero nunca se "desrompe".
+            El café se mezcla con la leche, pero nunca se separan solos. La entropía crece,
+            definiendo una "flecha del tiempo" hacia el futuro.
+        </div>
+
+        <p>
+            Esta asimetría temporal emerge de la estadística de muchas partículas. Aunque cada
+            colisión molecular es reversible, la probabilidad de que todas las moléculas
+            conspiren para "deshacerse" es tan pequeña que nunca ocurre en la práctica.
+        </p>
+
+        <h2>Limitaciones del Modelo</h2>
+
+        <ul>
+            <li><strong>Gas ideal:</strong> La simulación asume PV = nRT, que falla a altas presiones y bajas temperaturas</li>
+            <li><strong>Procesos cuasiestáticos:</strong> Los procesos reales son más rápidos y no están en equilibrio</li>
+            <li><strong>Sin fricción:</strong> Los motores reales pierden energía en rozamiento</li>
+            <li><strong>Combustión instantánea:</strong> Los ciclos Otto y Diesel ideales asumen combustión perfecta</li>
+        </ul>
+
+        <h2>Conexiones Interdisciplinarias</h2>
+
+        <div class="connections-grid">
+            <a href="../gas-ideal.html" class="connection-item">
+                <span class="connection-icon">🔴</span>
+                <span class="connection-text">Gas Ideal<br><small>Teoría cinética</small></span>
+            </a>
+            <a href="../difusion-calor.html" class="connection-item">
+                <span class="connection-icon">🌡️</span>
+                <span class="connection-text">Difusión de Calor<br><small>Conducción y convección</small></span>
+            </a>
+            <a href="../../Chemistry/Chemistry Visual Lab/gases-reales.html" class="connection-item">
+                <span class="connection-icon">💨</span>
+                <span class="connection-text">Gases Reales<br><small>Van der Waals</small></span>
+            </a>
+            <a href="../../Chemistry/Chemistry Visual Lab/diagrama-fases.html" class="connection-item">
+                <span class="connection-icon">🧊</span>
+                <span class="connection-text">Diagrama de Fases<br><small>Transiciones de estado</small></span>
+            </a>
+        </div>
+
+        <h2>Para Explorar Más</h2>
+        <ul>
+            <li><strong>Ciclo de Stirling:</strong> Otro ciclo teóricamente tan eficiente como Carnot, con aplicaciones en refrigeración</li>
+            <li><strong>Bombas de calor:</strong> Ciclos termodinámicos inversos que mueven calor "cuesta arriba"</li>
+            <li><strong>Termodinámica estadística:</strong> Cómo las leyes macroscópicas emergen del comportamiento de billones de moléculas</li>
+            <li><strong>Muerte térmica del universo:</strong> El destino final predicho por la segunda ley</li>
+            <li><strong>Demonio de Maxwell:</strong> Un experimento mental que parece violar la segunda ley (pero no lo hace)</li>
+        </ul>
+    </main>
+
+    <footer>
+        <a href="../termodinamica.html" class="btn-launch">
+            🔥 Abrir Simulación
+        </a>
+    </footer>
+</body>
+</html>

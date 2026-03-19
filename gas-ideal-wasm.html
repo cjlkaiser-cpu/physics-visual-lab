@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gas Ideal - Motor WASM | EigenLab</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #030712;
+            --bg-secondary: #0f172a;
+            --bg-tertiary: #1e293b;
+            --accent: #22c55e;
+            --accent-dim: rgba(34, 197, 94, 0.2);
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --border: #334155;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.5;
+        }
+
+        /* Header */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border);
+            background: var(--bg-secondary);
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.875rem;
+        }
+
+        .breadcrumb a {
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .breadcrumb a:hover { color: var(--accent); }
+        .breadcrumb span { color: var(--text-muted); }
+        .breadcrumb .current { color: var(--text-primary); font-weight: 500; }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            background: var(--accent-dim);
+            border: 1px solid var(--accent);
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--accent);
+        }
+
+        .badge::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            background: var(--accent);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Main layout */
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 360px;
+            gap: 0;
+            height: calc(100vh - 65px);
+        }
+
+        @media (max-width: 1024px) {
+            .container {
+                grid-template-columns: 1fr;
+                height: auto;
+            }
+        }
+
+        /* Canvas section */
+        .canvas-section {
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-primary);
+            position: relative;
+        }
+
+        .canvas-wrapper {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            min-height: 500px;
+        }
+
+        #canvas {
+            width: 100%;
+            max-width: 800px;
+            aspect-ratio: 4/3;
+            background: #000;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+
+        /* Histogram */
+        .histogram-wrapper {
+            padding: 0 24px 24px;
+        }
+
+        .histogram-container {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 16px;
+            border: 1px solid var(--border);
+        }
+
+        .histogram-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .histogram-title {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .histogram-legend {
+            display: flex;
+            gap: 16px;
+            font-size: 0.75rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .legend-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        #histCanvas {
+            width: 100%;
+            height: 100px;
+            background: var(--bg-primary);
+            border-radius: 8px;
+        }
+
+        /* Controls sidebar */
+        .sidebar {
+            background: var(--bg-secondary);
+            border-left: 1px solid var(--border);
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .sidebar-header h1 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .sidebar-header p {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+
+        .controls-section {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .section-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 16px;
+        }
+
+        /* Sliders */
+        .slider-group {
+            margin-bottom: 20px;
+        }
+
+        .slider-group:last-child { margin-bottom: 0; }
+
+        .slider-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .slider-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .slider-value {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--accent);
+            font-variant-numeric: tabular-nums;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            background: var(--bg-tertiary);
+            border-radius: 3px;
+            outline: none;
+            -webkit-appearance: none;
+            cursor: pointer;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            background: var(--accent);
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(34, 197, 94, 0.4);
+            transition: transform 0.15s;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.1);
+        }
+
+        /* Buttons */
+        .button-row {
+            display: flex;
+            gap: 8px;
+        }
+
+        button {
+            flex: 1;
+            padding: 12px 16px;
+            border: none;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: #000;
+        }
+
+        .btn-primary:hover {
+            background: #16a34a;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--border);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        /* Stats grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .stat-card {
+            background: var(--bg-tertiary);
+            border-radius: 10px;
+            padding: 14px;
+            border: 1px solid var(--border);
+        }
+
+        .stat-label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+        }
+
+        .stat-value {
+            font-size: 1.25rem;
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .stat-value.green { color: var(--accent); }
+        .stat-value.blue { color: var(--info); }
+        .stat-value.orange { color: var(--warning); }
+        .stat-value.red { color: var(--danger); }
+
+        /* Equations box */
+        .equations-box {
+            background: var(--accent-dim);
+            border: 1px solid var(--accent);
+            border-radius: 10px;
+            padding: 16px;
+            font-family: 'Times New Roman', serif;
+            font-size: 1rem;
+            line-height: 2;
+            color: var(--accent);
+        }
+
+        /* Loading overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--bg-primary);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            transition: opacity 0.3s;
+        }
+
+        .loading-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loading-spinner {
+            width: 48px;
+            height: 48px;
+            border: 3px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            margin-top: 16px;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        /* Performance indicator */
+        .perf-indicator {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-family: monospace;
+            color: var(--text-secondary);
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Cargando motor WASM...</div>
+    </div>
+
+    <header>
+        <nav class="breadcrumb">
+            <a href="https://cjlkaiser-cpu.github.io/eigenlab/_portal/index.html">EigenLab</a>
+            <span>/</span>
+            <a href="index.html">Physics Visual Lab</a>
+            <span>/</span>
+            <span class="current">Gas Ideal</span>
+        </nav>
+        <div class="badge">WASM Engine</div>
+    </header>
+
+    <div class="container">
+        <section class="canvas-section">
+            <div class="canvas-wrapper">
+                <canvas id="canvas" width="800" height="600"></canvas>
+                <div class="perf-indicator" id="perfIndicator">-- FPS | -- partículas</div>
+            </div>
+
+            <div class="histogram-wrapper">
+                <div class="histogram-container">
+                    <div class="histogram-header">
+                        <span class="histogram-title">Distribución de velocidades</span>
+                        <div class="histogram-legend">
+                            <div class="legend-item">
+                                <div class="legend-dot" style="background: var(--accent);"></div>
+                                <span>Simulación</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-dot" style="background: var(--warning);"></div>
+                                <span>Maxwell-Boltzmann</span>
+                            </div>
+                        </div>
+                    </div>
+                    <canvas id="histCanvas" width="800" height="100"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1>Gas Ideal</h1>
+                <p>Teoría cinética con colisiones reales</p>
+            </div>
+
+            <div class="controls-section">
+                <div class="section-title">Parámetros</div>
+
+                <div class="slider-group">
+                    <div class="slider-header">
+                        <span class="slider-label">Partículas</span>
+                        <span class="slider-value" id="numValue">500</span>
+                    </div>
+                    <input type="range" id="numSlider" min="100" max="3000" value="500" step="100">
+                </div>
+
+                <div class="slider-group">
+                    <div class="slider-header">
+                        <span class="slider-label">Temperatura (K)</span>
+                        <span class="slider-value" id="tempValue">300</span>
+                    </div>
+                    <input type="range" id="tempSlider" min="100" max="1000" value="300" step="10">
+                </div>
+
+                <div class="slider-group">
+                    <div class="slider-header">
+                        <span class="slider-label">Volumen</span>
+                        <span class="slider-value" id="volValue">100%</span>
+                    </div>
+                    <input type="range" id="volSlider" min="30" max="100" value="100" step="5">
+                </div>
+
+                <div class="slider-group">
+                    <div class="slider-header">
+                        <span class="slider-label">Radio partícula</span>
+                        <span class="slider-value" id="radiusValue">3 px</span>
+                    </div>
+                    <input type="range" id="radiusSlider" min="2" max="8" value="3" step="1">
+                </div>
+            </div>
+
+            <div class="controls-section">
+                <div class="section-title">Simulación</div>
+                <div class="button-row">
+                    <button class="btn-primary" id="playBtn">
+                        <span id="playIcon">▶</span>
+                        <span id="playText">Iniciar</span>
+                    </button>
+                    <button class="btn-secondary" id="resetBtn">↺ Reset</button>
+                </div>
+            </div>
+
+            <div class="controls-section">
+                <div class="section-title">Mediciones</div>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">Presión</div>
+                        <div class="stat-value green" id="pressureVal">--</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Energía (J)</div>
+                        <div class="stat-value blue" id="energyVal">--</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">v̄ (m/s)</div>
+                        <div class="stat-value orange" id="avgVelVal">--</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Colisiones/s</div>
+                        <div class="stat-value red" id="collisionsVal">--</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="controls-section" style="border-bottom: none;">
+                <div class="section-title">Ecuaciones</div>
+                <div class="equations-box">
+                    PV = NkT<br>
+                    E = ½mv² = (3/2)kT<br>
+                    v<sub>rms</sub> = √(3kT/m)
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <!-- Load WASM module -->
+    <script src="../../_wasm/eigenlab-core.js"></script>
+    <script>
+        // ============================================================
+        // Gas Ideal Simulation - WASM Powered
+        // ============================================================
+
+        let EigenLab = null;
+        let particleSystem = null;
+        let running = false;
+        let lastTime = 0;
+        let frameCount = 0;
+        let fps = 0;
+        let lastFpsUpdate = 0;
+        let totalCollisions = 0;
+        let lastCollisionCount = 0;
+        let collisionRate = 0;
+
+        // Canvas setup
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const histCanvas = document.getElementById('histCanvas');
+        const histCtx = histCanvas.getContext('2d');
+
+        // Parameters
+        let params = {
+            numParticles: 500,
+            temperature: 300,
+            volumePercent: 100,
+            particleRadius: 3
+        };
+
+        // Physical constants
+        const k = 1.38e-23;       // Boltzmann constant
+        const m = 4.65e-26;       // Mass (N2 molecule)
+        const scale = 1e-9 * 5000; // Visualization scale
+
+        // ============================================================
+        // Initialize WASM Module
+        // ============================================================
+
+        async function init() {
+            try {
+                // Load WASM module
+                EigenLab = await EigenLabCore();
+                console.log('EigenLab WASM loaded successfully');
+
+                // Create particle system
+                createParticleSystem();
+
+                // Hide loading overlay
+                document.getElementById('loadingOverlay').classList.add('hidden');
+
+                // Setup event listeners
+                setupControls();
+
+                // Initial draw
+                draw();
+                drawHistogram();
+
+            } catch (error) {
+                console.error('Failed to load WASM:', error);
+                document.querySelector('.loading-text').textContent =
+                    'Error cargando WASM. Verifica la consola.';
+            }
+        }
+
+        function createParticleSystem() {
+            const config = {
+                bounds: {
+                    min: { x: 0, y: 0 },
+                    max: { x: canvas.width, y: canvas.height }
+                },
+                particleRadius: params.particleRadius,
+                particleMass: 1.0,
+                restitution: 1.0,
+                wallRestitution: 1.0,
+                temperature: params.temperature,
+                molecularMass: m,
+                maxParticles: 5000,
+                maxSpeed: 500
+            };
+
+            particleSystem = new EigenLab.ParticleSystem(config);
+            particleSystem.initializeMaxwellBoltzmann(params.numParticles, params.temperature);
+
+            totalCollisions = 0;
+            lastCollisionCount = 0;
+        }
+
+        // ============================================================
+        // Controls
+        // ============================================================
+
+        function setupControls() {
+            // Particle count
+            document.getElementById('numSlider').addEventListener('input', (e) => {
+                params.numParticles = parseInt(e.target.value);
+                document.getElementById('numValue').textContent = params.numParticles;
+                if (!running) {
+                    createParticleSystem();
+                    draw();
+                    drawHistogram();
+                }
+            });
+
+            // Temperature
+            document.getElementById('tempSlider').addEventListener('input', (e) => {
+                params.temperature = parseInt(e.target.value);
+                document.getElementById('tempValue').textContent = params.temperature;
+                if (particleSystem) {
+                    particleSystem.scaleVelocitiesToTemperature(params.temperature);
+                }
+            });
+
+            // Volume
+            document.getElementById('volSlider').addEventListener('input', (e) => {
+                params.volumePercent = parseInt(e.target.value);
+                document.getElementById('volValue').textContent = params.volumePercent + '%';
+                if (particleSystem) {
+                    particleSystem.setVolume(params.volumePercent);
+                }
+                if (!running) draw();
+            });
+
+            // Radius
+            document.getElementById('radiusSlider').addEventListener('input', (e) => {
+                params.particleRadius = parseInt(e.target.value);
+                document.getElementById('radiusValue').textContent = params.particleRadius + ' px';
+                if (!running) {
+                    createParticleSystem();
+                    draw();
+                }
+            });
+
+            // Play/Pause
+            document.getElementById('playBtn').addEventListener('click', () => {
+                running = !running;
+                document.getElementById('playIcon').textContent = running ? '⏸' : '▶';
+                document.getElementById('playText').textContent = running ? 'Pausar' : 'Iniciar';
+                if (running) {
+                    lastTime = performance.now();
+                    requestAnimationFrame(animate);
+                }
+            });
+
+            // Reset
+            document.getElementById('resetBtn').addEventListener('click', () => {
+                running = false;
+                document.getElementById('playIcon').textContent = '▶';
+                document.getElementById('playText').textContent = 'Iniciar';
+                createParticleSystem();
+                draw();
+                drawHistogram();
+                updateStats();
+            });
+        }
+
+        // ============================================================
+        // Animation Loop
+        // ============================================================
+
+        function animate(time) {
+            if (!running) return;
+
+            const dt = Math.min((time - lastTime) / 1000, 0.05);
+            lastTime = time;
+
+            // Step physics (with substeps for stability)
+            particleSystem.stepSubdivided(dt * 60, 4);
+
+            // Update collision tracking
+            particleSystem.computeStatistics();
+            const stats = particleSystem.stats();
+            totalCollisions += stats.particleCollisions + stats.wallCollisions;
+
+            // FPS calculation
+            frameCount++;
+            if (time - lastFpsUpdate > 500) {
+                fps = Math.round(frameCount / ((time - lastFpsUpdate) / 1000));
+                collisionRate = Math.round((totalCollisions - lastCollisionCount) / ((time - lastFpsUpdate) / 1000));
+                lastCollisionCount = totalCollisions;
+                frameCount = 0;
+                lastFpsUpdate = time;
+
+                document.getElementById('perfIndicator').textContent =
+                    `${fps} FPS | ${particleSystem.particleCount()} partículas`;
+            }
+
+            // Draw
+            draw();
+
+            // Update histogram periodically
+            if (Math.floor(time / 200) % 2 === 0) {
+                drawHistogram();
+            }
+
+            // Update stats
+            if (Math.floor(time / 100) % 2 === 0) {
+                updateStats();
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        // ============================================================
+        // Rendering
+        // ============================================================
+
+        function draw() {
+            const W = canvas.width;
+            const H = canvas.height;
+
+            // Clear
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, W, H);
+
+            // Get particle data: [x, y, vx, vy, radius, speed] per particle
+            const data = EigenLab.getParticleData(particleSystem);
+            const particleCount = particleSystem.particleCount();
+
+            // Calculate bounds for box drawing
+            const fullWidth = W;
+            const boxWidth = fullWidth * params.volumePercent / 100;
+            const boxX = (W - boxWidth) / 2;
+            const boxY = 0;
+            const boxH = H;
+
+            // Draw box
+            ctx.strokeStyle = '#334155';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(boxX, boxY, boxWidth, boxH);
+
+            // Glow effect
+            ctx.shadowColor = '#22c55e';
+            ctx.shadowBlur = 15;
+            ctx.strokeStyle = '#22c55e';
+            ctx.lineWidth = 1;
+            ctx.strokeRect(boxX, boxY, boxWidth, boxH);
+            ctx.shadowBlur = 0;
+
+            // Draw particles
+            const maxSpeed = 400;
+            for (let i = 0; i < particleCount; i++) {
+                const idx = i * 6;
+                const x = data[idx];
+                const y = data[idx + 1];
+                const radius = data[idx + 4];
+                const speed = data[idx + 5];
+
+                // Color based on speed (blue=slow to red=fast)
+                const t = Math.min(speed / maxSpeed, 1);
+                const r = Math.floor(100 + t * 155);
+                const g = Math.floor(200 - t * 150);
+                const b = Math.floor(255 - t * 200);
+
+                ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
+                ctx.beginPath();
+                ctx.arc(x, y, radius, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // Info overlay
+            ctx.fillStyle = '#64748b';
+            ctx.font = '12px Inter, sans-serif';
+            ctx.fillText(`N = ${particleCount}`, boxX + 10, 25);
+            ctx.fillText(`T = ${params.temperature} K`, boxX + 10, 42);
+        }
+
+        function drawHistogram() {
+            const W = histCanvas.width;
+            const H = histCanvas.height;
+
+            // Clear
+            histCtx.fillStyle = '#0f172a';
+            histCtx.fillRect(0, 0, W, H);
+
+            // Compute histogram
+            const numBins = 30;
+            const maxVel = 400;
+            particleSystem.computeVelocityHistogram(numBins, maxVel);
+
+            // Get histogram data
+            const histogram = EigenLab.getVelocityHistogram(particleSystem);
+            let maxCount = 0;
+            for (let i = 0; i < histogram.length; i++) {
+                if (histogram[i] > maxCount) maxCount = histogram[i];
+            }
+            maxCount = Math.max(maxCount, 1);
+
+            const barWidth = W / numBins;
+            const padding = 10;
+
+            // Draw bars
+            for (let i = 0; i < numBins; i++) {
+                const barH = (histogram[i] / maxCount) * (H - padding * 2);
+                const t = i / numBins;
+
+                // Color gradient
+                const r = Math.floor(100 + t * 155);
+                const g = Math.floor(200 - t * 150);
+                const b = Math.floor(255 - t * 200);
+
+                histCtx.fillStyle = `rgba(${r}, ${g}, ${b}, 0.8)`;
+                histCtx.fillRect(
+                    i * barWidth + 1,
+                    H - padding - barH,
+                    barWidth - 2,
+                    barH
+                );
+            }
+
+            // Draw Maxwell-Boltzmann theoretical curve
+            const v_rms = Math.sqrt(3 * k * params.temperature / m) * scale;
+            histCtx.strokeStyle = '#f59e0b';
+            histCtx.lineWidth = 2;
+            histCtx.beginPath();
+
+            for (let i = 0; i < W; i++) {
+                const v = (i / W) * maxVel;
+                // 2D Maxwell-Boltzmann: f(v) ∝ v * exp(-v²/(2σ²))
+                const sigma = v_rms / Math.sqrt(2);
+                const f = (v / (sigma * sigma)) * Math.exp(-v * v / (2 * sigma * sigma));
+                const normalizedF = f * sigma * sigma * Math.E * maxCount * 0.9;
+                const y = H - padding - normalizedF * (H - padding * 2) / maxCount;
+
+                if (i === 0) histCtx.moveTo(i, y);
+                else histCtx.lineTo(i, y);
+            }
+            histCtx.stroke();
+
+            // Labels
+            histCtx.fillStyle = '#64748b';
+            histCtx.font = '10px Inter, sans-serif';
+            histCtx.fillText('0', 4, H - 2);
+            histCtx.fillText(`${maxVel} m/s`, W - 45, H - 2);
+        }
+
+        function updateStats() {
+            if (!particleSystem) return;
+
+            const stats = particleSystem.stats();
+
+            // Format values
+            document.getElementById('pressureVal').textContent =
+                stats.pressure > 0 ? stats.pressure.toExponential(2) : '--';
+
+            document.getElementById('energyVal').textContent =
+                stats.totalKineticEnergy.toExponential(2);
+
+            document.getElementById('avgVelVal').textContent =
+                stats.averageSpeed.toFixed(1);
+
+            document.getElementById('collisionsVal').textContent =
+                collisionRate.toLocaleString();
+        }
+
+        // ============================================================
+        // Resize handler
+        // ============================================================
+
+        function handleResize() {
+            const wrapper = document.querySelector('.canvas-wrapper');
+            const rect = wrapper.getBoundingClientRect();
+
+            // Adjust canvas size while maintaining aspect ratio
+            const maxW = rect.width - 48;
+            const maxH = rect.height - 48;
+            const aspectRatio = 4 / 3;
+
+            let w = maxW;
+            let h = w / aspectRatio;
+
+            if (h > maxH) {
+                h = maxH;
+                w = h * aspectRatio;
+            }
+
+            canvas.style.width = w + 'px';
+            canvas.style.height = h + 'px';
+
+            // Histogram canvas
+            histCanvas.width = document.querySelector('.histogram-container').clientWidth - 32;
+        }
+
+        window.addEventListener('resize', handleResize);
+
+        // ============================================================
+        // Start
+        // ============================================================
+
+        init();
+    </script>
+</body>
+</html>

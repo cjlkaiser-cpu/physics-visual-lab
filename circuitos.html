@@ -1,0 +1,1214 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Circuitos RLC - Electromagnetismo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: linear-gradient(135deg, #030712 0%, #0f172a 100%);
+            min-height: 100vh;
+            color: #e2e8f0;
+        }
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: 1fr 360px;
+            gap: 24px;
+            min-height: 100vh;
+        }
+        @media (max-width: 1100px) {
+            .container { grid-template-columns: 1fr; }
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+        h1 {
+            font-size: 1.6rem;
+            font-weight: 300;
+            letter-spacing: -0.5px;
+        }
+        h1 span { color: #22c55e; font-weight: 600; }
+        .breadcrumb {
+            font-size: 0.75rem;
+            color: #64748b;
+        }
+        .breadcrumb a { color: #22c55e; text-decoration: none; }
+        .breadcrumb a:hover { text-decoration: underline; }
+        .canvas-container {
+            position: relative;
+            background: #000;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid #1e293b;
+        }
+        #circuitCanvas {
+            width: 100%;
+            height: 400px;
+            display: block;
+        }
+        #graphCanvas {
+            width: 100%;
+            height: 200px;
+            display: block;
+            border-top: 1px solid #1e293b;
+        }
+        #phasorCanvas {
+            width: 100%;
+            height: 200px;
+            display: block;
+            border-top: 1px solid #1e293b;
+        }
+        .canvas-label {
+            position: absolute;
+            font-size: 0.65rem;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 8px 12px;
+            background: rgba(0,0,0,0.5);
+        }
+        .label-circuit { top: 0; left: 0; }
+        .label-graph { top: 400px; left: 0; }
+        .label-phasor { top: 600px; left: 0; }
+        .controls {
+            background: #0f172a;
+            border-radius: 16px;
+            padding: 24px;
+            border: 1px solid #1e293b;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            height: fit-content;
+        }
+        .section-title {
+            font-size: 0.7rem;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .section-title::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: #22c55e;
+            border-radius: 2px;
+        }
+        .equations {
+            background: rgba(34, 197, 94, 0.08);
+            border: 1px solid rgba(34, 197, 94, 0.2);
+            border-radius: 12px;
+            padding: 16px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            color: #22c55e;
+            line-height: 2;
+        }
+        .slider-group { margin-bottom: 12px; }
+        .slider-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+        .slider-label {
+            font-size: 0.8rem;
+            color: #94a3b8;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .slider-label .unit {
+            font-size: 0.65rem;
+            color: #64748b;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .slider-value {
+            font-size: 0.9rem;
+            color: #22c55e;
+            font-weight: 600;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            background: #1e293b;
+            border-radius: 3px;
+            outline: none;
+            -webkit-appearance: none;
+            cursor: pointer;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            background: #22c55e;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: transform 0.15s;
+        }
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.15);
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        .info-card {
+            background: rgba(255,255,255,0.02);
+            padding: 14px;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid #1e293b;
+        }
+        .info-card .label {
+            font-size: 0.6rem;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+        .info-card .value {
+            font-size: 1.1rem;
+            font-weight: 600;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .info-card .value.green { color: #22c55e; }
+        .info-card .value.blue { color: #60a5fa; }
+        .info-card .value.yellow { color: #fbbf24; }
+        .info-card .value.red { color: #ef4444; }
+        .info-card .value.purple { color: #a855f7; }
+        .buttons {
+            display: flex;
+            gap: 10px;
+        }
+        button {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-primary {
+            background: #22c55e;
+            color: #000;
+        }
+        .btn-primary:hover { background: #16a34a; }
+        .btn-secondary {
+            background: #1e293b;
+            color: #e2e8f0;
+            border: 1px solid #334155;
+        }
+        .btn-secondary:hover { background: #334155; }
+        .circuit-type {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+        .circuit-btn {
+            padding: 10px 8px;
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            color: #94a3b8;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .circuit-btn.active {
+            background: rgba(34, 197, 94, 0.2);
+            border-color: #22c55e;
+            color: #22c55e;
+        }
+        .circuit-btn:hover:not(.active) {
+            background: #334155;
+        }
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            font-size: 0.7rem;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .legend-color {
+            width: 12px;
+            height: 3px;
+            border-radius: 2px;
+        }
+        .source-select {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+        .source-btn {
+            padding: 10px;
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            color: #94a3b8;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .source-btn.active {
+            background: rgba(251, 191, 36, 0.2);
+            border-color: #fbbf24;
+            color: #fbbf24;
+        }
+        .resonance-indicator {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+            font-size: 0.8rem;
+            color: #ef4444;
+            display: none;
+        }
+        .resonance-indicator.show {
+            display: block;
+            animation: pulse 1s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+        .guide-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: #64748b;
+            font-size: 0.75rem;
+            text-decoration: none;
+            padding: 8px 12px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+        .guide-link:hover {
+            color: #22c55e;
+            background: rgba(34, 197, 94, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="main">
+            <div class="header">
+                <div>
+                    <p class="breadcrumb"><a href="index.html">Physics Visual Lab</a> / Circuitos RLC</p>
+                    <h1>Circuitos <span>RLC</span></h1>
+                </div>
+                <a href="guides/circuitos.html" class="guide-link">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                        <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+                    </svg>
+                    Guía pedagógica
+                </a>
+            </div>
+            <div class="canvas-container">
+                <canvas id="circuitCanvas"></canvas>
+                <canvas id="graphCanvas"></canvas>
+                <canvas id="phasorCanvas"></canvas>
+                <span class="canvas-label label-circuit">Circuito</span>
+                <span class="canvas-label label-graph">V(t), I(t)</span>
+                <span class="canvas-label label-phasor">Fasores</span>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="section">
+                <div class="section-title">Ecuaciones Fundamentales</div>
+                <div class="equations">
+                    V = IR &nbsp;&nbsp; (Ohm)<br>
+                    V<sub>L</sub> = L·dI/dt<br>
+                    I<sub>C</sub> = C·dV/dt<br>
+                    Z = √(R² + (X<sub>L</sub>-X<sub>C</sub>)²)<br>
+                    ω₀ = 1/√(LC)
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">Tipo de Circuito</div>
+                <div class="circuit-type">
+                    <button class="circuit-btn" data-type="R">R</button>
+                    <button class="circuit-btn" data-type="RC">RC</button>
+                    <button class="circuit-btn" data-type="RL">RL</button>
+                    <button class="circuit-btn active" data-type="RLC">RLC</button>
+                    <button class="circuit-btn" data-type="LC">LC</button>
+                    <button class="circuit-btn" data-type="paralelo">Paralelo</button>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">Fuente</div>
+                <div class="source-select">
+                    <button class="source-btn" data-source="DC">DC</button>
+                    <button class="source-btn active" data-source="AC">AC</button>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">Parámetros</div>
+                <div class="slider-group">
+                    <div class="slider-header">
+                        <span class="slider-label">Resistencia <span class="unit">(Ω)</span></span>
+                        <span class="slider-value" id="rValue">100</span>
+                    </div>
+                    <input type="range" id="resistance" min="10" max="500" value="100">
+                </div>
+                <div class="slider-group">
+                    <div class="slider-header">
+                        <span class="slider-label">Inductancia <span class="unit">(mH)</span></span>
+                        <span class="slider-value" id="lValue">50</span>
+                    </div>
+                    <input type="range" id="inductance" min="1" max="200" value="50">
+                </div>
+                <div class="slider-group">
+                    <div class="slider-header">
+                        <span class="slider-label">Capacitancia <span class="unit">(μF)</span></span>
+                        <span class="slider-value" id="cValue">10</span>
+                    </div>
+                    <input type="range" id="capacitance" min="1" max="100" value="10">
+                </div>
+                <div class="slider-group">
+                    <div class="slider-header">
+                        <span class="slider-label">Voltaje Fuente <span class="unit">(V)</span></span>
+                        <span class="slider-value" id="vValue">12</span>
+                    </div>
+                    <input type="range" id="voltage" min="1" max="24" value="12">
+                </div>
+                <div class="slider-group">
+                    <div class="slider-header">
+                        <span class="slider-label">Frecuencia <span class="unit">(Hz)</span></span>
+                        <span class="slider-value" id="fValue">60</span>
+                    </div>
+                    <input type="range" id="frequency" min="1" max="500" value="60">
+                </div>
+            </div>
+
+            <div id="resonanceIndicator" class="resonance-indicator">
+                ⚡ RESONANCIA ⚡<br>
+                <small>X<sub>L</sub> = X<sub>C</sub></small>
+            </div>
+
+            <div class="section">
+                <div class="section-title">Mediciones</div>
+                <div class="info-grid">
+                    <div class="info-card">
+                        <div class="label">Impedancia Z</div>
+                        <div class="value green" id="impedanceVal">100 Ω</div>
+                    </div>
+                    <div class="info-card">
+                        <div class="label">Corriente I</div>
+                        <div class="value blue" id="currentVal">120 mA</div>
+                    </div>
+                    <div class="info-card">
+                        <div class="label">Fase φ</div>
+                        <div class="value yellow" id="phaseVal">0°</div>
+                    </div>
+                    <div class="info-card">
+                        <div class="label">Potencia P</div>
+                        <div class="value red" id="powerVal">1.44 W</div>
+                    </div>
+                    <div class="info-card">
+                        <div class="label">X<sub>L</sub></div>
+                        <div class="value purple" id="xlVal">18.8 Ω</div>
+                    </div>
+                    <div class="info-card">
+                        <div class="label">X<sub>C</sub></div>
+                        <div class="value purple" id="xcVal">265 Ω</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">Leyenda</div>
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #fbbf24;"></div>
+                        <span>V(t)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #60a5fa;"></div>
+                        <span>I(t)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #22c55e;"></div>
+                        <span>V<sub>R</sub></span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #a855f7;"></div>
+                        <span>V<sub>L</sub></span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #ef4444;"></div>
+                        <span>V<sub>C</sub></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="buttons">
+                <button class="btn-primary" id="btnPlay">▶ Simular</button>
+                <button class="btn-secondary" id="btnReset">↺ Reset</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Canvases
+        const circuitCanvas = document.getElementById('circuitCanvas');
+        const graphCanvas = document.getElementById('graphCanvas');
+        const phasorCanvas = document.getElementById('phasorCanvas');
+        const circuitCtx = circuitCanvas.getContext('2d');
+        const graphCtx = graphCanvas.getContext('2d');
+        const phasorCtx = phasorCanvas.getContext('2d');
+
+        // State
+        let state = {
+            running: true,
+            time: 0,
+            circuitType: 'RLC',
+            sourceType: 'AC',
+            R: 100,      // Ohms
+            L: 0.05,     // Henries (50 mH)
+            C: 0.00001,  // Farads (10 μF)
+            V0: 12,      // Volts
+            f: 60,       // Hz
+            history: {
+                time: [],
+                voltage: [],
+                current: [],
+                vR: [],
+                vL: [],
+                vC: []
+            }
+        };
+
+        // Resize canvases
+        function resizeCanvases() {
+            const container = circuitCanvas.parentElement;
+            const dpr = window.devicePixelRatio || 1;
+
+            circuitCanvas.width = container.offsetWidth * dpr;
+            circuitCanvas.height = 400 * dpr;
+            circuitCanvas.style.height = '400px';
+            circuitCtx.scale(dpr, dpr);
+
+            graphCanvas.width = container.offsetWidth * dpr;
+            graphCanvas.height = 200 * dpr;
+            graphCanvas.style.height = '200px';
+            graphCtx.scale(dpr, dpr);
+
+            phasorCanvas.width = container.offsetWidth * dpr;
+            phasorCanvas.height = 200 * dpr;
+            phasorCanvas.style.height = '200px';
+            phasorCtx.scale(dpr, dpr);
+        }
+
+        // Calculate circuit values
+        function calculateCircuit() {
+            const omega = 2 * Math.PI * state.f;
+            const XL = omega * state.L;
+            const XC = 1 / (omega * state.C);
+
+            let Z, phi, hasL, hasC, hasR;
+
+            switch(state.circuitType) {
+                case 'R':
+                    Z = state.R;
+                    phi = 0;
+                    hasR = true; hasL = false; hasC = false;
+                    break;
+                case 'RC':
+                    Z = Math.sqrt(state.R * state.R + XC * XC);
+                    phi = -Math.atan(XC / state.R);
+                    hasR = true; hasL = false; hasC = true;
+                    break;
+                case 'RL':
+                    Z = Math.sqrt(state.R * state.R + XL * XL);
+                    phi = Math.atan(XL / state.R);
+                    hasR = true; hasL = true; hasC = false;
+                    break;
+                case 'RLC':
+                    Z = Math.sqrt(state.R * state.R + (XL - XC) * (XL - XC));
+                    phi = Math.atan((XL - XC) / state.R);
+                    hasR = true; hasL = true; hasC = true;
+                    break;
+                case 'LC':
+                    Z = Math.abs(XL - XC);
+                    phi = XL > XC ? Math.PI/2 : -Math.PI/2;
+                    hasR = false; hasL = true; hasC = true;
+                    break;
+                case 'paralelo':
+                    // Parallel RLC
+                    const YR = 1/state.R;
+                    const YL = 1/XL;
+                    const YC = 1/XC;
+                    const Y = Math.sqrt(YR*YR + (YC - YL)*(YC - YL));
+                    Z = 1/Y;
+                    phi = Math.atan((YC - YL)/YR);
+                    hasR = true; hasL = true; hasC = true;
+                    break;
+            }
+
+            const I0 = state.V0 / Z;
+            const P = state.V0 * I0 * Math.cos(phi) / 2; // Average power
+
+            // Check resonance (within 5%)
+            const resonanceFreq = 1 / (2 * Math.PI * Math.sqrt(state.L * state.C));
+            const isResonance = Math.abs(state.f - resonanceFreq) / resonanceFreq < 0.05;
+
+            return { Z, phi, I0, P, XL, XC, hasR, hasL, hasC, isResonance, resonanceFreq };
+        }
+
+        // Draw circuit schematic
+        function drawCircuit() {
+            const W = circuitCanvas.width / (window.devicePixelRatio || 1);
+            const H = 400;
+            const calc = calculateCircuit();
+
+            circuitCtx.fillStyle = '#030712';
+            circuitCtx.fillRect(0, 0, W, H);
+
+            const cx = W / 2;
+            const cy = H / 2;
+            const omega = 2 * Math.PI * state.f;
+
+            // Calculate instantaneous values
+            const V = state.sourceType === 'AC'
+                ? state.V0 * Math.sin(omega * state.time)
+                : state.V0;
+            const I = state.sourceType === 'AC'
+                ? calc.I0 * Math.sin(omega * state.time - calc.phi)
+                : state.V0 / calc.Z;
+
+            // Circuit layout
+            const layout = {
+                startX: 80,
+                endX: W - 80,
+                topY: cy - 80,
+                bottomY: cy + 80
+            };
+
+            // Wire color based on current flow
+            const currentIntensity = Math.abs(I / calc.I0);
+            const wireColor = `rgba(96, 165, 250, ${0.3 + 0.7 * currentIntensity})`;
+
+            circuitCtx.strokeStyle = wireColor;
+            circuitCtx.lineWidth = 3;
+            circuitCtx.lineCap = 'round';
+
+            // Draw main circuit loop
+            let componentX = layout.startX + 60;
+
+            // Source
+            drawSource(layout.startX, cy, V);
+
+            // Top wire from source
+            circuitCtx.beginPath();
+            circuitCtx.moveTo(layout.startX, layout.topY);
+            circuitCtx.lineTo(layout.endX, layout.topY);
+            circuitCtx.stroke();
+
+            // Draw components along top
+            let drawX = layout.startX + 80;
+            const componentSpacing = (layout.endX - layout.startX - 160) / 3;
+
+            if (calc.hasR) {
+                const VR = I * state.R;
+                drawResistor(drawX, layout.topY, state.R, VR);
+                drawX += componentSpacing;
+            }
+
+            if (calc.hasL) {
+                const VL = state.sourceType === 'AC'
+                    ? calc.I0 * calc.XL * Math.cos(omega * state.time - calc.phi)
+                    : 0;
+                drawInductor(drawX, layout.topY, state.L * 1000, VL);
+                drawX += componentSpacing;
+            }
+
+            if (calc.hasC) {
+                const VC = state.sourceType === 'AC'
+                    ? calc.I0 * calc.XC * Math.sin(omega * state.time - calc.phi - Math.PI/2)
+                    : state.V0;
+                drawCapacitor(drawX, layout.topY, state.C * 1e6, VC);
+            }
+
+            // Right wire
+            circuitCtx.beginPath();
+            circuitCtx.moveTo(layout.endX, layout.topY);
+            circuitCtx.lineTo(layout.endX, layout.bottomY);
+            circuitCtx.stroke();
+
+            // Bottom wire
+            circuitCtx.beginPath();
+            circuitCtx.moveTo(layout.endX, layout.bottomY);
+            circuitCtx.lineTo(layout.startX, layout.bottomY);
+            circuitCtx.stroke();
+
+            // Left wire (source connection)
+            circuitCtx.beginPath();
+            circuitCtx.moveTo(layout.startX, layout.bottomY);
+            circuitCtx.lineTo(layout.startX, cy + 30);
+            circuitCtx.stroke();
+
+            circuitCtx.beginPath();
+            circuitCtx.moveTo(layout.startX, cy - 30);
+            circuitCtx.lineTo(layout.startX, layout.topY);
+            circuitCtx.stroke();
+
+            // Current arrow
+            drawCurrentArrow(cx, layout.topY - 25, I > 0);
+
+            // Electrons animation
+            drawElectrons(layout, I);
+        }
+
+        function drawSource(x, y, V) {
+            const radius = 25;
+
+            // Circle
+            circuitCtx.beginPath();
+            circuitCtx.arc(x, y, radius, 0, Math.PI * 2);
+            circuitCtx.strokeStyle = '#fbbf24';
+            circuitCtx.lineWidth = 2;
+            circuitCtx.stroke();
+
+            if (state.sourceType === 'AC') {
+                // Sine wave inside
+                circuitCtx.beginPath();
+                for (let i = -15; i <= 15; i++) {
+                    const sx = x + i;
+                    const sy = y + 8 * Math.sin(i * 0.3);
+                    if (i === -15) circuitCtx.moveTo(sx, sy);
+                    else circuitCtx.lineTo(sx, sy);
+                }
+                circuitCtx.strokeStyle = '#fbbf24';
+                circuitCtx.lineWidth = 2;
+                circuitCtx.stroke();
+            } else {
+                // DC symbol
+                circuitCtx.fillStyle = '#fbbf24';
+                circuitCtx.font = 'bold 16px Inter';
+                circuitCtx.textAlign = 'center';
+                circuitCtx.textBaseline = 'middle';
+                circuitCtx.fillText('+', x, y - 8);
+                circuitCtx.fillText('−', x, y + 10);
+            }
+
+            // Voltage label
+            circuitCtx.fillStyle = '#fbbf24';
+            circuitCtx.font = '12px JetBrains Mono';
+            circuitCtx.textAlign = 'center';
+            circuitCtx.fillText(`${V.toFixed(1)}V`, x, y + radius + 15);
+        }
+
+        function drawResistor(x, y, R, VR) {
+            const w = 50, h = 15;
+
+            // Zigzag pattern
+            circuitCtx.beginPath();
+            circuitCtx.moveTo(x - w/2, y);
+            const segments = 6;
+            for (let i = 0; i <= segments; i++) {
+                const px = x - w/2 + (i/segments) * w;
+                const py = y + (i % 2 === 0 ? 0 : (i % 4 === 1 ? -h : h));
+                circuitCtx.lineTo(px, py);
+            }
+            circuitCtx.strokeStyle = '#22c55e';
+            circuitCtx.lineWidth = 3;
+            circuitCtx.stroke();
+
+            // Label
+            circuitCtx.fillStyle = '#22c55e';
+            circuitCtx.font = '11px JetBrains Mono';
+            circuitCtx.textAlign = 'center';
+            circuitCtx.fillText(`${R}Ω`, x, y - 25);
+            circuitCtx.fillStyle = '#888';
+            circuitCtx.fillText(`${Math.abs(VR).toFixed(1)}V`, x, y + 30);
+        }
+
+        function drawInductor(x, y, L, VL) {
+            const w = 50;
+
+            // Coil pattern
+            circuitCtx.beginPath();
+            circuitCtx.moveTo(x - w/2, y);
+            const coils = 4;
+            for (let i = 0; i < coils; i++) {
+                const cx = x - w/2 + 10 + i * (w-10)/coils;
+                circuitCtx.arc(cx, y, 8, Math.PI, 0, false);
+            }
+            circuitCtx.lineTo(x + w/2, y);
+            circuitCtx.strokeStyle = '#a855f7';
+            circuitCtx.lineWidth = 3;
+            circuitCtx.stroke();
+
+            // Label
+            circuitCtx.fillStyle = '#a855f7';
+            circuitCtx.font = '11px JetBrains Mono';
+            circuitCtx.textAlign = 'center';
+            circuitCtx.fillText(`${L.toFixed(0)}mH`, x, y - 25);
+            circuitCtx.fillStyle = '#888';
+            circuitCtx.fillText(`${Math.abs(VL).toFixed(1)}V`, x, y + 30);
+        }
+
+        function drawCapacitor(x, y, C, VC) {
+            const gap = 6;
+            const h = 25;
+
+            // Two parallel plates
+            circuitCtx.strokeStyle = '#ef4444';
+            circuitCtx.lineWidth = 3;
+
+            circuitCtx.beginPath();
+            circuitCtx.moveTo(x - gap, y - h);
+            circuitCtx.lineTo(x - gap, y + h);
+            circuitCtx.stroke();
+
+            circuitCtx.beginPath();
+            circuitCtx.moveTo(x + gap, y - h);
+            circuitCtx.lineTo(x + gap, y + h);
+            circuitCtx.stroke();
+
+            // Connection lines
+            circuitCtx.strokeStyle = `rgba(96, 165, 250, 0.6)`;
+            circuitCtx.beginPath();
+            circuitCtx.moveTo(x - 25, y);
+            circuitCtx.lineTo(x - gap, y);
+            circuitCtx.moveTo(x + gap, y);
+            circuitCtx.lineTo(x + 25, y);
+            circuitCtx.stroke();
+
+            // Label
+            circuitCtx.fillStyle = '#ef4444';
+            circuitCtx.font = '11px JetBrains Mono';
+            circuitCtx.textAlign = 'center';
+            circuitCtx.fillText(`${C.toFixed(0)}μF`, x, y - 35);
+            circuitCtx.fillStyle = '#888';
+            circuitCtx.fillText(`${Math.abs(VC).toFixed(1)}V`, x, y + 40);
+        }
+
+        function drawCurrentArrow(x, y, positive) {
+            circuitCtx.fillStyle = '#60a5fa';
+            circuitCtx.font = '11px Inter';
+            circuitCtx.textAlign = 'center';
+
+            const dir = positive ? '→' : '←';
+            circuitCtx.fillText(`I ${dir}`, x, y);
+        }
+
+        function drawElectrons(layout, I) {
+            const speed = Math.abs(I) * 50;
+            const numElectrons = 12;
+
+            circuitCtx.fillStyle = 'rgba(96, 165, 250, 0.8)';
+
+            for (let i = 0; i < numElectrons; i++) {
+                const phase = (state.time * speed + i / numElectrons) % 1;
+                let ex, ey;
+
+                // Position along circuit
+                const totalLen = (layout.endX - layout.startX) * 2 + (layout.bottomY - layout.topY) * 2;
+                const pos = phase * totalLen;
+
+                if (pos < layout.endX - layout.startX) {
+                    // Top wire
+                    ex = layout.startX + pos;
+                    ey = layout.topY;
+                } else if (pos < layout.endX - layout.startX + layout.bottomY - layout.topY) {
+                    // Right wire
+                    ex = layout.endX;
+                    ey = layout.topY + (pos - (layout.endX - layout.startX));
+                } else if (pos < (layout.endX - layout.startX) * 2 + layout.bottomY - layout.topY) {
+                    // Bottom wire
+                    ex = layout.endX - (pos - (layout.endX - layout.startX + layout.bottomY - layout.topY));
+                    ey = layout.bottomY;
+                } else {
+                    // Left wire
+                    ex = layout.startX;
+                    ey = layout.bottomY - (pos - ((layout.endX - layout.startX) * 2 + layout.bottomY - layout.topY));
+                }
+
+                circuitCtx.beginPath();
+                circuitCtx.arc(ex, ey, 3, 0, Math.PI * 2);
+                circuitCtx.fill();
+            }
+        }
+
+        // Draw voltage/current graph
+        function drawGraph() {
+            const W = graphCanvas.width / (window.devicePixelRatio || 1);
+            const H = 200;
+            const calc = calculateCircuit();
+
+            graphCtx.fillStyle = '#030712';
+            graphCtx.fillRect(0, 0, W, H);
+
+            const margin = { left: 50, right: 20, top: 20, bottom: 30 };
+            const plotW = W - margin.left - margin.right;
+            const plotH = H - margin.top - margin.bottom;
+            const cy = margin.top + plotH / 2;
+
+            // Grid
+            graphCtx.strokeStyle = '#1e293b';
+            graphCtx.lineWidth = 1;
+
+            // Horizontal center line
+            graphCtx.beginPath();
+            graphCtx.moveTo(margin.left, cy);
+            graphCtx.lineTo(W - margin.right, cy);
+            graphCtx.stroke();
+
+            // Axes labels
+            graphCtx.fillStyle = '#64748b';
+            graphCtx.font = '10px JetBrains Mono';
+            graphCtx.textAlign = 'right';
+            graphCtx.fillText(`+${state.V0}V`, margin.left - 5, margin.top + 10);
+            graphCtx.fillText('0', margin.left - 5, cy + 4);
+            graphCtx.fillText(`-${state.V0}V`, margin.left - 5, margin.top + plotH - 5);
+
+            const omega = 2 * Math.PI * state.f;
+            const periods = 3;
+            const timeSpan = periods / state.f;
+
+            // Draw voltage
+            graphCtx.strokeStyle = '#fbbf24';
+            graphCtx.lineWidth = 2;
+            graphCtx.beginPath();
+            for (let i = 0; i < plotW; i++) {
+                const t = (i / plotW) * timeSpan;
+                const V = state.sourceType === 'AC'
+                    ? state.V0 * Math.sin(omega * t)
+                    : state.V0;
+                const y = cy - (V / state.V0) * (plotH / 2 - 10);
+                if (i === 0) graphCtx.moveTo(margin.left + i, y);
+                else graphCtx.lineTo(margin.left + i, y);
+            }
+            graphCtx.stroke();
+
+            // Draw current (scaled)
+            graphCtx.strokeStyle = '#60a5fa';
+            graphCtx.lineWidth = 2;
+            graphCtx.beginPath();
+            for (let i = 0; i < plotW; i++) {
+                const t = (i / plotW) * timeSpan;
+                const I = state.sourceType === 'AC'
+                    ? calc.I0 * Math.sin(omega * t - calc.phi)
+                    : state.V0 / calc.Z;
+                const scaledI = (I / calc.I0) * state.V0; // Scale to voltage range
+                const y = cy - (scaledI / state.V0) * (plotH / 2 - 10);
+                if (i === 0) graphCtx.moveTo(margin.left + i, y);
+                else graphCtx.lineTo(margin.left + i, y);
+            }
+            graphCtx.stroke();
+
+            // Time marker
+            const markerX = margin.left + ((state.time % timeSpan) / timeSpan) * plotW;
+            graphCtx.strokeStyle = '#ffffff40';
+            graphCtx.setLineDash([4, 4]);
+            graphCtx.beginPath();
+            graphCtx.moveTo(markerX, margin.top);
+            graphCtx.lineTo(markerX, margin.top + plotH);
+            graphCtx.stroke();
+            graphCtx.setLineDash([]);
+
+            // Phase difference indicator
+            if (state.sourceType === 'AC' && Math.abs(calc.phi) > 0.01) {
+                const phaseDeg = (calc.phi * 180 / Math.PI).toFixed(1);
+                graphCtx.fillStyle = '#fbbf24';
+                graphCtx.font = '11px JetBrains Mono';
+                graphCtx.textAlign = 'right';
+                graphCtx.fillText(`φ = ${phaseDeg}°`, W - margin.right, margin.top + 15);
+            }
+        }
+
+        // Draw phasor diagram
+        function drawPhasors() {
+            const W = phasorCanvas.width / (window.devicePixelRatio || 1);
+            const H = 200;
+            const calc = calculateCircuit();
+
+            phasorCtx.fillStyle = '#030712';
+            phasorCtx.fillRect(0, 0, W, H);
+
+            const cx = W / 3;
+            const cy = H / 2;
+            const scale = 60 / state.V0; // Scale factor for phasors
+
+            const omega = 2 * Math.PI * state.f;
+            const rotAngle = omega * state.time;
+
+            // Draw coordinate system
+            phasorCtx.strokeStyle = '#1e293b';
+            phasorCtx.lineWidth = 1;
+            phasorCtx.beginPath();
+            phasorCtx.moveTo(cx - 80, cy);
+            phasorCtx.lineTo(cx + 80, cy);
+            phasorCtx.moveTo(cx, cy - 80);
+            phasorCtx.lineTo(cx, cy + 80);
+            phasorCtx.stroke();
+
+            // Labels
+            phasorCtx.fillStyle = '#64748b';
+            phasorCtx.font = '10px JetBrains Mono';
+            phasorCtx.textAlign = 'center';
+            phasorCtx.fillText('Re', cx + 75, cy - 5);
+            phasorCtx.fillText('Im', cx + 10, cy - 70);
+
+            if (state.sourceType === 'AC') {
+                // Voltage phasor (reference)
+                drawPhasor(cx, cy, state.V0 * scale, rotAngle, '#fbbf24', 'V');
+
+                // Current phasor
+                drawPhasor(cx, cy, calc.I0 * state.R * scale, rotAngle - calc.phi, '#60a5fa', 'I');
+
+                // Component voltage phasors (smaller, from origin)
+                if (calc.hasR) {
+                    const VR = calc.I0 * state.R;
+                    drawPhasor(cx, cy, VR * scale * 0.8, rotAngle - calc.phi, '#22c55e', 'VR');
+                }
+                if (calc.hasL) {
+                    const VL = calc.I0 * calc.XL;
+                    drawPhasor(cx, cy, VL * scale * 0.8, rotAngle - calc.phi + Math.PI/2, '#a855f7', 'VL');
+                }
+                if (calc.hasC) {
+                    const VC = calc.I0 * calc.XC;
+                    drawPhasor(cx, cy, VC * scale * 0.8, rotAngle - calc.phi - Math.PI/2, '#ef4444', 'VC');
+                }
+            }
+
+            // Impedance triangle (right side)
+            const triCx = W * 0.75;
+            const triCy = cy;
+            const triScale = 0.5;
+
+            phasorCtx.fillStyle = '#94a3b8';
+            phasorCtx.font = '11px Inter';
+            phasorCtx.textAlign = 'center';
+            phasorCtx.fillText('Triángulo de Impedancia', triCx, 20);
+
+            if (state.sourceType === 'AC') {
+                const R = state.R * triScale;
+                const X = (calc.XL - calc.XC) * triScale;
+                const Z = calc.Z * triScale;
+
+                // R horizontal
+                phasorCtx.strokeStyle = '#22c55e';
+                phasorCtx.lineWidth = 3;
+                phasorCtx.beginPath();
+                phasorCtx.moveTo(triCx - 40, triCy);
+                phasorCtx.lineTo(triCx - 40 + R, triCy);
+                phasorCtx.stroke();
+
+                // X vertical
+                phasorCtx.strokeStyle = '#a855f7';
+                phasorCtx.beginPath();
+                phasorCtx.moveTo(triCx - 40 + R, triCy);
+                phasorCtx.lineTo(triCx - 40 + R, triCy - X);
+                phasorCtx.stroke();
+
+                // Z hypotenuse
+                phasorCtx.strokeStyle = '#fbbf24';
+                phasorCtx.beginPath();
+                phasorCtx.moveTo(triCx - 40, triCy);
+                phasorCtx.lineTo(triCx - 40 + R, triCy - X);
+                phasorCtx.stroke();
+
+                // Labels
+                phasorCtx.font = '10px JetBrains Mono';
+                phasorCtx.fillStyle = '#22c55e';
+                phasorCtx.fillText('R', triCx - 40 + R/2, triCy + 15);
+                phasorCtx.fillStyle = '#a855f7';
+                phasorCtx.textAlign = 'left';
+                phasorCtx.fillText('X', triCx - 40 + R + 5, triCy - X/2);
+                phasorCtx.fillStyle = '#fbbf24';
+                phasorCtx.textAlign = 'center';
+                phasorCtx.fillText('Z', triCx - 50 + R/2, triCy - X/2 - 5);
+
+                // Phase angle arc
+                if (Math.abs(calc.phi) > 0.05) {
+                    phasorCtx.strokeStyle = '#fbbf2460';
+                    phasorCtx.lineWidth = 2;
+                    phasorCtx.beginPath();
+                    phasorCtx.arc(triCx - 40, triCy, 20, -calc.phi, 0);
+                    phasorCtx.stroke();
+
+                    phasorCtx.fillStyle = '#fbbf24';
+                    phasorCtx.font = '9px JetBrains Mono';
+                    phasorCtx.fillText('φ', triCx - 15, triCy - 8);
+                }
+            }
+        }
+
+        function drawPhasor(cx, cy, length, angle, color, label) {
+            const ex = cx + length * Math.cos(angle);
+            const ey = cy - length * Math.sin(angle);
+
+            // Line
+            phasorCtx.strokeStyle = color;
+            phasorCtx.lineWidth = 3;
+            phasorCtx.beginPath();
+            phasorCtx.moveTo(cx, cy);
+            phasorCtx.lineTo(ex, ey);
+            phasorCtx.stroke();
+
+            // Arrow head
+            const arrowLen = 8;
+            const arrowAngle = 0.4;
+            phasorCtx.beginPath();
+            phasorCtx.moveTo(ex, ey);
+            phasorCtx.lineTo(
+                ex - arrowLen * Math.cos(angle - arrowAngle),
+                ey + arrowLen * Math.sin(angle - arrowAngle)
+            );
+            phasorCtx.lineTo(
+                ex - arrowLen * Math.cos(angle + arrowAngle),
+                ey + arrowLen * Math.sin(angle + arrowAngle)
+            );
+            phasorCtx.closePath();
+            phasorCtx.fillStyle = color;
+            phasorCtx.fill();
+
+            // Label
+            phasorCtx.fillStyle = color;
+            phasorCtx.font = '10px JetBrains Mono';
+            phasorCtx.textAlign = 'center';
+            phasorCtx.fillText(label, ex + 15 * Math.cos(angle), ey - 15 * Math.sin(angle));
+        }
+
+        // Update UI values
+        function updateUI() {
+            const calc = calculateCircuit();
+
+            document.getElementById('impedanceVal').textContent = calc.Z.toFixed(1) + ' Ω';
+            document.getElementById('currentVal').textContent = (calc.I0 * 1000).toFixed(1) + ' mA';
+            document.getElementById('phaseVal').textContent = (calc.phi * 180 / Math.PI).toFixed(1) + '°';
+            document.getElementById('powerVal').textContent = calc.P.toFixed(2) + ' W';
+            document.getElementById('xlVal').textContent = calc.XL.toFixed(1) + ' Ω';
+            document.getElementById('xcVal').textContent = calc.XC.toFixed(1) + ' Ω';
+
+            // Resonance indicator
+            const indicator = document.getElementById('resonanceIndicator');
+            if (calc.isResonance && state.circuitType.includes('LC')) {
+                indicator.classList.add('show');
+            } else {
+                indicator.classList.remove('show');
+            }
+        }
+
+        // Animation loop
+        function animate() {
+            if (state.running) {
+                state.time += 0.016;
+            }
+
+            drawCircuit();
+            drawGraph();
+            drawPhasors();
+            updateUI();
+
+            requestAnimationFrame(animate);
+        }
+
+        // Event listeners
+        document.getElementById('resistance').addEventListener('input', (e) => {
+            state.R = parseFloat(e.target.value);
+            document.getElementById('rValue').textContent = state.R;
+        });
+
+        document.getElementById('inductance').addEventListener('input', (e) => {
+            state.L = parseFloat(e.target.value) / 1000; // mH to H
+            document.getElementById('lValue').textContent = e.target.value;
+        });
+
+        document.getElementById('capacitance').addEventListener('input', (e) => {
+            state.C = parseFloat(e.target.value) / 1000000; // μF to F
+            document.getElementById('cValue').textContent = e.target.value;
+        });
+
+        document.getElementById('voltage').addEventListener('input', (e) => {
+            state.V0 = parseFloat(e.target.value);
+            document.getElementById('vValue').textContent = state.V0;
+        });
+
+        document.getElementById('frequency').addEventListener('input', (e) => {
+            state.f = parseFloat(e.target.value);
+            document.getElementById('fValue').textContent = state.f;
+        });
+
+        // Circuit type buttons
+        document.querySelectorAll('.circuit-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.circuit-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                state.circuitType = btn.dataset.type;
+            });
+        });
+
+        // Source type buttons
+        document.querySelectorAll('.source-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.source-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                state.sourceType = btn.dataset.source;
+            });
+        });
+
+        document.getElementById('btnPlay').addEventListener('click', () => {
+            state.running = !state.running;
+            document.getElementById('btnPlay').textContent = state.running ? '⏸ Pausar' : '▶ Simular';
+        });
+
+        document.getElementById('btnReset').addEventListener('click', () => {
+            state.time = 0;
+            state.R = 100;
+            state.L = 0.05;
+            state.C = 0.00001;
+            state.V0 = 12;
+            state.f = 60;
+
+            document.getElementById('resistance').value = 100;
+            document.getElementById('inductance').value = 50;
+            document.getElementById('capacitance').value = 10;
+            document.getElementById('voltage').value = 12;
+            document.getElementById('frequency').value = 60;
+
+            document.getElementById('rValue').textContent = '100';
+            document.getElementById('lValue').textContent = '50';
+            document.getElementById('cValue').textContent = '10';
+            document.getElementById('vValue').textContent = '12';
+            document.getElementById('fValue').textContent = '60';
+        });
+
+        window.addEventListener('resize', resizeCanvases);
+
+        // Initialize
+        resizeCanvases();
+        animate();
+    </script>
+</body>
+</html>

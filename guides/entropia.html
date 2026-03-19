@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guía: Entropía - Physics Visual Lab</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: linear-gradient(135deg, #030712 0%, #0f172a 100%);
+            min-height: 100vh;
+            color: #e2e8f0;
+            line-height: 1.7;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 24px;
+        }
+        .breadcrumb {
+            font-size: 0.8rem;
+            color: #64748b;
+            margin-bottom: 24px;
+        }
+        .breadcrumb a {
+            color: #f97316;
+            text-decoration: none;
+        }
+        .breadcrumb a:hover { text-decoration: underline; }
+        .hero {
+            text-align: center;
+            margin-bottom: 48px;
+            padding: 48px 24px;
+            background: rgba(249, 115, 22, 0.05);
+            border-radius: 20px;
+            border: 1px solid rgba(249, 115, 22, 0.15);
+        }
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 300;
+            margin-bottom: 16px;
+            letter-spacing: -1px;
+        }
+        h1 span { color: #f97316; font-weight: 600; }
+        .hero-subtitle {
+            font-size: 1.1rem;
+            color: #94a3b8;
+            max-width: 600px;
+            margin: 0 auto 24px;
+        }
+        .equation-hero {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.4rem;
+            color: #f97316;
+            padding: 20px 32px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 12px;
+            display: inline-block;
+        }
+        h2 {
+            font-size: 1.5rem;
+            font-weight: 500;
+            margin: 48px 0 20px;
+            color: #f1f5f9;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        h2::before {
+            content: '';
+            width: 4px;
+            height: 28px;
+            background: #f97316;
+            border-radius: 2px;
+        }
+        h3 {
+            font-size: 1.15rem;
+            font-weight: 500;
+            margin: 32px 0 16px;
+            color: #e2e8f0;
+        }
+        p {
+            margin-bottom: 16px;
+            color: #cbd5e1;
+        }
+        .concept-box {
+            background: rgba(249, 115, 22, 0.08);
+            border: 1px solid rgba(249, 115, 22, 0.2);
+            border-radius: 12px;
+            padding: 24px;
+            margin: 24px 0;
+        }
+        .concept-box h4 {
+            color: #f97316;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+        }
+        .equation {
+            font-family: 'JetBrains Mono', monospace;
+            background: rgba(0,0,0,0.3);
+            padding: 16px 24px;
+            border-radius: 8px;
+            margin: 16px 0;
+            color: #f97316;
+            font-size: 0.95rem;
+            overflow-x: auto;
+        }
+        .experiment {
+            background: #0f172a;
+            border: 1px solid #1e293b;
+            border-radius: 12px;
+            padding: 24px;
+            margin: 24px 0;
+        }
+        .experiment-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            background: #f97316;
+            color: #000;
+            font-weight: 700;
+            border-radius: 8px;
+            margin-right: 12px;
+        }
+        .experiment h4 {
+            display: inline;
+            font-size: 1.1rem;
+            color: #f1f5f9;
+        }
+        .experiment p {
+            margin-top: 16px;
+            padding-left: 44px;
+        }
+        .experiment ul {
+            margin: 12px 0 0 44px;
+            padding-left: 20px;
+        }
+        .experiment li {
+            color: #94a3b8;
+            margin-bottom: 8px;
+        }
+        .connection {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            padding: 20px;
+            background: rgba(255,255,255,0.02);
+            border-radius: 12px;
+            margin: 16px 0;
+            border-left: 3px solid #f97316;
+        }
+        .connection-icon {
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+        .connection h4 {
+            color: #f1f5f9;
+            margin-bottom: 4px;
+        }
+        .connection p {
+            font-size: 0.9rem;
+            margin: 0;
+        }
+        .warning {
+            background: rgba(251, 191, 36, 0.1);
+            border: 1px solid rgba(251, 191, 36, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 24px 0;
+        }
+        .warning h4 {
+            color: #fbbf24;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .warning p {
+            font-size: 0.9rem;
+        }
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #f97316;
+            text-decoration: none;
+            padding: 12px 20px;
+            background: rgba(249, 115, 22, 0.1);
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.2s;
+            margin-top: 48px;
+        }
+        .back-btn:hover {
+            background: rgba(249, 115, 22, 0.2);
+        }
+        .highlight {
+            color: #f97316;
+            font-weight: 500;
+        }
+        .analogy {
+            background: rgba(168, 85, 247, 0.1);
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 24px 0;
+        }
+        .analogy h4 {
+            color: #a855f7;
+            margin-bottom: 8px;
+        }
+        .reflection {
+            background: linear-gradient(135deg, rgba(249, 115, 22, 0.1), rgba(239, 68, 68, 0.1));
+            border-radius: 16px;
+            padding: 32px;
+            margin: 48px 0;
+            text-align: center;
+        }
+        .reflection h3 {
+            margin-top: 0;
+            font-size: 1.3rem;
+        }
+        .reflection p {
+            font-size: 1.05rem;
+            font-style: italic;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        .history-box {
+            background: rgba(96, 165, 250, 0.08);
+            border: 1px solid rgba(96, 165, 250, 0.2);
+            border-radius: 12px;
+            padding: 24px;
+            margin: 24px 0;
+        }
+        .history-box h4 {
+            color: #60a5fa;
+            margin-bottom: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <nav class="breadcrumb">
+            <a href="../index.html">Physics Visual Lab</a> /
+            <a href="../entropia.html">Entropia</a> /
+            Guia
+        </nav>
+
+        <div class="hero">
+            <h1>Segunda Ley: <span>Entropia</span></h1>
+            <p class="hero-subtitle">
+                La entropia mide el desorden de un sistema y nos dice por que el tiempo
+                fluye en una sola direccion. Es la unica ley de la fisica que distingue
+                pasado de futuro.
+            </p>
+            <div class="equation-hero">
+                S = k_B * ln(Omega)
+            </div>
+        </div>
+
+        <h2>Fundamentos Teoricos</h2>
+
+        <p>
+            La <span class="highlight">entropia</span> es una medida del numero de formas
+            microscopicas (microestados) en que un sistema puede organizarse manteniendo
+            las mismas propiedades macroscopicas observables (macroestado).
+        </p>
+
+        <div class="concept-box">
+            <h4>La Formula de Boltzmann</h4>
+            <p>
+                Ludwig Boltzmann descubrio la conexion entre el mundo microscopico y el
+                macroscopico con una de las ecuaciones mas profundas de la fisica:
+            </p>
+            <div class="equation">
+                S = k_B * ln(Omega)<br><br>
+                donde:<br>
+                S = entropia del sistema<br>
+                k_B = 1.38 × 10^-23 J/K (constante de Boltzmann)<br>
+                Omega = numero de microestados
+            </div>
+            <p>
+                Esta formula esta grabada en la tumba de Boltzmann en Viena. Conecta la
+                mecanica estadistica con la termodinamica clasica.
+            </p>
+        </div>
+
+        <h3>La Segunda Ley de la Termodinamica</h3>
+
+        <p>
+            En un sistema aislado, la entropia <strong>nunca disminuye</strong>. Solo puede
+            aumentar o, en el equilibrio, permanecer constante:
+        </p>
+
+        <div class="equation">
+            Delta S >= 0 (sistema aislado)
+        </div>
+
+        <p>
+            Esta ley explica por que:
+        </p>
+        <ul style="margin-left: 24px; color: #94a3b8;">
+            <li>El cafe caliente se enfria, pero nunca se calienta espontaneamente</li>
+            <li>Los gases se expanden para llenar su contenedor, pero nunca se comprimen solos</li>
+            <li>Los huevos rotos no se recomponen</li>
+            <li>El tiempo fluye hacia adelante, no hacia atras</li>
+        </ul>
+
+        <div class="analogy">
+            <h4>Analogia: El Cuarto Desordenado</h4>
+            <p>
+                Imagina tu habitacion. Hay UNA forma de tenerla "perfectamente ordenada"
+                (cada objeto en su lugar exacto). Pero hay MILLONES de formas de tenerla
+                "desordenada". Si mueves objetos al azar, es muchisimo mas probable llegar
+                a un estado desordenado que a uno ordenado. La entropia mide precisamente
+                esta diferencia en probabilidades.
+            </p>
+        </div>
+
+        <h2>Experimentos Guiados</h2>
+
+        <div class="experiment">
+            <span class="experiment-number">1</span>
+            <h4>Expansion Libre</h4>
+            <p>
+                Comienza con el escenario "Expansion Libre". Todas las particulas estan
+                confinadas en la mitad izquierda.
+            </p>
+            <ul>
+                <li>Presiona "Iniciar" para abrir la barrera</li>
+                <li>Observa como las particulas se expanden naturalmente</li>
+                <li>Mira el grafico S(t): la entropia aumenta rapidamente al principio</li>
+                <li>Eventualmente alcanza un plateau - el equilibrio</li>
+                <li>En equilibrio, aprox. 50% de particulas a cada lado</li>
+                <li>pregunta: ¿Alguna vez vuelven todas a la izquierda?</li>
+            </ul>
+        </div>
+
+        <div class="experiment">
+            <span class="experiment-number">2</span>
+            <h4>Mezcla de Gases</h4>
+            <p>
+                Selecciona "Mezcla de Gases". Particulas rojas a la izquierda,
+                azules a la derecha.
+            </p>
+            <ul>
+                <li>Inicia la simulacion y observa la mezcla</li>
+                <li>El sistema evoluciona hacia una mezcla homogenea</li>
+                <li>Nunca veras que se "desmezlen" espontaneamente</li>
+                <li>La entropia de mezcla es: Delta S = k_B * ln(Omega_mezcla/Omega_separado)</li>
+                <li>Este proceso es irreversible en la practica</li>
+            </ul>
+        </div>
+
+        <div class="experiment">
+            <span class="experiment-number">3</span>
+            <h4>Equilibrio Termico</h4>
+            <p>
+                En "Equilibrio Termico", particulas calientes (rapidas) a la izquierda
+                y frias (lentas) a la derecha.
+            </p>
+            <ul>
+                <li>Observa las temperaturas de cada lado</li>
+                <li>El calor fluye de caliente a frio (nunca al reves)</li>
+                <li>Eventualmente ambos lados tienen la misma temperatura</li>
+                <li>El histograma muestra la distribucion Maxwell-Boltzmann</li>
+                <li>La curva amarilla es la prediccion teorica</li>
+            </ul>
+        </div>
+
+        <div class="experiment">
+            <span class="experiment-number">4</span>
+            <h4>El Demonio de Maxwell</h4>
+            <p>
+                El escenario "Demonio de Maxwell" ilustra un famoso experimento mental
+                de 1867.
+            </p>
+            <ul>
+                <li>El "demonio" (circulo morado) controla una compuerta</li>
+                <li>Solo deja pasar particulas rapidas hacia un lado</li>
+                <li>¿Viola esto la Segunda Ley?</li>
+                <li>Resolucion: El demonio necesita informacion, y borrarla genera entropia</li>
+                <li>Principio de Landauer: borrar 1 bit genera al menos k_B*ln(2)*T de calor</li>
+            </ul>
+        </div>
+
+        <div class="experiment">
+            <span class="experiment-number">5</span>
+            <h4>Distribucion de Velocidades</h4>
+            <p>
+                Observa el histograma de velocidades en cualquier escenario.
+            </p>
+            <ul>
+                <li>Las barras muestran cuantas particulas tienen cada velocidad</li>
+                <li>La curva amarilla es la distribucion Maxwell-Boltzmann teorica</li>
+                <li>Aumenta la temperatura: la distribucion se ensancha</li>
+                <li>El pico se desplaza a velocidades mayores</li>
+                <li>Esta es la razon molecular del concepto de "temperatura"</li>
+            </ul>
+        </div>
+
+        <h2>Conexiones Interdisciplinarias</h2>
+
+        <div class="connection">
+            <span class="connection-icon">🖥️</span>
+            <div>
+                <h4>Informatica: Teoria de la Informacion</h4>
+                <p>
+                    Claude Shannon definio la entropia de informacion usando la misma
+                    formula que Boltzmann. La entropia mide la incertidumbre o el
+                    contenido de informacion de un mensaje.
+                </p>
+            </div>
+        </div>
+
+        <div class="connection">
+            <span class="connection-icon">🧬</span>
+            <div>
+                <h4>Biologia: Vida y Entropia</h4>
+                <p>
+                    Los seres vivos mantienen baja entropia interna exportando entropia
+                    al ambiente. Schrodinger lo llamo "entropia negativa". La vida es
+                    un sistema que lucha localmente contra la Segunda Ley.
+                </p>
+            </div>
+        </div>
+
+        <div class="connection">
+            <span class="connection-icon">🌌</span>
+            <div>
+                <h4>Cosmologia: Muerte Termica del Universo</h4>
+                <p>
+                    Si el universo es un sistema aislado, su entropia siempre aumenta.
+                    Eventualmente alcanzara el equilibrio termico maximo: la "muerte termica",
+                    un estado sin estructura ni energia utilizable.
+                </p>
+            </div>
+        </div>
+
+        <div class="connection">
+            <span class="connection-icon">⏰</span>
+            <div>
+                <h4>Filosofia: La Flecha del Tiempo</h4>
+                <p>
+                    La Segunda Ley es la unica ley fundamental que distingue pasado de futuro.
+                    Todas las demas ecuaciones de la fisica son simetricas en el tiempo.
+                    La entropia define la direccion del tiempo.
+                </p>
+            </div>
+        </div>
+
+        <div class="connection">
+            <span class="connection-icon">🔥</span>
+            <div>
+                <h4>Ingenieria: Eficiencia de Maquinas</h4>
+                <p>
+                    Ningun motor termico puede ser 100% eficiente. El limite de Carnot
+                    eta = 1 - T_frio/T_caliente viene directamente de la Segunda Ley.
+                    La entropia es el enemigo de la eficiencia.
+                </p>
+            </div>
+        </div>
+
+        <h2>Historia</h2>
+
+        <div class="history-box">
+            <h4>El Legado Tragico de Boltzmann</h4>
+            <p>
+                Ludwig Boltzmann (1844-1906) desarrollo la mecanica estadistica y la
+                interpretacion molecular de la entropia. Sin embargo, en su epoca muchos
+                fisicos rechazaban la existencia de los atomos. Ernst Mach y otros
+                positivistas atacaron duramente su trabajo. Deprimido y sintiendose
+                incomprendido, Boltzmann se suicido en 1906. Ironicamente, solo unos
+                anos despues Einstein demostro la existencia de los atomos mediante
+                el movimiento Browniano, vindicando completamente las ideas de Boltzmann.
+            </p>
+        </div>
+
+        <h2>Limitaciones del Modelo</h2>
+
+        <div class="warning">
+            <h4>⚠ Numero Limitado de Particulas</h4>
+            <p>
+                Con 100-300 particulas, las fluctuaciones son significativas. En un gas
+                real (10^23 moleculas), las fluctuaciones son imperceptibles y la
+                Segunda Ley es efectivamente absoluta.
+            </p>
+        </div>
+
+        <div class="warning">
+            <h4>⚠ Colisiones Simplificadas</h4>
+            <p>
+                Las colisiones en la simulacion son elasticas e ideales. Las moleculas
+                reales tienen fuerzas de interaccion mas complejas (van der Waals,
+                enlaces de hidrogeno, etc.).
+            </p>
+        </div>
+
+        <div class="warning">
+            <h4>⚠ 2D vs 3D</h4>
+            <p>
+                La simulacion es 2D, pero la distribucion de Maxwell-Boltzmann mostrada
+                es la correcta para 2D. En 3D la formula es ligeramente diferente.
+            </p>
+        </div>
+
+        <div class="reflection">
+            <h3>Para Reflexionar</h3>
+            <p>
+                "Si las leyes de la fisica son reversibles en el tiempo,
+                ¿de donde surge la irreversibilidad que observamos en la vida cotidiana?
+                ¿Es la Segunda Ley fundamental o emergente?"
+            </p>
+        </div>
+
+        <a href="../entropia.html" class="back-btn">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            Volver a la simulacion
+        </a>
+    </div>
+</body>
+</html>

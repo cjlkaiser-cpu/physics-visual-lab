@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guía: Circuitos RLC - Physics Visual Lab</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: linear-gradient(135deg, #030712 0%, #0f172a 100%);
+            min-height: 100vh;
+            color: #e2e8f0;
+            line-height: 1.7;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 24px;
+        }
+        .breadcrumb {
+            font-size: 0.8rem;
+            color: #64748b;
+            margin-bottom: 24px;
+        }
+        .breadcrumb a {
+            color: #22c55e;
+            text-decoration: none;
+        }
+        .breadcrumb a:hover { text-decoration: underline; }
+        .hero {
+            text-align: center;
+            margin-bottom: 48px;
+            padding: 48px 24px;
+            background: rgba(34, 197, 94, 0.05);
+            border-radius: 20px;
+            border: 1px solid rgba(34, 197, 94, 0.15);
+        }
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 300;
+            margin-bottom: 16px;
+            letter-spacing: -1px;
+        }
+        h1 span { color: #22c55e; font-weight: 600; }
+        .hero-subtitle {
+            font-size: 1.1rem;
+            color: #94a3b8;
+            max-width: 600px;
+            margin: 0 auto 24px;
+        }
+        .equation-hero {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.4rem;
+            color: #22c55e;
+            padding: 20px 32px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 12px;
+            display: inline-block;
+        }
+        h2 {
+            font-size: 1.5rem;
+            font-weight: 500;
+            margin: 48px 0 20px;
+            color: #f1f5f9;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        h2::before {
+            content: '';
+            width: 4px;
+            height: 28px;
+            background: #22c55e;
+            border-radius: 2px;
+        }
+        h3 {
+            font-size: 1.15rem;
+            font-weight: 500;
+            margin: 32px 0 16px;
+            color: #e2e8f0;
+        }
+        p {
+            margin-bottom: 16px;
+            color: #cbd5e1;
+        }
+        .concept-box {
+            background: rgba(34, 197, 94, 0.08);
+            border: 1px solid rgba(34, 197, 94, 0.2);
+            border-radius: 12px;
+            padding: 24px;
+            margin: 24px 0;
+        }
+        .concept-box h4 {
+            color: #22c55e;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+        }
+        .equation {
+            font-family: 'JetBrains Mono', monospace;
+            background: rgba(0,0,0,0.3);
+            padding: 16px 24px;
+            border-radius: 8px;
+            margin: 16px 0;
+            color: #22c55e;
+            font-size: 0.95rem;
+            overflow-x: auto;
+        }
+        .experiment {
+            background: #0f172a;
+            border: 1px solid #1e293b;
+            border-radius: 12px;
+            padding: 24px;
+            margin: 24px 0;
+        }
+        .experiment-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            background: #22c55e;
+            color: #000;
+            font-weight: 700;
+            border-radius: 8px;
+            margin-right: 12px;
+        }
+        .experiment h4 {
+            display: inline;
+            font-size: 1.1rem;
+            color: #f1f5f9;
+        }
+        .experiment p {
+            margin-top: 16px;
+            padding-left: 44px;
+        }
+        .experiment ul {
+            margin: 12px 0 0 44px;
+            padding-left: 20px;
+        }
+        .experiment li {
+            color: #94a3b8;
+            margin-bottom: 8px;
+        }
+        .component-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+            margin: 24px 0;
+        }
+        .component-card {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid #1e293b;
+            border-radius: 12px;
+            padding: 20px;
+        }
+        .component-card h4 {
+            color: #f1f5f9;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .component-card .symbol {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+        .component-card.resistor .symbol {
+            background: rgba(34, 197, 94, 0.2);
+            color: #22c55e;
+        }
+        .component-card.inductor .symbol {
+            background: rgba(168, 85, 247, 0.2);
+            color: #a855f7;
+        }
+        .component-card.capacitor .symbol {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+        .component-card p {
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+        }
+        .component-card .equation {
+            margin: 8px 0 0;
+            padding: 10px 14px;
+            font-size: 0.85rem;
+        }
+        .connection {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            padding: 20px;
+            background: rgba(255,255,255,0.02);
+            border-radius: 12px;
+            margin: 16px 0;
+            border-left: 3px solid #22c55e;
+        }
+        .connection-icon {
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+        .connection h4 {
+            color: #f1f5f9;
+            margin-bottom: 4px;
+        }
+        .connection p {
+            font-size: 0.9rem;
+            margin: 0;
+        }
+        .warning {
+            background: rgba(251, 191, 36, 0.1);
+            border: 1px solid rgba(251, 191, 36, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 24px 0;
+        }
+        .warning h4 {
+            color: #fbbf24;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .warning p {
+            font-size: 0.9rem;
+        }
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #22c55e;
+            text-decoration: none;
+            padding: 12px 20px;
+            background: rgba(34, 197, 94, 0.1);
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.2s;
+            margin-top: 48px;
+        }
+        .back-btn:hover {
+            background: rgba(34, 197, 94, 0.2);
+        }
+        .highlight {
+            color: #22c55e;
+            font-weight: 500;
+        }
+        .table-wrapper {
+            overflow-x: auto;
+            margin: 24px 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+        th, td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid #1e293b;
+        }
+        th {
+            background: rgba(34, 197, 94, 0.1);
+            color: #22c55e;
+            font-weight: 500;
+        }
+        td {
+            color: #cbd5e1;
+        }
+        .reflection {
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(96, 165, 250, 0.1));
+            border-radius: 16px;
+            padding: 32px;
+            margin: 48px 0;
+            text-align: center;
+        }
+        .reflection h3 {
+            margin-top: 0;
+            font-size: 1.3rem;
+        }
+        .reflection p {
+            font-size: 1.05rem;
+            font-style: italic;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <nav class="breadcrumb">
+            <a href="../index.html">Physics Visual Lab</a> /
+            <a href="../circuitos.html">Circuitos RLC</a> /
+            Guia
+        </nav>
+
+        <div class="hero">
+            <h1>Circuitos <span>RLC</span></h1>
+            <p class="hero-subtitle">
+                Resistencias, inductores y capacitores: los tres elementos pasivos fundamentales
+                que gobiernan el flujo de corriente alterna en circuitos electricos.
+            </p>
+            <div class="equation-hero">
+                Z = sqrt(R^2 + (X_L - X_C)^2)
+            </div>
+        </div>
+
+        <h2>Fundamentos Teoricos</h2>
+
+        <p>
+            Un circuito RLC contiene tres tipos de componentes pasivos: resistencias (R),
+            inductores (L) y capacitores (C). Cada uno responde de manera diferente a la
+            corriente electrica, creando un comportamiento rico y complejo cuando trabajan
+            juntos.
+        </p>
+
+        <div class="concept-box">
+            <h4>Concepto Clave: Impedancia</h4>
+            <p>
+                En corriente alterna, la "resistencia" generalizada se llama <span class="highlight">impedancia (Z)</span>.
+                No es simplemente la suma de resistencias, sino que combina los efectos de R, L y C
+                considerando sus diferentes respuestas en frecuencia y fase.
+            </p>
+            <div class="equation">
+                Z = sqrt(R^2 + (omega*L - 1/(omega*C))^2)<br>
+                donde omega = 2*pi*f
+            </div>
+        </div>
+
+        <h3>Los Tres Componentes</h3>
+
+        <div class="component-grid">
+            <div class="component-card resistor">
+                <h4><span class="symbol">R</span> Resistencia</h4>
+                <p>Disipa energia en forma de calor. La corriente y el voltaje estan <strong>en fase</strong>.</p>
+                <div class="equation">V_R = I * R</div>
+            </div>
+
+            <div class="component-card inductor">
+                <h4><span class="symbol">L</span> Inductor</h4>
+                <p>Almacena energia en campo magnetico. El voltaje <strong>adelanta</strong> 90 a la corriente.</p>
+                <div class="equation">V_L = L * dI/dt<br>X_L = omega * L</div>
+            </div>
+
+            <div class="component-card capacitor">
+                <h4><span class="symbol">C</span> Capacitor</h4>
+                <p>Almacena energia en campo electrico. La corriente <strong>adelanta</strong> 90 al voltaje.</p>
+                <div class="equation">I_C = C * dV/dt<br>X_C = 1/(omega * C)</div>
+            </div>
+        </div>
+
+        <h2>Experimentos Guiados</h2>
+
+        <div class="experiment">
+            <span class="experiment-number">1</span>
+            <h4>Ley de Ohm en Accion</h4>
+            <p>
+                Selecciona el circuito tipo <strong>R</strong> (solo resistencia).
+                Observa como la corriente es directamente proporcional al voltaje.
+            </p>
+            <ul>
+                <li>Aumenta la resistencia: la corriente disminuye</li>
+                <li>Aumenta el voltaje: la corriente aumenta proporcionalmente</li>
+                <li>En el diagrama de fasores, V e I apuntan en la misma direccion</li>
+                <li>Calcula: si V=12V y R=100ohm, I deberia ser 120mA</li>
+            </ul>
+        </div>
+
+        <div class="experiment">
+            <span class="experiment-number">2</span>
+            <h4>Inductores: Oposicion al Cambio</h4>
+            <p>
+                Cambia al circuito <strong>RL</strong>. El inductor se opone a los cambios
+                de corriente, causando un desfase.
+            </p>
+            <ul>
+                <li>Aumenta la frecuencia: la reactancia inductiva X_L aumenta</li>
+                <li>El voltaje adelanta a la corriente (fase positiva)</li>
+                <li>A frecuencias muy altas, el inductor actua casi como circuito abierto</li>
+                <li>A frecuencia cero (DC), el inductor es un cortocircuito</li>
+            </ul>
+        </div>
+
+        <div class="experiment">
+            <span class="experiment-number">3</span>
+            <h4>Capacitores: Almacenando Carga</h4>
+            <p>
+                Selecciona el circuito <strong>RC</strong>. El capacitor almacena energia
+                en su campo electrico.
+            </p>
+            <ul>
+                <li>Aumenta la frecuencia: la reactancia capacitiva X_C disminuye</li>
+                <li>La corriente adelanta al voltaje (fase negativa)</li>
+                <li>A frecuencias muy altas, el capacitor es casi un cortocircuito</li>
+                <li>A frecuencia cero (DC), el capacitor es circuito abierto</li>
+            </ul>
+        </div>
+
+        <div class="experiment">
+            <span class="experiment-number">4</span>
+            <h4>Resonancia RLC</h4>
+            <p>
+                Con el circuito <strong>RLC</strong>, ajusta la frecuencia hasta que
+                X_L = X_C. Este es el punto de resonancia.
+            </p>
+            <ul>
+                <li>En resonancia: Z = R (minimo), I = maximo</li>
+                <li>La frecuencia de resonancia: f_0 = 1/(2*pi*sqrt(L*C))</li>
+                <li>Los efectos de L y C se cancelan mutuamente</li>
+                <li>La simulacion mostrara el indicador de RESONANCIA</li>
+                <li>Intenta: L=50mH, C=10uF -> f_0 ≈ 225 Hz</li>
+            </ul>
+        </div>
+
+        <div class="experiment">
+            <span class="experiment-number">5</span>
+            <h4>Diagrama de Fasores</h4>
+            <p>
+                Observa como los fasores rotan en el panel inferior derecho.
+                La relacion angular entre V e I representa el desfase.
+            </p>
+            <ul>
+                <li>V_R siempre esta en fase con I (mismo angulo)</li>
+                <li>V_L adelanta 90 grados a V_R</li>
+                <li>V_C atrasa 90 grados a V_R</li>
+                <li>El triangulo de impedancia muestra R, X y Z</li>
+            </ul>
+        </div>
+
+        <div class="experiment">
+            <span class="experiment-number">6</span>
+            <h4>DC vs AC</h4>
+            <p>
+                Cambia entre fuente DC y AC para ver las diferencias fundamentales.
+            </p>
+            <ul>
+                <li>En DC: los capacitores bloquean, los inductores son cortocircuitos</li>
+                <li>En AC: ambos tienen reactancia que depende de la frecuencia</li>
+                <li>En DC no hay fase ni fasores rotantes</li>
+                <li>Los circuitos filtro solo funcionan en AC</li>
+            </ul>
+        </div>
+
+        <h2>Conexiones Interdisciplinarias</h2>
+
+        <div class="connection">
+            <span class="connection-icon">📻</span>
+            <div>
+                <h4>Comunicaciones: Sintonizacion de Radio</h4>
+                <p>
+                    Los circuitos RLC en resonancia seleccionan una frecuencia especifica.
+                    Tu radio AM/FM usa exactamente este principio para sintonizar estaciones.
+                </p>
+            </div>
+        </div>
+
+        <div class="connection">
+            <span class="connection-icon">🔊</span>
+            <div>
+                <h4>Audio: Filtros Crossover</h4>
+                <p>
+                    Los altavoces usan filtros RLC para separar frecuencias: graves al woofer,
+                    agudos al tweeter. Son circuitos pasa-bajos y pasa-altos.
+                </p>
+            </div>
+        </div>
+
+        <div class="connection">
+            <span class="connection-icon">⚡</span>
+            <div>
+                <h4>Energia: Correccion del Factor de Potencia</h4>
+                <p>
+                    Las industrias usan bancos de capacitores para compensar inductancias
+                    de motores, acercando el factor de potencia a 1 y ahorrando energia.
+                </p>
+            </div>
+        </div>
+
+        <div class="connection">
+            <span class="connection-icon">🏥</span>
+            <div>
+                <h4>Medicina: Desfibriladores</h4>
+                <p>
+                    Un desfibrilador es un circuito RC: el capacitor se carga lentamente
+                    y descarga rapidamente a traves del paciente para reiniciar el corazon.
+                </p>
+            </div>
+        </div>
+
+        <div class="connection">
+            <span class="connection-icon">🎸</span>
+            <div>
+                <h4>Musica: Controles de Tono</h4>
+                <p>
+                    Los controles de graves y agudos en amplificadores son filtros RC
+                    que ajustan cuanta senal de baja o alta frecuencia pasa.
+                </p>
+            </div>
+        </div>
+
+        <h2>Tabla de Referencia</h2>
+
+        <div class="table-wrapper">
+            <table>
+                <tr>
+                    <th>Componente</th>
+                    <th>Reactancia</th>
+                    <th>Fase V-I</th>
+                    <th>Comportamiento DC</th>
+                    <th>Alta frecuencia</th>
+                </tr>
+                <tr>
+                    <td>Resistor</td>
+                    <td>R (constante)</td>
+                    <td>0 (en fase)</td>
+                    <td>Conduce</td>
+                    <td>Conduce</td>
+                </tr>
+                <tr>
+                    <td>Inductor</td>
+                    <td>X_L = omega*L</td>
+                    <td>+90 (V adelanta)</td>
+                    <td>Cortocircuito</td>
+                    <td>Circuito abierto</td>
+                </tr>
+                <tr>
+                    <td>Capacitor</td>
+                    <td>X_C = 1/(omega*C)</td>
+                    <td>-90 (I adelanta)</td>
+                    <td>Circuito abierto</td>
+                    <td>Cortocircuito</td>
+                </tr>
+            </table>
+        </div>
+
+        <h2>Limitaciones del Modelo</h2>
+
+        <div class="warning">
+            <h4>⚠ Componentes Ideales</h4>
+            <p>
+                La simulacion asume componentes ideales. En la realidad, las resistencias
+                tienen inductancia parasita, los inductores tienen resistencia del alambre,
+                y los capacitores tienen resistencia serie equivalente (ESR).
+            </p>
+        </div>
+
+        <div class="warning">
+            <h4>⚠ Efectos No Lineales</h4>
+            <p>
+                A corrientes altas, el nucleo de un inductor puede saturarse. Los capacitores
+                electroliticos tienen polaridad. Estos efectos no lineales no se modelan aqui.
+            </p>
+        </div>
+
+        <div class="warning">
+            <h4>⚠ Radiacion EM</h4>
+            <p>
+                A frecuencias muy altas (MHz+), los circuitos empiezan a radiar energia
+                como antenas. Este modelo de elementos concentrados ya no aplica.
+            </p>
+        </div>
+
+        <div class="reflection">
+            <h3>Para Reflexionar</h3>
+            <p>
+                "En un circuito RLC resonante, los voltajes en L y C pueden ser individualmente
+                mayores que el voltaje de la fuente. ¿Como es esto posible sin violar
+                la conservacion de energia?"
+            </p>
+        </div>
+
+        <a href="../circuitos.html" class="back-btn">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            Volver a la simulacion
+        </a>
+    </div>
+</body>
+</html>

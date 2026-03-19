@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Difusión del Calor - Motor WASM | EigenLab</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #030712;
+            --bg-secondary: #0f172a;
+            --bg-tertiary: #1e293b;
+            --accent: #06b6d4;
+            --accent-dim: rgba(6, 182, 212, 0.2);
+            --accent-hot: #ef4444;
+            --accent-cold: #3b82f6;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --border: #334155;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.5;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border);
+            background: var(--bg-secondary);
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.875rem;
+        }
+
+        .breadcrumb a {
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .breadcrumb a:hover { color: var(--accent); }
+        .breadcrumb span { color: var(--text-muted); }
+        .breadcrumb .current { color: var(--text-primary); font-weight: 500; }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            background: var(--accent-dim);
+            border: 1px solid var(--accent);
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--accent);
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 0;
+            height: calc(100vh - 65px);
+        }
+
+        @media (max-width: 1024px) {
+            .container {
+                grid-template-columns: 1fr;
+                height: auto;
+            }
+        }
+
+        .canvas-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            background: var(--bg-primary);
+            position: relative;
+        }
+
+        #canvas {
+            background: #000;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            cursor: crosshair;
+        }
+
+        .colorbar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .colorbar-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .colorbar-gradient {
+            width: 200px;
+            height: 12px;
+            background: linear-gradient(90deg, #0000ff, #00ffff, #00ff00, #ffff00, #ff0000);
+            border-radius: 4px;
+        }
+
+        .colorbar-scale {
+            display: flex;
+            justify-content: space-between;
+            width: 200px;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .perf-indicator {
+            position: absolute;
+            top: 36px;
+            left: 36px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-family: monospace;
+            color: var(--text-secondary);
+        }
+
+        .sidebar {
+            background: var(--bg-secondary);
+            border-left: 1px solid var(--border);
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .sidebar-header h1 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .sidebar-header p {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+
+        .controls-section {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .section-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 16px;
+        }
+
+        .mode-toggle {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .mode-btn {
+            flex: 1;
+            padding: 10px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .mode-btn.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #000;
+        }
+
+        .slider-group {
+            margin-bottom: 16px;
+        }
+
+        .slider-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .slider-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .slider-value {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--accent);
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            background: var(--bg-tertiary);
+            border-radius: 3px;
+            -webkit-appearance: none;
+            cursor: pointer;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            background: var(--accent);
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .source-buttons {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .source-btn {
+            flex: 1;
+            padding: 10px 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .source-btn.hot {
+            background: var(--accent-hot);
+            color: white;
+        }
+
+        .source-btn.cold {
+            background: var(--accent-cold);
+            color: white;
+        }
+
+        .source-btn.clear {
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+        }
+
+        .source-btn.active {
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3);
+            transform: scale(1.02);
+        }
+
+        .button-row {
+            display: flex;
+            gap: 8px;
+        }
+
+        button {
+            flex: 1;
+            padding: 12px 16px;
+            border: none;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: #22c55e;
+            color: #000;
+        }
+
+        .btn-secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-warning {
+            background: #f59e0b;
+            color: #000;
+        }
+
+        .btn-danger {
+            background: var(--accent-hot);
+            color: white;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .stat-card {
+            background: var(--bg-tertiary);
+            border-radius: 10px;
+            padding: 14px;
+            border: 1px solid var(--border);
+        }
+
+        .stat-label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+        }
+
+        .stat-value {
+            font-size: 1.1rem;
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .stat-value.cyan { color: var(--accent); }
+        .stat-value.red { color: var(--accent-hot); }
+        .stat-value.blue { color: var(--accent-cold); }
+        .stat-value.green { color: #22c55e; }
+
+        .equations-box {
+            background: var(--accent-dim);
+            border: 1px solid var(--accent);
+            border-radius: 10px;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .equation-main {
+            font-family: 'Times New Roman', serif;
+            font-size: 1.4rem;
+            color: var(--accent);
+            margin-bottom: 4px;
+        }
+
+        .equation-desc {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .instructions {
+            background: rgba(6, 182, 212, 0.1);
+            border: 1px solid rgba(6, 182, 212, 0.3);
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 0.75rem;
+            color: var(--accent);
+            line-height: 1.6;
+        }
+
+        .checkbox-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .checkbox-row input {
+            width: 16px;
+            height: 16px;
+            accent-color: var(--accent);
+        }
+
+        .checkbox-row label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--bg-primary);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            transition: opacity 0.3s;
+        }
+
+        .loading-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loading-spinner {
+            width: 48px;
+            height: 48px;
+            border: 3px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            margin-top: 16px;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Cargando motor WASM...</div>
+    </div>
+
+    <header>
+        <nav class="breadcrumb">
+            <a href="https://cjlkaiser-cpu.github.io/eigenlab/_portal/index.html">EigenLab</a>
+            <span>/</span>
+            <a href="index.html">Physics Visual Lab</a>
+            <span>/</span>
+            <span class="current">Difusión del Calor</span>
+        </nav>
+        <div class="badge">WASM Engine</div>
+    </header>
+
+    <div class="container">
+        <section class="canvas-section">
+            <canvas id="canvas" width="500" height="500"></canvas>
+            <div class="perf-indicator" id="perfIndicator">-- FPS | Grid 200×200</div>
+
+            <div class="colorbar">
+                <span class="colorbar-label" style="color: var(--accent-cold);">Frío</span>
+                <div>
+                    <div class="colorbar-gradient"></div>
+                    <div class="colorbar-scale">
+                        <span id="minTempLabel">0°C</span>
+                        <span id="maxTempLabel">100°C</span>
+                    </div>
+                </div>
+                <span class="colorbar-label" style="color: var(--accent-hot);">Caliente</span>
+            </div>
+        </section>
+
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1>Difusión del Calor</h1>
+                <p>Ecuación del calor en 2D</p>
+            </div>
+
+            <div class="controls-section">
+                <div class="section-title">Modo de transferencia</div>
+                <div class="mode-toggle">
+                    <button class="mode-btn active" id="modeConduction">Conducción</button>
+                    <button class="mode-btn" id="modeConvection">Convección</button>
+                </div>
+
+                <div class="slider-group">
+                    <div class="slider-header">
+                        <span class="slider-label">Difusividad térmica (α)</span>
+                        <span class="slider-value" id="alphaValue">0.25</span>
+                    </div>
+                    <input type="range" id="alphaSlider" min="0.05" max="0.5" step="0.01" value="0.25">
+                </div>
+
+                <div class="slider-group" id="convectionControl" style="display: none;">
+                    <div class="slider-header">
+                        <span class="slider-label">Intensidad convección</span>
+                        <span class="slider-value" id="convectionValue">1.0</span>
+                    </div>
+                    <input type="range" id="convectionSlider" min="0.1" max="3.0" step="0.1" value="1.0">
+                </div>
+
+                <div class="slider-group">
+                    <div class="slider-header">
+                        <span class="slider-label">Temperatura ambiente</span>
+                        <span class="slider-value" id="ambientValue">20°C</span>
+                    </div>
+                    <input type="range" id="ambientSlider" min="0" max="40" step="1" value="20">
+                </div>
+
+                <div class="slider-group">
+                    <div class="slider-header">
+                        <span class="slider-label">Temp. radiador</span>
+                        <span class="slider-value" id="hotValue">80°C</span>
+                    </div>
+                    <input type="range" id="hotSlider" min="40" max="100" step="1" value="80">
+                </div>
+
+                <div class="slider-group">
+                    <div class="slider-header">
+                        <span class="slider-label">Temp. ventana fría</span>
+                        <span class="slider-value" id="coldValue">5°C</span>
+                    </div>
+                    <input type="range" id="coldSlider" min="-10" max="20" step="1" value="5">
+                </div>
+
+                <div class="slider-group">
+                    <div class="slider-header">
+                        <span class="slider-label">Resolución grid</span>
+                        <span class="slider-value" id="resValue">200</span>
+                    </div>
+                    <input type="range" id="resSlider" min="50" max="400" step="50" value="200">
+                </div>
+
+                <div class="slider-group">
+                    <div class="slider-header">
+                        <span class="slider-label">Velocidad simulación</span>
+                        <span class="slider-value" id="speedValue">10</span>
+                    </div>
+                    <input type="range" id="speedSlider" min="1" max="50" step="1" value="10">
+                </div>
+
+                <div class="checkbox-row">
+                    <input type="checkbox" id="showFlow">
+                    <label for="showFlow">Mostrar flujo de calor</label>
+                </div>
+            </div>
+
+            <div class="controls-section">
+                <div class="section-title">Fuentes de calor</div>
+                <div class="source-buttons">
+                    <button class="source-btn hot" id="addHot">🔥 Radiador</button>
+                    <button class="source-btn cold" id="addCold">❄️ Ventana</button>
+                    <button class="source-btn clear" id="clearSources">Limpiar</button>
+                </div>
+
+                <div class="button-row">
+                    <button class="btn-primary" id="playBtn">▶ Play</button>
+                    <button class="btn-warning" id="pauseBtn">⏸ Pausa</button>
+                    <button class="btn-danger" id="resetBtn">↺ Reset</button>
+                </div>
+            </div>
+
+            <div class="controls-section">
+                <div class="section-title">Mediciones</div>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">Tiempo</div>
+                        <div class="stat-value cyan" id="timeVal">0.0 s</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">T media</div>
+                        <div class="stat-value green" id="avgTempVal">20.0°C</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">T máxima</div>
+                        <div class="stat-value red" id="maxTempVal">20.0°C</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">T mínima</div>
+                        <div class="stat-value blue" id="minTempVal">20.0°C</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="controls-section">
+                <div class="section-title">Ecuación</div>
+                <div class="equations-box">
+                    <div class="equation-main" id="equationDisplay">∂T/∂t = α∇²T</div>
+                    <div class="equation-desc" id="equationDesc">Ecuación del calor (2D)</div>
+                </div>
+            </div>
+
+            <div class="controls-section" style="border-bottom: none;">
+                <div class="instructions">
+                    <strong>Instrucciones:</strong><br>
+                    1. Selecciona "Radiador" o "Ventana"<br>
+                    2. Haz clic en el canvas para colocar<br>
+                    3. Presiona Play y observa la difusión<br>
+                    4. Las paredes son adiabáticas (∂T/∂n = 0)
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <script src="../../_wasm/eigenlab-core.js"></script>
+    <script>
+        // ============================================================
+        // Heat Diffusion Simulation - WASM Powered
+        // ============================================================
+
+        let EigenLab = null;
+        let heatSolver = null;
+        let running = false;
+        let lastTime = 0;
+        let frameCount = 0;
+        let fps = 0;
+        let lastFpsUpdate = 0;
+        let addMode = null;  // 'hot' or 'cold'
+
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        // Parameters
+        let params = {
+            resolution: 200,
+            thermalDiffusivity: 0.25,
+            ambientTemp: 20,
+            hotTemp: 80,
+            coldTemp: 5,
+            convectionStrength: 1.0,
+            speed: 10,
+            mode: 'conduction'  // or 'convection'
+        };
+
+        let showFlow = false;
+        let sources = [];  // Track sources for UI
+
+        // Image data for fast rendering
+        let imageData = null;
+
+        // ============================================================
+        // Initialize WASM Module
+        // ============================================================
+
+        async function init() {
+            try {
+                EigenLab = await EigenLabCore();
+                console.log('EigenLab WASM loaded successfully');
+
+                createHeatSolver();
+                document.getElementById('loadingOverlay').classList.add('hidden');
+                setupControls();
+                draw();
+
+            } catch (error) {
+                console.error('Failed to load WASM:', error);
+                document.querySelector('.loading-text').textContent =
+                    'Error cargando WASM. Verifica la consola.';
+            }
+        }
+
+        function createHeatSolver() {
+            const config = {
+                width: canvas.width,
+                height: canvas.height,
+                resolutionX: params.resolution,
+                resolutionY: params.resolution,
+                thermalDiffusivity: params.thermalDiffusivity,
+                ambientTemperature: params.ambientTemp,
+                convectionStrength: params.convectionStrength,
+                buoyancyFactor: 0.05
+            };
+
+            heatSolver = new EigenLab.HeatDiffusion(config);
+            heatSolver.setMode(
+                params.mode === 'conduction'
+                    ? EigenLab.HeatDiffusionMode.Conduction
+                    : EigenLab.HeatDiffusionMode.Convection
+            );
+
+            // Re-add sources
+            sources.forEach(src => {
+                heatSolver.addSource({
+                    position: { x: src.x, y: src.y },
+                    radius: src.radius,
+                    temperature: src.type === 'hot' ? params.hotTemp : params.coldTemp,
+                    isActive: true
+                });
+            });
+
+            // Create ImageData for fast rendering
+            imageData = ctx.createImageData(params.resolution, params.resolution);
+
+            updatePerfIndicator();
+        }
+
+        // ============================================================
+        // Controls
+        // ============================================================
+
+        function setupControls() {
+            // Mode toggle
+            document.getElementById('modeConduction').addEventListener('click', () => {
+                params.mode = 'conduction';
+                document.getElementById('modeConduction').classList.add('active');
+                document.getElementById('modeConvection').classList.remove('active');
+                document.getElementById('convectionControl').style.display = 'none';
+                document.getElementById('equationDisplay').textContent = '∂T/∂t = α∇²T';
+                document.getElementById('equationDesc').textContent = 'Ecuación del calor (2D)';
+                if (heatSolver) {
+                    heatSolver.setMode(EigenLab.HeatDiffusionMode.Conduction);
+                }
+            });
+
+            document.getElementById('modeConvection').addEventListener('click', () => {
+                params.mode = 'convection';
+                document.getElementById('modeConvection').classList.add('active');
+                document.getElementById('modeConduction').classList.remove('active');
+                document.getElementById('convectionControl').style.display = 'block';
+                document.getElementById('equationDisplay').textContent = '∂T/∂t + v·∇T = α∇²T';
+                document.getElementById('equationDesc').textContent = 'Convección-Difusión (2D)';
+                if (heatSolver) {
+                    heatSolver.setMode(EigenLab.HeatDiffusionMode.Convection);
+                }
+            });
+
+            // Sliders
+            document.getElementById('alphaSlider').addEventListener('input', (e) => {
+                params.thermalDiffusivity = parseFloat(e.target.value);
+                document.getElementById('alphaValue').textContent = params.thermalDiffusivity.toFixed(2);
+                // Need to recreate solver to change diffusivity
+            });
+
+            document.getElementById('convectionSlider').addEventListener('input', (e) => {
+                params.convectionStrength = parseFloat(e.target.value);
+                document.getElementById('convectionValue').textContent = params.convectionStrength.toFixed(1);
+            });
+
+            document.getElementById('ambientSlider').addEventListener('input', (e) => {
+                params.ambientTemp = parseInt(e.target.value);
+                document.getElementById('ambientValue').textContent = params.ambientTemp + '°C';
+            });
+
+            document.getElementById('hotSlider').addEventListener('input', (e) => {
+                params.hotTemp = parseInt(e.target.value);
+                document.getElementById('hotValue').textContent = params.hotTemp + '°C';
+                document.getElementById('maxTempLabel').textContent = params.hotTemp + '°C';
+                // Update hot sources
+                sources.filter(s => s.type === 'hot').forEach((s, i) => {
+                    heatSolver.setSourceTemperature(sources.indexOf(s), params.hotTemp);
+                });
+            });
+
+            document.getElementById('coldSlider').addEventListener('input', (e) => {
+                params.coldTemp = parseInt(e.target.value);
+                document.getElementById('coldValue').textContent = params.coldTemp + '°C';
+                document.getElementById('minTempLabel').textContent = params.coldTemp + '°C';
+                // Update cold sources
+                sources.filter(s => s.type === 'cold').forEach((s, i) => {
+                    heatSolver.setSourceTemperature(sources.indexOf(s), params.coldTemp);
+                });
+            });
+
+            document.getElementById('resSlider').addEventListener('input', (e) => {
+                params.resolution = parseInt(e.target.value);
+                document.getElementById('resValue').textContent = params.resolution;
+                if (!running) {
+                    createHeatSolver();
+                    draw();
+                }
+            });
+
+            document.getElementById('speedSlider').addEventListener('input', (e) => {
+                params.speed = parseInt(e.target.value);
+                document.getElementById('speedValue').textContent = params.speed;
+            });
+
+            document.getElementById('showFlow').addEventListener('change', (e) => {
+                showFlow = e.target.checked;
+                if (!running) draw();
+            });
+
+            // Source buttons
+            document.getElementById('addHot').addEventListener('click', () => {
+                addMode = addMode === 'hot' ? null : 'hot';
+                document.getElementById('addHot').classList.toggle('active', addMode === 'hot');
+                document.getElementById('addCold').classList.remove('active');
+                canvas.style.cursor = addMode ? 'crosshair' : 'default';
+            });
+
+            document.getElementById('addCold').addEventListener('click', () => {
+                addMode = addMode === 'cold' ? null : 'cold';
+                document.getElementById('addCold').classList.toggle('active', addMode === 'cold');
+                document.getElementById('addHot').classList.remove('active');
+                canvas.style.cursor = addMode ? 'crosshair' : 'default';
+            });
+
+            document.getElementById('clearSources').addEventListener('click', () => {
+                sources = [];
+                heatSolver.clearSources();
+                heatSolver.reset();
+                if (!running) draw();
+            });
+
+            // Canvas click to add source
+            canvas.addEventListener('click', (e) => {
+                if (!addMode) return;
+
+                const rect = canvas.getBoundingClientRect();
+                const scaleX = canvas.width / rect.width;
+                const scaleY = canvas.height / rect.height;
+                const x = (e.clientX - rect.left) * scaleX;
+                const y = (e.clientY - rect.top) * scaleY;
+
+                const source = {
+                    x: x,
+                    y: y,
+                    radius: 25,
+                    type: addMode
+                };
+                sources.push(source);
+
+                heatSolver.addSource({
+                    position: { x: x, y: y },
+                    radius: 25,
+                    temperature: addMode === 'hot' ? params.hotTemp : params.coldTemp,
+                    isActive: true
+                });
+
+                if (!running) draw();
+            });
+
+            // Play/Pause/Reset
+            document.getElementById('playBtn').addEventListener('click', () => {
+                if (!running) {
+                    running = true;
+                    lastTime = performance.now();
+                    requestAnimationFrame(animate);
+                }
+            });
+
+            document.getElementById('pauseBtn').addEventListener('click', () => {
+                running = false;
+            });
+
+            document.getElementById('resetBtn').addEventListener('click', () => {
+                running = false;
+                sources = [];
+                createHeatSolver();
+                draw();
+                updateStats();
+            });
+        }
+
+        // ============================================================
+        // Animation Loop
+        // ============================================================
+
+        function animate(time) {
+            if (!running) return;
+
+            const dt = heatSolver.computeStableDt();
+
+            // Step multiple times per frame
+            heatSolver.stepMultiple(dt, params.speed);
+
+            // FPS calculation
+            frameCount++;
+            if (time - lastFpsUpdate > 500) {
+                fps = Math.round(frameCount / ((time - lastFpsUpdate) / 1000));
+                frameCount = 0;
+                lastFpsUpdate = time;
+                updatePerfIndicator();
+            }
+
+            draw();
+            updateStats();
+
+            requestAnimationFrame(animate);
+        }
+
+        // ============================================================
+        // Rendering
+        // ============================================================
+
+        function draw() {
+            const W = canvas.width;
+            const H = canvas.height;
+            const nx = params.resolution;
+            const ny = params.resolution;
+
+            // Get temperature data
+            const tempData = EigenLab.getTemperatureGrid(heatSolver);
+
+            // Render to ImageData
+            const minT = params.coldTemp - 10;
+            const maxT = params.hotTemp + 10;
+            const range = maxT - minT;
+
+            for (let y = 0; y < ny; y++) {
+                for (let x = 0; x < nx; x++) {
+                    const temp = tempData[y * nx + x];
+                    let t = (temp - minT) / range;
+                    t = Math.max(0, Math.min(1, t));
+
+                    // Blue -> Cyan -> Green -> Yellow -> Red
+                    let r, g, b;
+                    if (t < 0.25) {
+                        const s = t / 0.25;
+                        r = 0; g = Math.floor(255 * s); b = 255;
+                    } else if (t < 0.5) {
+                        const s = (t - 0.25) / 0.25;
+                        r = 0; g = 255; b = Math.floor(255 * (1 - s));
+                    } else if (t < 0.75) {
+                        const s = (t - 0.5) / 0.25;
+                        r = Math.floor(255 * s); g = 255; b = 0;
+                    } else {
+                        const s = (t - 0.75) / 0.25;
+                        r = 255; g = Math.floor(255 * (1 - s)); b = 0;
+                    }
+
+                    const idx = (y * nx + x) * 4;
+                    imageData.data[idx] = r;
+                    imageData.data[idx + 1] = g;
+                    imageData.data[idx + 2] = b;
+                    imageData.data[idx + 3] = 255;
+                }
+            }
+
+            // Scale and draw
+            ctx.putImageData(imageData, 0, 0);
+
+            // If resolution doesn't match canvas, scale
+            if (nx !== W || ny !== H) {
+                const tempCanvas = document.createElement('canvas');
+                tempCanvas.width = nx;
+                tempCanvas.height = ny;
+                tempCanvas.getContext('2d').putImageData(imageData, 0, 0);
+
+                ctx.imageSmoothingEnabled = false;
+                ctx.clearRect(0, 0, W, H);
+                ctx.drawImage(tempCanvas, 0, 0, nx, ny, 0, 0, W, H);
+            }
+
+            // Draw source indicators
+            const scaleX = W / params.resolution * (params.resolution / canvas.width);
+            const scaleY = H / params.resolution * (params.resolution / canvas.height);
+
+            sources.forEach(src => {
+                ctx.beginPath();
+                ctx.arc(src.x, src.y, src.radius, 0, Math.PI * 2);
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([4, 4]);
+                ctx.stroke();
+                ctx.setLineDash([]);
+
+                // Icon
+                ctx.font = '16px sans-serif';
+                ctx.fillStyle = '#fff';
+                ctx.fillText(src.type === 'hot' ? '🔥' : '❄️', src.x - 8, src.y + 6);
+            });
+
+            // Draw heat flux vectors if enabled
+            if (showFlow && heatSolver.stats().iterations > 10) {
+                drawFlowField();
+            }
+        }
+
+        function drawFlowField() {
+            const nx = params.resolution;
+            const ny = params.resolution;
+            const step = Math.max(8, Math.floor(nx / 25));
+            const cellW = canvas.width / nx;
+            const cellH = canvas.height / ny;
+
+            const tempData = EigenLab.getTemperatureGrid(heatSolver);
+
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+            ctx.lineWidth = 1;
+
+            for (let y = step; y < ny - step; y += step) {
+                for (let x = step; x < nx - step; x += step) {
+                    // Calculate gradient
+                    const dTdx = (tempData[y * nx + (x + 1)] - tempData[y * nx + (x - 1)]) / 2;
+                    const dTdy = (tempData[(y + 1) * nx + x] - tempData[(y - 1) * nx + x]) / 2;
+
+                    const mag = Math.sqrt(dTdx * dTdx + dTdy * dTdy);
+                    if (mag > 0.1) {
+                        const px = x * cellW + cellW / 2;
+                        const py = y * cellH + cellH / 2;
+                        const len = Math.min(mag * 3, 15);
+
+                        // Heat flows from hot to cold (negative gradient)
+                        const fx = -dTdx / mag * len;
+                        const fy = -dTdy / mag * len;
+
+                        ctx.beginPath();
+                        ctx.moveTo(px, py);
+                        ctx.lineTo(px + fx, py + fy);
+                        ctx.stroke();
+
+                        // Arrow head
+                        const angle = Math.atan2(fy, fx);
+                        ctx.beginPath();
+                        ctx.moveTo(px + fx, py + fy);
+                        ctx.lineTo(px + fx - 4 * Math.cos(angle - 0.4), py + fy - 4 * Math.sin(angle - 0.4));
+                        ctx.moveTo(px + fx, py + fy);
+                        ctx.lineTo(px + fx - 4 * Math.cos(angle + 0.4), py + fy - 4 * Math.sin(angle + 0.4));
+                        ctx.stroke();
+                    }
+                }
+            }
+        }
+
+        function updateStats() {
+            if (!heatSolver) return;
+
+            heatSolver.computeStatistics();
+            const stats = heatSolver.stats();
+
+            document.getElementById('timeVal').textContent = stats.simulationTime.toFixed(1) + ' s';
+            document.getElementById('avgTempVal').textContent = stats.averageTemperature.toFixed(1) + '°C';
+            document.getElementById('maxTempVal').textContent = stats.maxTemperature.toFixed(1) + '°C';
+            document.getElementById('minTempVal').textContent = stats.minTemperature.toFixed(1) + '°C';
+        }
+
+        function updatePerfIndicator() {
+            document.getElementById('perfIndicator').textContent =
+                `${fps || '--'} FPS | Grid ${params.resolution}×${params.resolution}`;
+        }
+
+        // ============================================================
+        // Start
+        // ============================================================
+
+        init();
+    </script>
+</body>
+</html>

@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Efecto Túnel - Mecánica Cuántica | Physics Visual Lab</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+        .glow-text { text-shadow: 0 0 20px rgba(168, 85, 247, 0.5); }
+        input[type="range"] {
+            -webkit-appearance: none;
+            background: #1f2937;
+            border-radius: 4px;
+            height: 6px;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            background: #a855f7;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        .math-box {
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.1), rgba(34, 211, 238, 0.05));
+            border: 1px solid rgba(168, 85, 247, 0.3);
+        }
+        .guide-link {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 12px;
+            background: rgba(168, 85, 247, 0.1);
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            border-radius: 8px;
+            color: #c4b5fd;
+            text-decoration: none;
+            font-size: 0.8rem;
+            transition: all 0.3s;
+            margin-top: 16px;
+        }
+        .guide-link:hover {
+            background: rgba(168, 85, 247, 0.2);
+            border-color: #a855f7;
+        }
+        .guide-icon {
+            width: 18px;
+            height: 18px;
+            background: #a855f7;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: bold;
+            color: white;
+            flex-shrink: 0;
+        }
+        .stat-box {
+            background: rgba(168, 85, 247, 0.1);
+            border: 1px solid rgba(168, 85, 247, 0.2);
+            border-radius: 6px;
+            padding: 10px 14px;
+            margin-bottom: 8px;
+        }
+        .mode-btn {
+            transition: all 0.2s;
+        }
+        .mode-btn.active {
+            background: #a855f7 !important;
+            color: #000 !important;
+        }
+    </style>
+</head>
+<body class="bg-black text-gray-100 min-h-screen">
+    <header class="border-b border-gray-900 bg-black/80 backdrop-blur-sm sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-3">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center gap-4">
+                    <a href="index.html" class="text-gray-500 hover:text-purple-400 transition flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                        </svg>
+                        Volver
+                    </a>
+                    <div class="h-4 w-px bg-gray-800"></div>
+                    <h1 class="text-lg font-light">
+                        <span class="text-purple-400 font-medium">Efecto Túnel</span>
+                        <span class="text-gray-600 text-sm ml-2">Mecánica Cuántica</span>
+                    </h1>
+                </div>
+                <div class="flex items-center gap-4 text-sm mono">
+                    <span class="text-gray-500">T = <span id="transmission-display" class="text-purple-400">--</span>%</span>
+                    <span class="text-gray-500">E/V₀ = <span id="ratio-display" class="text-cyan-400">--</span></span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex h-[calc(100vh-57px)]">
+        <div class="flex-1 flex flex-col bg-gray-950 p-4">
+            <canvas id="canvas" class="flex-1 rounded-lg"></canvas>
+            <div class="flex gap-2 mt-2">
+                <canvas id="probability-canvas" class="flex-1 h-24 rounded-lg bg-gray-900"></canvas>
+                <canvas id="transmission-graph" class="w-64 h-24 rounded-lg bg-gray-900"></canvas>
+            </div>
+        </div>
+
+        <aside class="w-96 border-l border-gray-900 bg-gray-950 p-6 overflow-y-auto">
+            <h2 class="text-lg font-medium mb-4 text-purple-400 glow-text">Efecto Túnel Cuántico</h2>
+
+            <!-- Ecuación -->
+            <div class="math-box rounded-lg p-4 mb-6">
+                <div class="text-xs text-gray-400 mb-2">Ecuación de Schrödinger estacionaria</div>
+                <div class="mono text-sm text-purple-300">
+                    -ℏ²/2m · d²ψ/dx² + V(x)ψ = Eψ
+                </div>
+                <div class="text-xs text-gray-500 mt-2">
+                    Coef. transmisión: T ≈ e<sup>-2κa</sup>
+                </div>
+            </div>
+
+            <a href="guides/efecto-tunel.html" class="guide-link">
+                <span class="guide-icon">?</span>
+                <span>Guía: Túnel cuántico, decaimiento α, STM</span>
+            </a>
+
+            <!-- Modo de visualización -->
+            <div class="mt-6 mb-6">
+                <label class="block text-sm text-gray-400 mb-2">Visualización</label>
+                <div class="grid grid-cols-2 gap-2">
+                    <button data-mode="quantum" class="mode-btn active px-3 py-2 bg-gray-900 hover:bg-gray-800 rounded-lg text-xs transition">Cuántico</button>
+                    <button data-mode="classical" class="mode-btn px-3 py-2 bg-gray-900 hover:bg-gray-800 rounded-lg text-xs transition">Clásico</button>
+                </div>
+            </div>
+
+            <!-- Energía de la partícula -->
+            <div class="mb-5">
+                <label class="block text-sm text-gray-400 mb-2">
+                    Energía (E): <span id="energy-value" class="text-purple-400 mono">0.5</span> V₀
+                </label>
+                <input type="range" id="energy-slider" min="0.1" max="2" step="0.05" value="0.5" class="w-full">
+            </div>
+
+            <!-- Altura de la barrera -->
+            <div class="mb-5">
+                <label class="block text-sm text-gray-400 mb-2">
+                    Altura barrera (V₀): <span id="barrier-value" class="text-cyan-400 mono">1.0</span> eV
+                </label>
+                <input type="range" id="barrier-slider" min="0.5" max="3" step="0.1" value="1.0" class="w-full">
+            </div>
+
+            <!-- Ancho de la barrera -->
+            <div class="mb-5">
+                <label class="block text-sm text-gray-400 mb-2">
+                    Ancho barrera (a): <span id="width-value" class="text-yellow-400 mono">1.0</span> nm
+                </label>
+                <input type="range" id="width-slider" min="0.2" max="3" step="0.1" value="1.0" class="w-full">
+            </div>
+
+            <!-- Masa de la partícula -->
+            <div class="mb-6">
+                <label class="block text-sm text-gray-400 mb-2">Partícula</label>
+                <select id="particle-select" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-3 py-2 text-sm focus:border-purple-500 focus:outline-none">
+                    <option value="electron">Electrón (m_e)</option>
+                    <option value="proton">Protón (1836 m_e)</option>
+                    <option value="alpha">Partícula α (7294 m_e)</option>
+                </select>
+            </div>
+
+            <!-- Estadísticas -->
+            <div class="border-t border-gray-800 pt-4">
+                <h3 class="text-sm font-medium text-gray-300 mb-3">Resultados</h3>
+
+                <div class="stat-box">
+                    <div class="flex justify-between">
+                        <span class="text-xs text-gray-500">Transmisión (T)</span>
+                        <span class="mono text-sm text-purple-400" id="T-result">--</span>
+                    </div>
+                </div>
+
+                <div class="stat-box">
+                    <div class="flex justify-between">
+                        <span class="text-xs text-gray-500">Reflexión (R)</span>
+                        <span class="mono text-sm text-rose-400" id="R-result">--</span>
+                    </div>
+                </div>
+
+                <div class="stat-box">
+                    <div class="flex justify-between">
+                        <span class="text-xs text-gray-500">κ (decay const)</span>
+                        <span class="mono text-sm text-cyan-400" id="kappa-result">--</span>
+                    </div>
+                </div>
+
+                <div class="stat-box">
+                    <div class="flex justify-between">
+                        <span class="text-xs text-gray-500">Longitud de onda λ</span>
+                        <span class="mono text-sm text-green-400" id="lambda-result">--</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Presets -->
+            <div class="border-t border-gray-800 pt-4 mt-4">
+                <h3 class="text-sm font-medium text-gray-300 mb-3">Presets</h3>
+                <div class="grid grid-cols-2 gap-2">
+                    <button onclick="setPreset('alpha')" class="px-3 py-2 bg-gray-900 hover:bg-gray-800 rounded-lg text-xs transition border border-gray-800 hover:border-purple-500">
+                        Decaimiento α
+                    </button>
+                    <button onclick="setPreset('stm')" class="px-3 py-2 bg-gray-900 hover:bg-gray-800 rounded-lg text-xs transition border border-gray-800 hover:border-purple-500">
+                        STM (microscopio)
+                    </button>
+                    <button onclick="setPreset('semiconductor')" class="px-3 py-2 bg-gray-900 hover:bg-gray-800 rounded-lg text-xs transition border border-gray-800 hover:border-purple-500">
+                        Semiconductor
+                    </button>
+                    <button onclick="setPreset('fusion')" class="px-3 py-2 bg-gray-900 hover:bg-gray-800 rounded-lg text-xs transition border border-gray-800 hover:border-purple-500">
+                        Fusión nuclear
+                    </button>
+                </div>
+            </div>
+
+            <!-- Controles -->
+            <div class="border-t border-gray-800 pt-4 mt-4">
+                <div class="flex gap-2">
+                    <button id="play-btn" class="flex-1 px-4 py-2 bg-purple-600 hover:bg-purple-500 rounded-lg text-sm font-medium transition">
+                        ▶ Simular
+                    </button>
+                    <button id="reset-btn" class="px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg text-sm transition">
+                        ↺ Reset
+                    </button>
+                </div>
+            </div>
+
+            <div class="mt-4 text-xs text-gray-600">
+                <strong>Nota:</strong> El efecto túnel permite a partículas atravesar barreras clásicamente prohibidas. Es fundamental en radioactividad, semiconductores y microscopía de efecto túnel (STM).
+            </div>
+        </aside>
+    </main>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const probCanvas = document.getElementById('probability-canvas');
+        const probCtx = probCanvas.getContext('2d');
+        const transCanvas = document.getElementById('transmission-graph');
+        const transCtx = transCanvas.getContext('2d');
+
+        // Constants
+        const HBAR = 1.054571817e-34; // J·s
+        const ME = 9.10938e-31; // kg (electron mass)
+        const EV = 1.602176634e-19; // J
+
+        // State
+        let mode = 'quantum';
+        let playing = false;
+        let time = 0;
+        let particleMass = ME;
+
+        // Parameters (scaled for visualization)
+        let energy = 0.5; // relative to V0
+        let barrierHeight = 1.0; // eV
+        let barrierWidth = 1.0; // nm
+
+        // DOM elements
+        const energySlider = document.getElementById('energy-slider');
+        const barrierSlider = document.getElementById('barrier-slider');
+        const widthSlider = document.getElementById('width-slider');
+        const particleSelect = document.getElementById('particle-select');
+
+        function resize() {
+            const rect = canvas.parentElement.getBoundingClientRect();
+            canvas.width = rect.width - 32;
+            canvas.height = rect.height - 140;
+
+            const probRect = probCanvas.getBoundingClientRect();
+            probCanvas.width = probRect.width * 2;
+            probCanvas.height = probRect.height * 2;
+
+            const transRect = transCanvas.getBoundingClientRect();
+            transCanvas.width = transRect.width * 2;
+            transCanvas.height = transRect.height * 2;
+        }
+
+        window.addEventListener('resize', resize);
+        resize();
+
+        // Calculate transmission coefficient
+        function calculateTransmission(E, V0, a, m) {
+            // E and V0 in eV, a in nm, m in kg
+            const E_J = E * EV;
+            const V0_J = V0 * EV;
+            const a_m = a * 1e-9;
+
+            if (E >= V0) {
+                // Above barrier - oscillatory transmission
+                const k1 = Math.sqrt(2 * m * E_J) / HBAR;
+                const k2 = Math.sqrt(2 * m * (E_J - V0_J)) / HBAR;
+                const sin_term = Math.sin(k2 * a_m);
+                const denom = 1 + (k1*k1 - k2*k2)**2 / (4*k1*k1*k2*k2) * sin_term**2;
+                return Math.min(1, 1 / denom);
+            } else {
+                // Below barrier - tunneling
+                const k = Math.sqrt(2 * m * E_J) / HBAR;
+                const kappa = Math.sqrt(2 * m * (V0_J - E_J)) / HBAR;
+
+                const sinh_term = Math.sinh(kappa * a_m);
+                const denom = 1 + (k*k + kappa*kappa)**2 / (4*k*k*kappa*kappa) * sinh_term**2;
+                return 1 / denom;
+            }
+        }
+
+        function getKappa(E, V0, m) {
+            const E_J = E * EV;
+            const V0_J = V0 * EV;
+            if (E >= V0) return 0;
+            return Math.sqrt(2 * m * (V0_J - E_J)) / HBAR;
+        }
+
+        function getWavelength(E, m) {
+            const E_J = E * EV;
+            const k = Math.sqrt(2 * m * E_J) / HBAR;
+            return 2 * Math.PI / k;
+        }
+
+        function updateDisplay() {
+            const E_abs = energy * barrierHeight;
+            const T = calculateTransmission(E_abs, barrierHeight, barrierWidth, particleMass);
+            const R = 1 - T;
+            const kappa = getKappa(E_abs, barrierHeight, particleMass);
+            const lambda = getWavelength(E_abs, particleMass);
+
+            document.getElementById('transmission-display').textContent = (T * 100).toFixed(2);
+            document.getElementById('ratio-display').textContent = energy.toFixed(2);
+
+            document.getElementById('T-result').textContent = (T * 100).toFixed(3) + '%';
+            document.getElementById('R-result').textContent = (R * 100).toFixed(3) + '%';
+            document.getElementById('kappa-result').textContent = (kappa * 1e-9).toFixed(3) + ' nm⁻¹';
+            document.getElementById('lambda-result').textContent = (lambda * 1e9).toFixed(3) + ' nm';
+        }
+
+        function drawMain() {
+            const W = canvas.width;
+            const H = canvas.height;
+
+            ctx.fillStyle = '#030712';
+            ctx.fillRect(0, 0, W, H);
+
+            // Coordinate system
+            const midY = H * 0.5;
+            const barrierLeft = W * 0.35;
+            const barrierRight = W * 0.35 + barrierWidth * 50;
+            const potentialHeight = barrierHeight * 80;
+            const energyHeight = energy * barrierHeight * 80;
+
+            // Draw potential barrier
+            ctx.fillStyle = 'rgba(168, 85, 247, 0.2)';
+            ctx.fillRect(barrierLeft, midY - potentialHeight, barrierRight - barrierLeft, potentialHeight);
+
+            ctx.strokeStyle = '#a855f7';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(0, midY);
+            ctx.lineTo(barrierLeft, midY);
+            ctx.lineTo(barrierLeft, midY - potentialHeight);
+            ctx.lineTo(barrierRight, midY - potentialHeight);
+            ctx.lineTo(barrierRight, midY);
+            ctx.lineTo(W, midY);
+            ctx.stroke();
+
+            // Energy level line
+            ctx.strokeStyle = '#22d3ee';
+            ctx.lineWidth = 1.5;
+            ctx.setLineDash([5, 5]);
+            ctx.beginPath();
+            ctx.moveTo(0, midY - energyHeight);
+            ctx.lineTo(W, midY - energyHeight);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // Labels
+            ctx.fillStyle = '#a855f7';
+            ctx.font = '12px Inter';
+            ctx.fillText('V₀', barrierLeft + 5, midY - potentialHeight + 15);
+
+            ctx.fillStyle = '#22d3ee';
+            ctx.fillText('E', 10, midY - energyHeight - 5);
+
+            ctx.fillStyle = '#64748b';
+            ctx.fillText('x', W - 20, midY + 20);
+
+            // Draw wave function or classical particle
+            if (mode === 'quantum') {
+                drawQuantumWave(W, H, midY, barrierLeft, barrierRight, potentialHeight, energyHeight);
+            } else {
+                drawClassicalParticle(W, H, midY, barrierLeft, barrierRight, energyHeight);
+            }
+
+            // Barrier width annotation
+            ctx.strokeStyle = '#fbbf24';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(barrierLeft, midY + 30);
+            ctx.lineTo(barrierRight, midY + 30);
+            ctx.stroke();
+            ctx.fillStyle = '#fbbf24';
+            ctx.textAlign = 'center';
+            ctx.fillText(`a = ${barrierWidth.toFixed(1)} nm`, (barrierLeft + barrierRight) / 2, midY + 45);
+            ctx.textAlign = 'left';
+        }
+
+        function drawQuantumWave(W, H, midY, barrierLeft, barrierRight, potentialHeight, energyHeight) {
+            const E_abs = energy * barrierHeight;
+            const T = calculateTransmission(E_abs, barrierHeight, barrierWidth, particleMass);
+            const R = 1 - T;
+
+            const k = 0.05; // visual wave number
+            const kappa = (energy < 1) ? 0.03 * Math.sqrt(1 - energy) : 0.01;
+            const A = 60; // amplitude
+
+            // Incident wave (region I: x < barrier)
+            ctx.strokeStyle = '#22c55e';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            for (let x = 0; x < barrierLeft; x += 2) {
+                const phase = k * x - time * 2;
+                const y = midY - energyHeight + A * Math.sin(phase);
+                if (x === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+
+            // Reflected wave (region I, going left)
+            if (R > 0.01) {
+                ctx.strokeStyle = 'rgba(239, 68, 68, 0.7)';
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                for (let x = 0; x < barrierLeft; x += 2) {
+                    const phase = -k * x - time * 2;
+                    const y = midY - energyHeight + A * Math.sqrt(R) * Math.sin(phase);
+                    if (x === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                }
+                ctx.stroke();
+            }
+
+            // Inside barrier (exponential decay)
+            if (energy < 1) {
+                ctx.strokeStyle = 'rgba(251, 191, 36, 0.8)';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                const barrierMid = (barrierLeft + barrierRight) / 2;
+                for (let x = barrierLeft; x < barrierRight; x += 2) {
+                    const decay = Math.exp(-kappa * (x - barrierLeft));
+                    const phase = time * 2;
+                    const y = midY - energyHeight + A * decay * Math.sin(phase);
+                    if (x === barrierLeft) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                }
+                ctx.stroke();
+            } else {
+                // Above barrier - oscillatory
+                ctx.strokeStyle = 'rgba(251, 191, 36, 0.8)';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                const k2 = k * Math.sqrt(Math.abs(energy - 1) + 0.1);
+                for (let x = barrierLeft; x < barrierRight; x += 2) {
+                    const phase = k2 * (x - barrierLeft) - time * 2;
+                    const y = midY - energyHeight + A * Math.sin(phase);
+                    if (x === barrierLeft) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                }
+                ctx.stroke();
+            }
+
+            // Transmitted wave (region III: x > barrier)
+            if (T > 0.001) {
+                ctx.strokeStyle = '#22c55e';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                for (let x = barrierRight; x < W; x += 2) {
+                    const phase = k * (x - barrierRight) - time * 2;
+                    const y = midY - energyHeight + A * Math.sqrt(T) * Math.sin(phase);
+                    if (x === barrierRight) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                }
+                ctx.stroke();
+            }
+
+            // Wave packet indicator
+            const packetX = (50 + time * 100) % (barrierLeft - 50);
+            ctx.fillStyle = 'rgba(34, 197, 94, 0.6)';
+            ctx.beginPath();
+            ctx.arc(packetX, midY - energyHeight, 8, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Labels
+            ctx.font = '11px Inter';
+            ctx.fillStyle = '#22c55e';
+            ctx.fillText('ψ incidente', 20, midY - energyHeight - A - 10);
+            if (R > 0.01) {
+                ctx.fillStyle = '#ef4444';
+                ctx.fillText('ψ reflejada', 20, midY - energyHeight + A + 20);
+            }
+            if (T > 0.001) {
+                ctx.fillStyle = '#22c55e';
+                ctx.fillText('ψ transmitida', barrierRight + 20, midY - energyHeight - A - 10);
+            }
+        }
+
+        function drawClassicalParticle(W, H, midY, barrierLeft, barrierRight, energyHeight) {
+            // Classical particle bounces off the barrier
+            const cycleTime = 4;
+            const t = (time % cycleTime);
+            const speed = 100;
+
+            let particleX;
+            let direction = 1;
+
+            if (energy >= 1) {
+                // Particle has enough energy - goes through
+                particleX = 50 + t * speed;
+                if (particleX > W - 50) particleX = 50;
+            } else {
+                // Particle bounces
+                if (t < cycleTime / 2) {
+                    particleX = 50 + t * speed;
+                    if (particleX > barrierLeft - 20) {
+                        particleX = barrierLeft - 20;
+                    }
+                } else {
+                    particleX = barrierLeft - 20 - (t - cycleTime / 2) * speed;
+                    direction = -1;
+                    if (particleX < 50) particleX = 50;
+                }
+            }
+
+            // Draw particle
+            ctx.fillStyle = '#22c55e';
+            ctx.beginPath();
+            ctx.arc(particleX, midY - energyHeight, 12, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Velocity arrow
+            ctx.strokeStyle = '#22c55e';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(particleX + direction * 15, midY - energyHeight);
+            ctx.lineTo(particleX + direction * 35, midY - energyHeight);
+            ctx.lineTo(particleX + direction * 30, midY - energyHeight - 5);
+            ctx.moveTo(particleX + direction * 35, midY - energyHeight);
+            ctx.lineTo(particleX + direction * 30, midY - energyHeight + 5);
+            ctx.stroke();
+
+            // Classical label
+            ctx.fillStyle = '#64748b';
+            ctx.font = '12px Inter';
+            if (energy < 1) {
+                ctx.fillText('Clásico: E < V₀ → Reflexión total', 20, 30);
+            } else {
+                ctx.fillText('Clásico: E ≥ V₀ → Transmisión total', 20, 30);
+            }
+        }
+
+        function drawProbability() {
+            const W = probCanvas.width;
+            const H = probCanvas.height;
+
+            probCtx.fillStyle = '#111827';
+            probCtx.fillRect(0, 0, W, H);
+
+            const E_abs = energy * barrierHeight;
+            const T = calculateTransmission(E_abs, barrierHeight, barrierWidth, particleMass);
+
+            const barrierLeft = W * 0.35;
+            const barrierRight = W * 0.35 + barrierWidth * 25;
+
+            // Draw barrier region
+            probCtx.fillStyle = 'rgba(168, 85, 247, 0.1)';
+            probCtx.fillRect(barrierLeft, 0, barrierRight - barrierLeft, H);
+
+            // Draw |ψ|² - probability density
+            probCtx.strokeStyle = '#22c55e';
+            probCtx.lineWidth = 2;
+            probCtx.beginPath();
+
+            const A = H * 0.35;
+            const midY = H * 0.5;
+            const k = 0.03;
+            const kappa = (energy < 1) ? 0.02 * Math.sqrt(1 - energy) : 0.01;
+
+            for (let x = 0; x < W; x += 2) {
+                let prob;
+                if (x < barrierLeft) {
+                    // Region I: incident + reflected
+                    prob = A * (1 + Math.sqrt(1 - T) * Math.cos(2 * k * x + time));
+                } else if (x < barrierRight) {
+                    // Region II: exponential decay
+                    const decay = Math.exp(-2 * kappa * (x - barrierLeft));
+                    prob = A * decay;
+                } else {
+                    // Region III: transmitted
+                    prob = A * T;
+                }
+
+                const y = midY - prob;
+                if (x === 0) probCtx.moveTo(x, y);
+                else probCtx.lineTo(x, y);
+            }
+            probCtx.stroke();
+
+            // Labels
+            probCtx.fillStyle = '#64748b';
+            probCtx.font = '20px Inter';
+            probCtx.fillText('|ψ|²', 10, 25);
+        }
+
+        function drawTransmissionGraph() {
+            const W = transCanvas.width;
+            const H = transCanvas.height;
+
+            transCtx.fillStyle = '#111827';
+            transCtx.fillRect(0, 0, W, H);
+
+            // Axes
+            transCtx.strokeStyle = '#374151';
+            transCtx.lineWidth = 1;
+            transCtx.beginPath();
+            transCtx.moveTo(40, 10);
+            transCtx.lineTo(40, H - 20);
+            transCtx.lineTo(W - 10, H - 20);
+            transCtx.stroke();
+
+            // Plot T vs E/V0
+            transCtx.strokeStyle = '#a855f7';
+            transCtx.lineWidth = 2;
+            transCtx.beginPath();
+
+            const E_vals = [];
+            for (let i = 0; i <= 100; i++) {
+                const E_ratio = i / 50; // 0 to 2
+                const E_abs = E_ratio * barrierHeight;
+                const T = calculateTransmission(E_abs, barrierHeight, barrierWidth, particleMass);
+                E_vals.push({ x: E_ratio, T: T });
+
+                const plotX = 40 + (E_ratio / 2) * (W - 50);
+                const plotY = H - 20 - T * (H - 30);
+
+                if (i === 0) transCtx.moveTo(plotX, plotY);
+                else transCtx.lineTo(plotX, plotY);
+            }
+            transCtx.stroke();
+
+            // Current point
+            const currentX = 40 + (energy / 2) * (W - 50);
+            const currentT = calculateTransmission(energy * barrierHeight, barrierHeight, barrierWidth, particleMass);
+            const currentY = H - 20 - currentT * (H - 30);
+
+            transCtx.fillStyle = '#fbbf24';
+            transCtx.beginPath();
+            transCtx.arc(currentX, currentY, 6, 0, Math.PI * 2);
+            transCtx.fill();
+
+            // E = V0 line
+            const thresholdX = 40 + 0.5 * (W - 50);
+            transCtx.strokeStyle = '#64748b';
+            transCtx.setLineDash([3, 3]);
+            transCtx.beginPath();
+            transCtx.moveTo(thresholdX, 10);
+            transCtx.lineTo(thresholdX, H - 20);
+            transCtx.stroke();
+            transCtx.setLineDash([]);
+
+            // Labels
+            transCtx.fillStyle = '#64748b';
+            transCtx.font = '16px Inter';
+            transCtx.fillText('T', 15, 20);
+            transCtx.fillText('E/V₀', W - 45, H - 5);
+            transCtx.font = '14px Inter';
+            transCtx.fillText('1', 25, 18);
+            transCtx.fillText('2', W - 20, H - 5);
+        }
+
+        function animate() {
+            if (playing) {
+                time += 0.016;
+            }
+            drawMain();
+            drawProbability();
+            drawTransmissionGraph();
+            requestAnimationFrame(animate);
+        }
+
+        // Event handlers
+        energySlider.addEventListener('input', e => {
+            energy = parseFloat(e.target.value);
+            document.getElementById('energy-value').textContent = energy.toFixed(2);
+            updateDisplay();
+        });
+
+        barrierSlider.addEventListener('input', e => {
+            barrierHeight = parseFloat(e.target.value);
+            document.getElementById('barrier-value').textContent = barrierHeight.toFixed(1);
+            updateDisplay();
+        });
+
+        widthSlider.addEventListener('input', e => {
+            barrierWidth = parseFloat(e.target.value);
+            document.getElementById('width-value').textContent = barrierWidth.toFixed(1);
+            updateDisplay();
+        });
+
+        particleSelect.addEventListener('change', e => {
+            switch (e.target.value) {
+                case 'electron': particleMass = ME; break;
+                case 'proton': particleMass = ME * 1836; break;
+                case 'alpha': particleMass = ME * 7294; break;
+            }
+            updateDisplay();
+        });
+
+        document.querySelectorAll('.mode-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                mode = btn.dataset.mode;
+            });
+        });
+
+        document.getElementById('play-btn').addEventListener('click', () => {
+            playing = !playing;
+            document.getElementById('play-btn').textContent = playing ? '⏸ Pausar' : '▶ Simular';
+        });
+
+        document.getElementById('reset-btn').addEventListener('click', () => {
+            time = 0;
+            playing = false;
+            document.getElementById('play-btn').textContent = '▶ Simular';
+        });
+
+        function setPreset(preset) {
+            switch (preset) {
+                case 'alpha':
+                    // Alpha decay: high barrier, low energy
+                    barrierHeight = 2.5;
+                    barrierWidth = 1.5;
+                    energy = 0.3;
+                    particleSelect.value = 'alpha';
+                    particleMass = ME * 7294;
+                    break;
+                case 'stm':
+                    // STM: thin barrier, electron
+                    barrierHeight = 1.0;
+                    barrierWidth = 0.5;
+                    energy = 0.8;
+                    particleSelect.value = 'electron';
+                    particleMass = ME;
+                    break;
+                case 'semiconductor':
+                    // Semiconductor junction
+                    barrierHeight = 0.8;
+                    barrierWidth = 1.0;
+                    energy = 0.6;
+                    particleSelect.value = 'electron';
+                    particleMass = ME;
+                    break;
+                case 'fusion':
+                    // Nuclear fusion barrier
+                    barrierHeight = 3.0;
+                    barrierWidth = 2.0;
+                    energy = 0.2;
+                    particleSelect.value = 'proton';
+                    particleMass = ME * 1836;
+                    break;
+            }
+
+            // Update sliders
+            energySlider.value = energy;
+            barrierSlider.value = barrierHeight;
+            widthSlider.value = barrierWidth;
+
+            // Update displays
+            document.getElementById('energy-value').textContent = energy.toFixed(2);
+            document.getElementById('barrier-value').textContent = barrierHeight.toFixed(1);
+            document.getElementById('width-value').textContent = barrierWidth.toFixed(1);
+
+            updateDisplay();
+        }
+
+        // Initialize
+        updateDisplay();
+        animate();
+    </script>
+</body>
+</html>

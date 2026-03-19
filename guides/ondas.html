@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guía: Ondas | Physics Visual Lab</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-bg: #0a0a0a;
+            --color-surface: #141414;
+            --color-surface-elevated: #1a1a1a;
+            --color-border: #262626;
+            --color-text: #e5e5e5;
+            --color-text-secondary: #a3a3a3;
+            --color-accent: #22c55e;
+            --color-accent-dim: rgba(34, 197, 94, 0.1);
+            --font-serif: 'Crimson Pro', Georgia, serif;
+            --font-sans: 'Inter', system-ui, sans-serif;
+            --font-mono: 'Fira Code', monospace;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-serif);
+            font-size: 19px;
+            line-height: 1.7;
+            color: var(--color-text);
+            background-color: var(--color-bg);
+            padding: 2rem;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        header {
+            margin-bottom: 3rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .breadcrumb {
+            font-family: var(--font-sans);
+            font-size: 0.85rem;
+            color: var(--color-text-secondary);
+            margin-bottom: 1rem;
+        }
+
+        .breadcrumb a {
+            color: var(--color-accent);
+            text-decoration: none;
+        }
+
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+
+        h1 {
+            font-family: var(--font-serif);
+            font-size: 2.5rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--color-text);
+            letter-spacing: -0.02em;
+        }
+
+        .subtitle {
+            font-size: 1.25rem;
+            color: var(--color-text-secondary);
+            font-style: italic;
+        }
+
+        h2 {
+            font-family: var(--font-sans);
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--color-accent);
+            margin-top: 3rem;
+            margin-bottom: 1.25rem;
+        }
+
+        h3 {
+            font-family: var(--font-serif);
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-top: 2rem;
+            margin-bottom: 0.75rem;
+        }
+
+        p {
+            margin-bottom: 1.25rem;
+        }
+
+        .intro {
+            font-size: 1.15rem;
+            color: var(--color-text-secondary);
+            border-left: 3px solid var(--color-accent);
+            padding-left: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .concept-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .concept-card {
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+
+        .concept-card h4 {
+            font-family: var(--font-sans);
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            color: var(--color-accent);
+        }
+
+        .concept-card p {
+            font-size: 0.95rem;
+            margin-bottom: 0;
+            color: var(--color-text-secondary);
+        }
+
+        .concept-card .symbol {
+            font-family: var(--font-mono);
+            font-size: 1.5rem;
+            color: var(--color-accent);
+            margin-bottom: 0.5rem;
+        }
+
+        .equation-block {
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            padding: 2rem;
+            margin: 1.5rem 0;
+            text-align: center;
+        }
+
+        .equation {
+            font-family: var(--font-mono);
+            font-size: 1.4rem;
+            color: var(--color-accent);
+            margin-bottom: 0.75rem;
+        }
+
+        .equation-label {
+            font-family: var(--font-sans);
+            font-size: 0.85rem;
+            color: var(--color-text-secondary);
+        }
+
+        .wave-types {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .wave-card {
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+
+        .wave-card h4 {
+            font-family: var(--font-sans);
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .wave-card.transverse h4 { color: #22c55e; }
+        .wave-card.longitudinal h4 { color: #3b82f6; }
+
+        .wave-card .visual {
+            font-family: var(--font-mono);
+            font-size: 1.2rem;
+            text-align: center;
+            margin: 1rem 0;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 6px;
+        }
+
+        .wave-card p {
+            font-size: 0.9rem;
+            color: var(--color-text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .wave-card .examples {
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            color: var(--color-text);
+            margin-top: 0.5rem;
+        }
+
+        .params-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            font-size: 0.9rem;
+        }
+
+        .params-table th {
+            font-family: var(--font-sans);
+            font-weight: 600;
+            text-align: left;
+            padding: 1rem;
+            background: var(--color-surface);
+            border-bottom: 2px solid var(--color-accent);
+        }
+
+        .params-table td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .params-table tr:hover {
+            background: var(--color-surface);
+        }
+
+        .param-symbol {
+            font-family: var(--font-mono);
+            font-weight: 600;
+            color: var(--color-accent);
+        }
+
+        .experiment-block {
+            background: var(--color-surface-elevated);
+            border-radius: 8px;
+            padding: 1.75rem;
+            margin: 1.5rem 0;
+            border-left: 3px solid var(--color-accent);
+        }
+
+        .experiment-block h4 {
+            font-family: var(--font-sans);
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .experiment-block ol {
+            margin-left: 1.25rem;
+            color: var(--color-text-secondary);
+        }
+
+        .experiment-block li {
+            margin-bottom: 0.5rem;
+        }
+
+        .key-insight {
+            background: var(--color-accent-dim);
+            border: 1px solid var(--color-accent);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .key-insight strong {
+            color: var(--color-accent);
+        }
+
+        .phenomena-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .phenomenon-card {
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            padding: 1.25rem;
+            text-align: center;
+        }
+
+        .phenomenon-card .icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .phenomenon-card h5 {
+            font-family: var(--font-sans);
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--color-accent);
+            margin-bottom: 0.5rem;
+        }
+
+        .phenomenon-card p {
+            font-size: 0.8rem;
+            color: var(--color-text-secondary);
+            margin: 0;
+        }
+
+        .timeline {
+            border-left: 2px solid var(--color-border);
+            padding-left: 2rem;
+            margin: 1.5rem 0;
+        }
+
+        .timeline-event {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+
+        .timeline-event::before {
+            content: '';
+            position: absolute;
+            left: -2.35rem;
+            top: 0.5rem;
+            width: 10px;
+            height: 10px;
+            background: var(--color-accent);
+            border-radius: 50%;
+        }
+
+        .timeline-year {
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            color: var(--color-accent);
+        }
+
+        .timeline-text {
+            color: var(--color-text-secondary);
+        }
+
+        .connections-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .connection-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem;
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            text-decoration: none;
+            color: var(--color-text);
+            transition: border-color 0.2s, background-color 0.2s;
+        }
+
+        .connection-item:hover {
+            border-color: var(--color-accent);
+            background: var(--color-surface-elevated);
+        }
+
+        .connection-icon {
+            font-size: 1.5rem;
+        }
+
+        .connection-text {
+            font-family: var(--font-sans);
+            font-size: 0.9rem;
+        }
+
+        ul {
+            margin-left: 1.25rem;
+            margin-bottom: 1.25rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        footer {
+            margin-top: 4rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--color-border);
+            text-align: center;
+        }
+
+        .btn-launch {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-family: var(--font-sans);
+            font-size: 1rem;
+            font-weight: 500;
+            padding: 1rem 2rem;
+            background: var(--color-accent);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: opacity 0.2s;
+        }
+
+        .btn-launch:hover {
+            opacity: 0.9;
+        }
+
+        .speed-comparison {
+            background: var(--color-surface);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .speed-bar {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+
+        .speed-bar .label {
+            width: 120px;
+            font-size: 0.85rem;
+        }
+
+        .speed-bar .bar {
+            flex: 1;
+            height: 20px;
+            background: var(--color-border);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .speed-bar .fill {
+            height: 100%;
+            border-radius: 4px;
+        }
+
+        .speed-bar .value {
+            width: 100px;
+            text-align: right;
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            color: var(--color-text-secondary);
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 1rem;
+                font-size: 17px;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .equation {
+                font-size: 1.1rem;
+            }
+
+            .wave-types {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="breadcrumb">
+            <a href="../index.html">Physics Visual Lab</a> → Guía
+        </nav>
+        <h1>Ondas</h1>
+        <p class="subtitle">Perturbaciones que viajan sin transportar materia</p>
+    </header>
+
+    <main>
+        <p class="intro">
+            Las ondas están en todas partes: el sonido que escuchas, la luz que ves, las olas
+            del mar, las vibraciones de un terremoto. Una onda es una perturbación que se propaga
+            a través de un medio (o del vacío, en el caso de la luz), transfiriendo energía sin
+            transportar materia. Entender las ondas es entender cómo se comunica el universo.
+        </p>
+
+        <h2>¿Qué Observarás?</h2>
+        <p>
+            La simulación muestra cómo las partículas del medio oscilan mientras la perturbación
+            viaja. Observa la diferencia crucial: las partículas se mueven localmente, pero la
+            onda se propaga a lo largo de todo el medio.
+        </p>
+
+        <div class="concept-grid">
+            <div class="concept-card">
+                <div class="symbol">A</div>
+                <h4>Amplitud</h4>
+                <p>Máximo desplazamiento desde el equilibrio. Relacionada con la energía.</p>
+            </div>
+            <div class="concept-card">
+                <div class="symbol">λ</div>
+                <h4>Longitud de Onda</h4>
+                <p>Distancia entre dos crestas consecutivas. Se mide en metros.</p>
+            </div>
+            <div class="concept-card">
+                <div class="symbol">f</div>
+                <h4>Frecuencia</h4>
+                <p>Número de oscilaciones por segundo. Se mide en Hertz (Hz).</p>
+            </div>
+            <div class="concept-card">
+                <div class="symbol">v</div>
+                <h4>Velocidad</h4>
+                <p>Rapidez con que la perturbación se propaga. Depende del medio.</p>
+            </div>
+        </div>
+
+        <h2>La Ecuación Fundamental</h2>
+
+        <div class="equation-block">
+            <div class="equation">v = λ · f</div>
+            <div class="equation-label">La velocidad es el producto de longitud de onda y frecuencia</div>
+        </div>
+
+        <p>
+            Esta relación es fundamental. Si conoces dos de las tres variables, puedes calcular
+            la tercera. En un medio dado, la velocidad es constante, así que si aumentas la
+            frecuencia, la longitud de onda debe disminuir proporcionalmente.
+        </p>
+
+        <h2>Tipos de Ondas</h2>
+
+        <div class="wave-types">
+            <div class="wave-card transverse">
+                <h4>Onda Transversal</h4>
+                <div class="visual">
+                    ~~~∿∿∿~~~<br>
+                    ↕ oscilación ⊥ → propagación
+                </div>
+                <p><strong>Definición:</strong> Las partículas oscilan perpendicular a la dirección de propagación.</p>
+                <p><strong>Medio:</strong> Requiere rigidez (sólidos) o campos (vacío).</p>
+                <div class="examples">Ejemplos: Luz, ondas en cuerdas, ondas sísmicas S</div>
+            </div>
+            <div class="wave-card longitudinal">
+                <h4>Onda Longitudinal</h4>
+                <div class="visual">
+                    ||||  ||  ||||  ||  ||||<br>
+                    ↔ oscilación ∥ → propagación
+                </div>
+                <p><strong>Definición:</strong> Las partículas oscilan paralelo a la dirección de propagación.</p>
+                <p><strong>Medio:</strong> Puede viajar en sólidos, líquidos y gases.</p>
+                <div class="examples">Ejemplos: Sonido, ondas sísmicas P, resorte comprimido</div>
+            </div>
+        </div>
+
+        <div class="key-insight">
+            <strong>¿Por qué el sonido no viaja en el vacío?</strong> Las ondas longitudinales
+            necesitan un medio material para propagar las compresiones y rarefacciones. En el
+            vacío no hay partículas que comprimir. La luz, en cambio, es una onda electromagnética
+            que no necesita medio.
+        </p>
+        </div>
+
+        <h2>Parámetros de Onda</h2>
+
+        <table class="params-table">
+            <thead>
+                <tr>
+                    <th>Parámetro</th>
+                    <th>Símbolo</th>
+                    <th>Unidad</th>
+                    <th>Relación</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Amplitud</td>
+                    <td><span class="param-symbol">A</span></td>
+                    <td>metros (m)</td>
+                    <td>E ∝ A²</td>
+                </tr>
+                <tr>
+                    <td>Longitud de onda</td>
+                    <td><span class="param-symbol">λ</span></td>
+                    <td>metros (m)</td>
+                    <td>λ = v/f</td>
+                </tr>
+                <tr>
+                    <td>Frecuencia</td>
+                    <td><span class="param-symbol">f</span></td>
+                    <td>Hertz (Hz)</td>
+                    <td>f = 1/T</td>
+                </tr>
+                <tr>
+                    <td>Período</td>
+                    <td><span class="param-symbol">T</span></td>
+                    <td>segundos (s)</td>
+                    <td>T = 1/f</td>
+                </tr>
+                <tr>
+                    <td>Velocidad</td>
+                    <td><span class="param-symbol">v</span></td>
+                    <td>m/s</td>
+                    <td>v = λf</td>
+                </tr>
+                <tr>
+                    <td>Número de onda</td>
+                    <td><span class="param-symbol">k</span></td>
+                    <td>rad/m</td>
+                    <td>k = 2π/λ</td>
+                </tr>
+                <tr>
+                    <td>Frecuencia angular</td>
+                    <td><span class="param-symbol">ω</span></td>
+                    <td>rad/s</td>
+                    <td>ω = 2πf</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>La Ecuación de Onda</h2>
+
+        <div class="equation-block">
+            <div class="equation">y(x,t) = A sin(kx - ωt + φ)</div>
+            <div class="equation-label">Ecuación general de una onda armónica viajera</div>
+        </div>
+
+        <p>
+            Esta ecuación describe completamente una onda sinusoidal. El argumento del seno
+            es la <em>fase</em>, que combina posición (x) y tiempo (t). El signo menos indica
+            que la onda viaja hacia la derecha (hacia +x).
+        </p>
+
+        <ul>
+            <li><strong>kx</strong> — Fase espacial: cambia con la posición</li>
+            <li><strong>ωt</strong> — Fase temporal: cambia con el tiempo</li>
+            <li><strong>φ</strong> — Fase inicial: define dónde "empieza" la onda</li>
+        </ul>
+
+        <h2>Velocidad en Diferentes Medios</h2>
+
+        <div class="speed-comparison">
+            <div class="speed-bar">
+                <span class="label">Acero</span>
+                <div class="bar"><div class="fill" style="width: 100%; background: #22c55e;"></div></div>
+                <span class="value">5960 m/s</span>
+            </div>
+            <div class="speed-bar">
+                <span class="label">Agua</span>
+                <div class="bar"><div class="fill" style="width: 25%; background: #3b82f6;"></div></div>
+                <span class="value">1480 m/s</span>
+            </div>
+            <div class="speed-bar">
+                <span class="label">Aire (20°C)</span>
+                <div class="bar"><div class="fill" style="width: 6%; background: #8b5cf6;"></div></div>
+                <span class="value">343 m/s</span>
+            </div>
+        </div>
+
+        <p>
+            La velocidad del sonido depende del medio: es mayor en sólidos (más rígidos) y
+            menor en gases (menos densos). En el aire, aumenta con la temperatura porque
+            las moléculas se mueven más rápido.
+        </p>
+
+        <h2>Experimentos Sugeridos</h2>
+
+        <div class="experiment-block">
+            <h4>1. La relación v = λf</h4>
+            <ol>
+                <li>Fija la frecuencia en 1 Hz y observa la longitud de onda</li>
+                <li>Duplica la frecuencia a 2 Hz</li>
+                <li>¿Qué pasó con la longitud de onda?</li>
+                <li>Verifica: la velocidad (λf) debe permanecer constante</li>
+            </ol>
+        </div>
+
+        <div class="experiment-block">
+            <h4>2. Transversal vs Longitudinal</h4>
+            <ol>
+                <li>Observa una onda transversal con partículas visibles</li>
+                <li>Nota cómo cada partícula sube y baja, pero no avanza</li>
+                <li>Cambia a onda longitudinal</li>
+                <li>Ahora las partículas se comprimen y expanden. Identifica las zonas de compresión (densas) y rarefacción (dispersas)</li>
+            </ol>
+        </div>
+
+        <div class="experiment-block">
+            <h4>3. Efecto del medio</h4>
+            <ol>
+                <li>Selecciona "Aire" como medio</li>
+                <li>Observa la velocidad (≈343 m/s a 20°C)</li>
+                <li>Cambia a "Agua", luego a "Acero"</li>
+                <li>¿Por qué el sonido viaja más rápido en sólidos?</li>
+            </ol>
+        </div>
+
+        <div class="experiment-block">
+            <h4>4. Energía y amplitud</h4>
+            <ol>
+                <li>Observa la onda con amplitud A = 50</li>
+                <li>Reduce a A = 25 (la mitad)</li>
+                <li>La energía de una onda es proporcional a A². Si A se reduce a la mitad, ¿cuánta energía queda?</li>
+            </ol>
+        </div>
+
+        <h2>Fenómenos Ondulatorios</h2>
+
+        <p>
+            Cuando las ondas interactúan con obstáculos o entre sí, producen fenómenos fascinantes:
+        </p>
+
+        <div class="phenomena-grid">
+            <div class="phenomenon-card">
+                <div class="icon">🔀</div>
+                <h5>Interferencia</h5>
+                <p>Ondas que se superponen. Constructiva (se suman) o destructiva (se cancelan).</p>
+            </div>
+            <div class="phenomenon-card">
+                <div class="icon">🌊</div>
+                <h5>Difracción</h5>
+                <p>Ondas que rodean obstáculos o se dispersan al pasar por rendijas.</p>
+            </div>
+            <div class="phenomenon-card">
+                <div class="icon">🔄</div>
+                <h5>Reflexión</h5>
+                <p>Ondas que rebotan al encontrar un cambio de medio.</p>
+            </div>
+            <div class="phenomenon-card">
+                <div class="icon">↗️</div>
+                <h5>Refracción</h5>
+                <p>Ondas que cambian dirección al pasar a otro medio.</p>
+            </div>
+            <div class="phenomenon-card">
+                <div class="icon">🎵</div>
+                <h5>Resonancia</h5>
+                <p>Amplificación cuando la frecuencia externa coincide con la natural.</p>
+            </div>
+            <div class="phenomenon-card">
+                <div class="icon">🚗</div>
+                <h5>Efecto Doppler</h5>
+                <p>Cambio de frecuencia cuando fuente u observador se mueven.</p>
+            </div>
+        </div>
+
+        <h2>Contexto Histórico</h2>
+
+        <div class="timeline">
+            <div class="timeline-event">
+                <div class="timeline-year">~300 AC</div>
+                <div class="timeline-text">
+                    <strong>Aristóteles</strong> reconoce que el sonido requiere un medio para propagarse.
+                </div>
+            </div>
+            <div class="timeline-event">
+                <div class="timeline-year">1678</div>
+                <div class="timeline-text">
+                    <strong>Christiaan Huygens</strong> propone que la luz es una onda, explicando
+                    reflexión y refracción con su principio de frentes de onda.
+                </div>
+            </div>
+            <div class="timeline-event">
+                <div class="timeline-year">1801</div>
+                <div class="timeline-text">
+                    <strong>Thomas Young</strong> demuestra la naturaleza ondulatoria de la luz
+                    con su experimento de la doble rendija (interferencia).
+                </div>
+            </div>
+            <div class="timeline-event">
+                <div class="timeline-year">1842</div>
+                <div class="timeline-text">
+                    <strong>Christian Doppler</strong> describe el cambio de frecuencia cuando
+                    fuente y observador se mueven relativamente.
+                </div>
+            </div>
+            <div class="timeline-event">
+                <div class="timeline-year">1864</div>
+                <div class="timeline-text">
+                    <strong>James Clerk Maxwell</strong> unifica electricidad, magnetismo y óptica:
+                    la luz es una onda electromagnética.
+                </div>
+            </div>
+        </div>
+
+        <h2>Limitaciones del Modelo</h2>
+
+        <ul>
+            <li><strong>Ondas ideales:</strong> La simulación muestra ondas armónicas perfectas; las ondas reales suelen tener formas más complejas</li>
+            <li><strong>Sin atenuación:</strong> Las ondas reales pierden energía al propagarse (absorción, dispersión)</li>
+            <li><strong>Sin dispersión:</strong> En algunos medios, diferentes frecuencias viajan a diferentes velocidades</li>
+            <li><strong>1D:</strong> La simulación es unidimensional; las ondas reales se propagan en 2D o 3D</li>
+        </ul>
+
+        <h2>Conexiones Interdisciplinarias</h2>
+
+        <div class="connections-grid">
+            <a href="../interferencia.html" class="connection-item">
+                <span class="connection-icon">🔀</span>
+                <span class="connection-text">Interferencia<br><small>Superposición de ondas</small></span>
+            </a>
+            <a href="../efecto-doppler.html" class="connection-item">
+                <span class="connection-icon">🚗</span>
+                <span class="connection-text">Efecto Doppler<br><small>Frecuencia y movimiento</small></span>
+            </a>
+            <a href="../fourier.html" class="connection-item">
+                <span class="connection-icon">📊</span>
+                <span class="connection-text">Fourier<br><small>Síntesis de ondas</small></span>
+            </a>
+            <a href="../../Chemistry/Chemistry Visual Lab/orbitales.html" class="connection-item">
+                <span class="connection-icon">☁️</span>
+                <span class="connection-text">Orbitales<br><small>Funciones de onda cuánticas</small></span>
+            </a>
+        </div>
+
+        <h2>Para Explorar Más</h2>
+        <ul>
+            <li><strong>Ondas estacionarias:</strong> Cuando una onda se refleja y se superpone consigo misma, creando nodos y antinodos</li>
+            <li><strong>Paquetes de onda:</strong> Ondas localizadas que representan partículas en mecánica cuántica</li>
+            <li><strong>Ondas de choque:</strong> Cuando un objeto viaja más rápido que la velocidad de la onda (boom sónico)</li>
+            <li><strong>Ondas gravitacionales:</strong> Perturbaciones del espacio-tiempo predichas por Einstein y detectadas en 2015</li>
+        </ul>
+    </main>
+
+    <footer>
+        <a href="../ondas.html" class="btn-launch">
+            〰️ Abrir Simulación
+        </a>
+    </footer>
+</body>
+</html>

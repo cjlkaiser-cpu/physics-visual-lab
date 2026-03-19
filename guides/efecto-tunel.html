@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guía: Efecto Túnel | Physics Visual Lab</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-bg: #0a0a0a;
+            --color-surface: #141414;
+            --color-surface-elevated: #1a1a1a;
+            --color-border: #262626;
+            --color-text: #e5e5e5;
+            --color-text-secondary: #a3a3a3;
+            --color-accent: #a855f7;
+            --color-accent-dim: rgba(168, 85, 247, 0.1);
+            --font-serif: 'Crimson Pro', Georgia, serif;
+            --font-sans: 'Inter', system-ui, sans-serif;
+            --font-mono: 'Fira Code', monospace;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: var(--font-serif);
+            font-size: 19px;
+            line-height: 1.7;
+            color: var(--color-text);
+            background-color: var(--color-bg);
+            padding: 2rem;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        header {
+            margin-bottom: 3rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .breadcrumb {
+            font-family: var(--font-sans);
+            font-size: 0.85rem;
+            color: var(--color-text-secondary);
+            margin-bottom: 1rem;
+        }
+        .breadcrumb a { color: var(--color-accent); text-decoration: none; }
+        .breadcrumb a:hover { text-decoration: underline; }
+
+        h1 {
+            font-family: var(--font-serif);
+            font-size: 2.5rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.02em;
+        }
+
+        .subtitle {
+            font-size: 1.25rem;
+            color: var(--color-text-secondary);
+            font-style: italic;
+        }
+
+        h2 {
+            font-family: var(--font-sans);
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--color-accent);
+            margin-top: 3rem;
+            margin-bottom: 1.25rem;
+        }
+
+        h3 {
+            font-family: var(--font-serif);
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-top: 2rem;
+            margin-bottom: 0.75rem;
+        }
+
+        p { margin-bottom: 1.25rem; }
+
+        .intro {
+            font-size: 1.15rem;
+            color: var(--color-text-secondary);
+            border-left: 3px solid var(--color-accent);
+            padding-left: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .concept-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .concept-card {
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+
+        .concept-card h4 {
+            font-family: var(--font-sans);
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            color: var(--color-accent);
+        }
+
+        .concept-card p {
+            font-size: 0.95rem;
+            margin-bottom: 0;
+            color: var(--color-text-secondary);
+        }
+
+        .concept-card .symbol {
+            font-family: var(--font-mono);
+            font-size: 1.5rem;
+            color: var(--color-accent);
+            margin-bottom: 0.5rem;
+        }
+
+        .equation-block {
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            padding: 2rem;
+            margin: 1.5rem 0;
+            text-align: center;
+        }
+
+        .equation {
+            font-family: var(--font-mono);
+            font-size: 1.3rem;
+            color: var(--color-accent);
+            margin-bottom: 1rem;
+        }
+
+        .equation-label {
+            font-family: var(--font-sans);
+            font-size: 0.85rem;
+            color: var(--color-text-secondary);
+        }
+
+        ul, ol {
+            margin: 1rem 0 1.5rem 1.5rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        .experiment {
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            padding: 1.75rem;
+            margin: 1.5rem 0;
+        }
+
+        .experiment-number {
+            font-family: var(--font-sans);
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--color-accent);
+            margin-bottom: 0.5rem;
+        }
+
+        .experiment h3 {
+            margin-top: 0;
+            margin-bottom: 1rem;
+        }
+
+        .experiment ol {
+            margin-bottom: 0;
+        }
+
+        .callout {
+            background: var(--color-accent-dim);
+            border: 1px solid var(--color-accent);
+            border-radius: 8px;
+            padding: 1.25rem;
+            margin: 1.5rem 0;
+        }
+
+        .callout p {
+            margin-bottom: 0;
+        }
+
+        .applications {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .application {
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            padding: 1.25rem;
+        }
+
+        .application h4 {
+            font-family: var(--font-sans);
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--color-text);
+            margin-bottom: 0.5rem;
+        }
+
+        .application p {
+            font-size: 0.9rem;
+            margin-bottom: 0;
+            color: var(--color-text-secondary);
+        }
+
+        .connection-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .connection {
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            padding: 1.25rem;
+            text-decoration: none;
+            transition: all 0.2s;
+            display: block;
+        }
+
+        .connection:hover {
+            border-color: var(--color-accent);
+            transform: translateY(-2px);
+        }
+
+        .connection h4 {
+            font-family: var(--font-sans);
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--color-accent);
+            margin-bottom: 0.5rem;
+        }
+
+        .connection p {
+            font-size: 0.85rem;
+            color: var(--color-text-secondary);
+            margin-bottom: 0;
+        }
+
+        .limitations {
+            background: rgba(251, 191, 36, 0.1);
+            border: 1px solid rgba(251, 191, 36, 0.3);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .limitations h3 {
+            color: #fbbf24;
+            margin-top: 0;
+        }
+
+        .reflection {
+            background: var(--color-accent-dim);
+            border: 1px solid var(--color-accent);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .reflection h3 {
+            color: var(--color-accent);
+            margin-top: 0;
+        }
+
+        .sim-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.25rem;
+            background: var(--color-accent);
+            color: white;
+            border-radius: 8px;
+            text-decoration: none;
+            font-family: var(--font-sans);
+            font-size: 0.95rem;
+            font-weight: 500;
+            margin-top: 1rem;
+            transition: opacity 0.2s;
+        }
+
+        .sim-link:hover { opacity: 0.9; }
+
+        footer {
+            margin-top: 4rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--color-border);
+            font-family: var(--font-sans);
+            font-size: 0.85rem;
+            color: var(--color-text-secondary);
+        }
+
+        footer a { color: var(--color-accent); text-decoration: none; }
+        footer a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="breadcrumb">
+            <a href="../https://cjlkaiser-cpu.github.io/eigenlab/_portal/index.html">EigenLab</a> /
+            <a href="../index.html">Physics Visual Lab</a> /
+            Efecto Túnel
+        </nav>
+        <h1>Efecto Túnel</h1>
+        <p class="subtitle">Cuando las partículas atraviesan lo imposible</p>
+        <a href="../efecto-tunel.html" class="sim-link">
+            <span>Abrir simulación</span>
+        </a>
+    </header>
+
+    <main>
+        <p class="intro">
+            En mecánica clásica, una pelota que no tiene suficiente energía para subir una colina simplemente rebota. En mecánica cuántica, las partículas pueden "túnelizar" a través de barreras de potencial incluso cuando su energía es menor que la altura de la barrera. Este fenómeno, imposible clásicamente, es fundamental en la naturaleza.
+        </p>
+
+        <h2>Conceptos fundamentales</h2>
+
+        <div class="concept-grid">
+            <div class="concept-card">
+                <div class="symbol">ψ</div>
+                <h4>Función de onda</h4>
+                <p>Describe el estado cuántico de la partícula. Su módulo al cuadrado |ψ|² da la probabilidad de encontrar la partícula en cada posición.</p>
+            </div>
+            <div class="concept-card">
+                <div class="symbol">V₀</div>
+                <h4>Barrera de potencial</h4>
+                <p>Región donde la energía potencial es mayor que la energía de la partícula. Clásicamente impenetrable.</p>
+            </div>
+            <div class="concept-card">
+                <div class="symbol">T</div>
+                <h4>Coef. de transmisión</h4>
+                <p>Probabilidad de que la partícula atraviese la barrera. Depende exponencialmente del ancho y altura.</p>
+            </div>
+            <div class="concept-card">
+                <div class="symbol">κ</div>
+                <h4>Constante de decaimiento</h4>
+                <p>Determina qué tan rápido decae la función de onda dentro de la barrera: κ = √(2m(V₀-E))/ℏ</p>
+            </div>
+        </div>
+
+        <h2>La ecuación de Schrödinger</h2>
+
+        <div class="equation-block">
+            <div class="equation">-ℏ²/2m · d²ψ/dx² + V(x)ψ = Eψ</div>
+            <div class="equation-label">Ecuación de Schrödinger independiente del tiempo</div>
+        </div>
+
+        <p>Para una barrera rectangular de altura V₀ y ancho a, la solución tiene tres regiones:</p>
+
+        <h3>Región I (x < 0): Incidencia y reflexión</h3>
+        <p>La función de onda es una superposición de onda incidente y reflejada:</p>
+        <div class="equation-block">
+            <div class="equation">ψ₁ = Ae^{ikx} + Be^{-ikx}</div>
+            <div class="equation-label">k = √(2mE)/ℏ es el número de onda</div>
+        </div>
+
+        <h3>Región II (0 < x < a): Dentro de la barrera</h3>
+        <p>Cuando E < V₀, la solución es una combinación de exponenciales decrecientes:</p>
+        <div class="equation-block">
+            <div class="equation">ψ₂ = Ce^{-κx} + De^{κx}</div>
+            <div class="equation-label">κ = √(2m(V₀-E))/ℏ es la constante de decaimiento</div>
+        </div>
+
+        <h3>Región III (x > a): Transmisión</h3>
+        <p>Solo hay onda transmitida (viajando hacia la derecha):</p>
+        <div class="equation-block">
+            <div class="equation">ψ₃ = Fe^{ikx}</div>
+            <div class="equation-label">La amplitud F determina la probabilidad de transmisión</div>
+        </div>
+
+        <h2>Coeficiente de transmisión</h2>
+
+        <p>Para una barrera rectangular con E < V₀, el coeficiente de transmisión es:</p>
+
+        <div class="equation-block">
+            <div class="equation">T ≈ 16(E/V₀)(1 - E/V₀)e^{-2κa}</div>
+            <div class="equation-label">Aproximación para κa >> 1 (barrera ancha)</div>
+        </div>
+
+        <div class="callout">
+            <p><strong>Dependencia exponencial:</strong> La transmisión decrece exponencialmente con el ancho de la barrera. Duplicar el ancho puede reducir T en varios órdenes de magnitud. Esta sensibilidad es la base del microscopio de efecto túnel (STM).</p>
+        </div>
+
+        <h2>Aplicaciones</h2>
+
+        <div class="applications">
+            <div class="application">
+                <h4>Decaimiento alfa</h4>
+                <p>Las partículas α (núcleos de helio) escapan del núcleo atómico túnelizando a través de la barrera coulombiana. Explica la radiactividad y las vidas medias nucleares.</p>
+            </div>
+            <div class="application">
+                <h4>Microscopio STM</h4>
+                <p>Una punta conductora se acerca a una superficie. La corriente túnel depende exponencialmente de la distancia, permitiendo resolución atómica.</p>
+            </div>
+            <div class="application">
+                <h4>Diodo túnel</h4>
+                <p>Electrones túnelizan a través de una unión p-n muy delgada. Permite dispositivos de alta frecuencia y bajo ruido.</p>
+            </div>
+            <div class="application">
+                <h4>Fusión nuclear</h4>
+                <p>Los protones en el Sol túnelizan a través de la barrera coulombiana para fusionarse. Sin túnel, las estrellas no brillarían.</p>
+            </div>
+        </div>
+
+        <h2>Experimentos guiados</h2>
+
+        <div class="experiment">
+            <div class="experiment-number">Experimento 1</div>
+            <h3>Dependencia con la energía</h3>
+            <ol>
+                <li>Configura E/V₀ = 0.3 (muy por debajo de la barrera)</li>
+                <li>Observa la función de onda decayendo dentro de la barrera</li>
+                <li>Aumenta gradualmente la energía hacia E = V₀</li>
+                <li>Nota cómo aumenta la transmisión</li>
+                <li>Supera E = V₀ y observa oscilaciones en lugar de decaimiento</li>
+            </ol>
+        </div>
+
+        <div class="experiment">
+            <div class="experiment-number">Experimento 2</div>
+            <h3>Sensibilidad al ancho de barrera</h3>
+            <ol>
+                <li>Fija E/V₀ = 0.5 y ancho a = 0.5 nm</li>
+                <li>Anota el coeficiente de transmisión T</li>
+                <li>Duplica el ancho a 1.0 nm</li>
+                <li>Observa cómo T cae dramáticamente (exponencialmente)</li>
+                <li>Esta es la base de la resolución del STM</li>
+            </ol>
+        </div>
+
+        <div class="experiment">
+            <div class="experiment-number">Experimento 3</div>
+            <h3>Comparación cuántico vs clásico</h3>
+            <ol>
+                <li>Selecciona modo "Clásico" con E < V₀</li>
+                <li>Observa que la partícula siempre rebota</li>
+                <li>Cambia a modo "Cuántico"</li>
+                <li>Observa que hay probabilidad de transmisión</li>
+                <li>Reflexiona: ¿qué significa "atravesar" una barrera?</li>
+            </ol>
+        </div>
+
+        <div class="experiment">
+            <div class="experiment-number">Experimento 4</div>
+            <h3>Efecto de la masa</h3>
+            <ol>
+                <li>Configura electrón con E/V₀ = 0.5, a = 1 nm</li>
+                <li>Anota T para el electrón</li>
+                <li>Cambia a protón (1836 veces más pesado)</li>
+                <li>Observa que T es dramáticamente menor</li>
+                <li>Prueba con partícula α — casi cero transmisión</li>
+            </ol>
+        </div>
+
+        <h2>Conexiones interdisciplinarias</h2>
+
+        <div class="connection-grid">
+            <a href="ondas.html" class="connection">
+                <h4>Ondas</h4>
+                <p>El efecto túnel es análogo a la transmisión de ondas evanescentes en óptica.</p>
+            </a>
+            <a href="../../../Astronomy/Astronomy Visual Lab/nucleosintesis.html" class="connection">
+                <h4>Nucleosíntesis</h4>
+                <p>La fusión nuclear en estrellas requiere efecto túnel para superar la repulsión coulombiana.</p>
+            </a>
+            <a href="../../../Chemistry/Chemistry Visual Lab/enlaces.html" class="connection">
+                <h4>Enlaces químicos</h4>
+                <p>El túnel de protones afecta velocidades de reacciones químicas.</p>
+            </a>
+            <a href="../../../Biochemistry/Biochem Visual Lab/adn-replicacion.html" class="connection">
+                <h4>ADN</h4>
+                <p>Las mutaciones por tautomerización involucran túnel de protones en bases nitrogenadas.</p>
+            </a>
+        </div>
+
+        <div class="limitations">
+            <h3>Limitaciones de la simulación</h3>
+            <ul>
+                <li><strong>Barrera rectangular:</strong> Real barriers have smooth, realistic shapes</li>
+                <li><strong>1D:</strong> Real tunneling is 3D with angular momentum considerations</li>
+                <li><strong>Estado estacionario:</strong> No muestra paquetes de onda ni evolución temporal completa</li>
+                <li><strong>Partícula libre:</strong> No considera interacciones con otras partículas</li>
+            </ul>
+        </div>
+
+        <div class="reflection">
+            <h3>Preguntas de reflexión</h3>
+            <ol>
+                <li>Si el efecto túnel es probabilístico, ¿cómo es que los dispositivos basados en túnel funcionan de manera confiable?</li>
+                <li>¿Por qué las partículas más ligeras túnelizan más fácilmente? Relaciona con el principio de incertidumbre.</li>
+                <li>¿Qué pasaría con la química del universo si el efecto túnel no existiera?</li>
+                <li>El tiempo de túnel es un concepto controvertido en física. ¿Cuánto "tarda" una partícula en atravesar la barrera?</li>
+            </ol>
+        </div>
+    </main>
+
+    <footer>
+        <p><a href="../https://cjlkaiser-cpu.github.io/eigenlab/_portal/index.html">EigenLab</a> — Physics Visual Lab — Efecto Túnel</p>
+    </footer>
+</body>
+</html>
