@@ -270,8 +270,21 @@
             <h2>Controles</h2>
 
             <div class="control-group">
+                <label style="display: block; margin-bottom: 8px;">Modo de transferencia</label>
+                <div style="display: flex; gap: 8px;">
+                    <button class="btn-mode active" id="modeConductor" style="flex: 1; padding: 8px; font-size: 0.8rem; background: #4ade80; color: #000; border: none; border-radius: 4px; cursor: pointer;">Conducción</button>
+                    <button class="btn-mode" id="modeConvection" style="flex: 1; padding: 8px; font-size: 0.8rem; background: #333; color: #aaa; border: none; border-radius: 4px; cursor: pointer;">Convección</button>
+                </div>
+            </div>
+
+            <div class="control-group">
                 <label>Difusividad térmica (α)<span class="value" id="alphaValue">0.25</span></label>
                 <input type="range" id="alpha" min="0.05" max="0.5" step="0.01" value="0.25">
+            </div>
+
+            <div class="control-group" id="convectionControls" style="display: none;">
+                <label>Intensidad convección<span class="value" id="convectionValue">1.0</span></label>
+                <input type="range" id="convectionStrength" min="0.1" max="3.0" step="0.1" value="1.0">
             </div>
 
             <div class="control-group">
@@ -335,20 +348,22 @@
                 </div>
             </div>
 
-            <div class="ecuacion">
-                <div class="ecuacion-main">∂T/∂t = α∇²T</div>
-                <div class="ecuacion-desc">Ecuación del calor (2D)</div>
-                <div class="ecuacion-desc" style="margin-top: 8px; font-size: 0.8rem;">
+            <div class="ecuacion" id="equationBox">
+                <div class="ecuacion-main" id="equationMain">∂T/∂t = α∇²T</div>
+                <div class="ecuacion-desc" id="equationDesc">Ecuación del calor (2D)</div>
+                <div class="ecuacion-desc" id="equationDetail" style="margin-top: 8px; font-size: 0.8rem;">
                     ∂T/∂t = α(∂²T/∂x² + ∂²T/∂y²)
                 </div>
             </div>
 
-            <div class="instrucciones">
+            <div class="instrucciones" id="instructionsBox">
                 <strong>Instrucciones:</strong><br>
+                <span id="instructionsText">
                 1. Selecciona "Radiador" o "Ventana"<br>
                 2. Haz clic en la habitación para colocar<br>
                 3. Presiona Play y observa la difusión<br>
                 4. Las paredes son adiabáticas (∂T/∂n = 0)
+                </span>
             </div>
         </div>
     </div>
@@ -362,6 +377,10 @@
         let T = [];     // Temperatura actual
         let Tnew = [];  // Temperatura siguiente paso
 
+        // Velocidad del fluido (convección)
+        let Vx = [];    // Velocidad horizontal
+        let Vy = [];    // Velocidad vertical
+
         // Fuentes de calor/frío (constantes)
         let sources = [];
 
@@ -371,6 +390,7 @@
         let hotTemp = 80;       // Temperatura radiador
         let coldTemp = 5;       // Temperatura ventana
         let speed = 5;          // Iteraciones por frame
+        let convectionStrength = 1.0;  // Intensidad de convección
 
         // Estado
         let running = false;
@@ -378,17 +398,24 @@
         let simTime = 0;
         let addMode = null;  // 'hot', 'cold', o null
         let showFlow = false;
+        let mode = 'conduction';  // 'conduction' o 'convection'
 
         // Inicializar grilla
         function initGrid() {
             T = [];
             Tnew = [];
+            Vx = [];
+            Vy = [];
             for (let i = 0; i < N; i++) {
                 T[i] = [];
                 Tnew[i] = [];
+                Vx[i] = [];
+                Vy[i] = [];
                 for (let j = 0; j < N; j++) {
                     T[i][j] = ambientTemp;
                     Tnew[i][j] = ambientTemp;
+                    Vx[i][j] = 0;
+                    Vy[i][j] = 0;
                 }
             }
         }
@@ -417,17 +444,60 @@
             const dx = 1.0 / N;
             const dt = 0.25 * dx * dx / alpha;  // Condición CFL
 
-            // Laplaciano con condiciones de frontera Neumann (adiabáticas)
-            for (let i = 0; i < N; i++) {
-                for (let j = 0; j < N; j++) {
-                    // Vecinos con condiciones de frontera reflejadas
-                    const im = i > 0 ? i - 1 : i + 1;
-                    const ip = i < N - 1 ? i + 1 : i - 1;
-                    const jm = j > 0 ? j - 1 : j + 1;
-                    const jp = j < N - 1 ? j + 1 : j - 1;
+            if (mode === 'conduction') {
+                // Modo conducción: solo difusión
+                for (let i = 0; i < N; i++) {
+                    for (let j = 0; j < N; j++) {
+                        const im = i > 0 ? i - 1 : i + 1;
+                        const ip = i < N - 1 ? i + 1 : i - 1;
+                        const jm = j > 0 ? j - 1 : j + 1;
+                        const jp = j < N - 1 ? j + 1 : j - 1;
 
-                    const laplacian = (T[ip][j] + T[im][j] + T[i][jp] + T[i][jm] - 4 * T[i][j]) / (dx * dx);
-                    Tnew[i][j] = T[i][j] + alpha * dt * laplacian;
+                        const laplacian = (T[ip][j] + T[im][j] + T[i][jp] + T[i][jm] - 4 * T[i][j]) / (dx * dx);
+                        Tnew[i][j] = T[i][j] + alpha * dt * laplacian;
+                    }
+                }
+            } else {
+                // Modo convección: calcular campo de velocidad + advección
+                // 1. Calcular velocidad basada en gradientes de temperatura (aire caliente sube)
+                for (let i = 1; i < N - 1; i++) {
+                    for (let j = 1; j < N - 1; j++) {
+                        // Gradiente de temperatura
+                        const dTdy = (T[i][j+1] - T[i][j-1]) / (2 * dx);
+
+                        // Velocidad vertical proporcional al gradiente (caliente sube)
+                        const buoyancy = -dTdy * convectionStrength * 0.05;
+                        Vy[i][j] = buoyancy;
+
+                        // Velocidad horizontal por circulación
+                        const dTdx = (T[i+1][j] - T[i-1][j]) / (2 * dx);
+                        Vx[i][j] = dTdx * convectionStrength * 0.02;
+                    }
+                }
+
+                // 2. Difusión + Advección térmica
+                for (let i = 1; i < N - 1; i++) {
+                    for (let j = 1; j < N - 1; j++) {
+                        // Difusión
+                        const laplacian = (T[i+1][j] + T[i-1][j] + T[i][j+1] + T[i][j-1] - 4 * T[i][j]) / (dx * dx);
+
+                        // Advección (transporte por velocidad del fluido)
+                        const dTdx = (T[i+1][j] - T[i-1][j]) / (2 * dx);
+                        const dTdy = (T[i][j+1] - T[i][j-1]) / (2 * dx);
+                        const advection = -(Vx[i][j] * dTdx + Vy[i][j] * dTdy);
+
+                        Tnew[i][j] = T[i][j] + dt * (alpha * laplacian + advection);
+                    }
+                }
+
+                // Condiciones de frontera para bordes
+                for (let i = 0; i < N; i++) {
+                    Tnew[i][0] = Tnew[i][1];
+                    Tnew[i][N-1] = Tnew[i][N-2];
+                }
+                for (let j = 0; j < N; j++) {
+                    Tnew[0][j] = Tnew[1][j];
+                    Tnew[N-1][j] = Tnew[N-2][j];
                 }
             }
 
@@ -544,41 +614,82 @@
                 ctx.fillText(src.type === 'hot' ? '🔥' : '❄️', src.x - 8, src.y + 6);
             }
 
-            // Flujo de calor (gradiente)
+            // Flujo de calor (gradiente) o campo de velocidad
             if (showFlow && iterations > 10) {
-                ctx.strokeStyle = 'rgba(255,255,255,0.4)';
-                ctx.lineWidth = 1;
-
                 const step = 8;
-                for (let i = step; i < N - step; i += step) {
-                    for (let j = step; j < N - step; j += step) {
-                        // Gradiente
-                        const dTdx = (T[Math.min(i+1, N-1)][j] - T[Math.max(i-1, 0)][j]) / 2;
-                        const dTdy = (T[i][Math.min(j+1, N-1)] - T[i][Math.max(j-1, 0)]) / 2;
 
-                        const mag = Math.sqrt(dTdx * dTdx + dTdy * dTdy);
-                        if (mag > 0.1) {
-                            const x = i * cellW + cellW / 2;
-                            const y = j * cellH + cellH / 2;
-                            const len = Math.min(mag * 3, 15);
+                if (mode === 'conduction') {
+                    // Flujo de calor por gradiente
+                    ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+                    ctx.lineWidth = 1;
 
-                            // Flujo va de caliente a frío (opuesto al gradiente)
-                            const fx = -dTdx / mag * len;
-                            const fy = -dTdy / mag * len;
+                    for (let i = step; i < N - step; i += step) {
+                        for (let j = step; j < N - step; j += step) {
+                            const dTdx = (T[Math.min(i+1, N-1)][j] - T[Math.max(i-1, 0)][j]) / 2;
+                            const dTdy = (T[i][Math.min(j+1, N-1)] - T[i][Math.max(j-1, 0)]) / 2;
 
-                            ctx.beginPath();
-                            ctx.moveTo(x, y);
-                            ctx.lineTo(x + fx, y + fy);
-                            ctx.stroke();
+                            const mag = Math.sqrt(dTdx * dTdx + dTdy * dTdy);
+                            if (mag > 0.1) {
+                                const x = i * cellW + cellW / 2;
+                                const y = j * cellH + cellH / 2;
+                                const len = Math.min(mag * 3, 15);
 
-                            // Punta de flecha
-                            const angle = Math.atan2(fy, fx);
-                            ctx.beginPath();
-                            ctx.moveTo(x + fx, y + fy);
-                            ctx.lineTo(x + fx - 4 * Math.cos(angle - 0.4), y + fy - 4 * Math.sin(angle - 0.4));
-                            ctx.moveTo(x + fx, y + fy);
-                            ctx.lineTo(x + fx - 4 * Math.cos(angle + 0.4), y + fy - 4 * Math.sin(angle + 0.4));
-                            ctx.stroke();
+                                const fx = -dTdx / mag * len;
+                                const fy = -dTdy / mag * len;
+
+                                ctx.beginPath();
+                                ctx.moveTo(x, y);
+                                ctx.lineTo(x + fx, y + fy);
+                                ctx.stroke();
+
+                                const angle = Math.atan2(fy, fx);
+                                ctx.beginPath();
+                                ctx.moveTo(x + fx, y + fy);
+                                ctx.lineTo(x + fx - 4 * Math.cos(angle - 0.4), y + fy - 4 * Math.sin(angle - 0.4));
+                                ctx.moveTo(x + fx, y + fy);
+                                ctx.lineTo(x + fx - 4 * Math.cos(angle + 0.4), y + fy - 4 * Math.sin(angle + 0.4));
+                                ctx.stroke();
+                            }
+                        }
+                    }
+                } else {
+                    // Campo de velocidad del fluido (convección)
+                    for (let i = step; i < N - step; i += step) {
+                        for (let j = step; j < N - step; j += step) {
+                            const vx = Vx[i][j];
+                            const vy = Vy[i][j];
+                            const mag = Math.sqrt(vx * vx + vy * vy);
+
+                            if (mag > 0.01) {
+                                const x = i * cellW + cellW / 2;
+                                const y = j * cellH + cellH / 2;
+                                const len = Math.min(mag * 100, 20);
+
+                                const fx = vx / mag * len;
+                                const fy = vy / mag * len;
+
+                                // Color basado en temperatura
+                                const temp = T[i][j];
+                                const tempNorm = (temp - coldTemp) / (hotTemp - coldTemp);
+                                const r = Math.floor(255 * tempNorm);
+                                const b = Math.floor(255 * (1 - tempNorm));
+                                ctx.strokeStyle = `rgba(${r},100,${b},0.6)`;
+                                ctx.lineWidth = 1.5;
+
+                                ctx.beginPath();
+                                ctx.moveTo(x, y);
+                                ctx.lineTo(x + fx, y + fy);
+                                ctx.stroke();
+
+                                // Punta de flecha
+                                const angle = Math.atan2(fy, fx);
+                                ctx.beginPath();
+                                ctx.moveTo(x + fx, y + fy);
+                                ctx.lineTo(x + fx - 5 * Math.cos(angle - 0.4), y + fy - 5 * Math.sin(angle - 0.4));
+                                ctx.moveTo(x + fx, y + fy);
+                                ctx.lineTo(x + fx - 5 * Math.cos(angle + 0.4), y + fy - 5 * Math.sin(angle + 0.4));
+                                ctx.stroke();
+                            }
                         }
                     }
                 }
@@ -697,6 +808,46 @@
             initGrid();
             applySources();
             draw();
+        });
+
+        // Controles de modo
+        document.getElementById('modeConductor').addEventListener('click', () => {
+            mode = 'conduction';
+            document.getElementById('modeConductor').classList.add('active');
+            document.getElementById('modeConvection').classList.remove('active');
+            document.getElementById('modeConductor').style.background = '#4ade80';
+            document.getElementById('modeConductor').style.color = '#000';
+            document.getElementById('modeConvection').style.background = '#333';
+            document.getElementById('modeConvection').style.color = '#aaa';
+            document.getElementById('convectionControls').style.display = 'none';
+
+            // Actualizar ecuación
+            document.getElementById('equationMain').textContent = '∂T/∂t = α∇²T';
+            document.getElementById('equationDesc').textContent = 'Ecuación del calor (2D)';
+            document.getElementById('equationDetail').textContent = '∂T/∂t = α(∂²T/∂x² + ∂²T/∂y²)';
+            document.getElementById('instructionsText').innerHTML = '1. Selecciona "Radiador" o "Ventana"<br>2. Haz clic en la habitación para colocar<br>3. Presiona Play y observa la difusión<br>4. Las paredes son adiabáticas (∂T/∂n = 0)';
+        });
+
+        document.getElementById('modeConvection').addEventListener('click', () => {
+            mode = 'convection';
+            document.getElementById('modeConvection').classList.add('active');
+            document.getElementById('modeConductor').classList.remove('active');
+            document.getElementById('modeConvection').style.background = '#4ade80';
+            document.getElementById('modeConvection').style.color = '#000';
+            document.getElementById('modeConductor').style.background = '#333';
+            document.getElementById('modeConductor').style.color = '#aaa';
+            document.getElementById('convectionControls').style.display = 'block';
+
+            // Actualizar ecuación
+            document.getElementById('equationMain').textContent = '∂T/∂t + v·∇T = α∇²T';
+            document.getElementById('equationDesc').textContent = 'Convección-Difusión (2D)';
+            document.getElementById('equationDetail').textContent = 'v basado en flotabilidad (T↑ → v↑)';
+            document.getElementById('instructionsText').innerHTML = '1. El aire caliente sube, el frío baja<br>2. Velocidad proporcional al gradiente de T<br>3. Activa "Mostrar flujo" para ver campo v<br>4. Ajusta intensidad de convección';
+        });
+
+        document.getElementById('convectionStrength').addEventListener('input', (e) => {
+            convectionStrength = parseFloat(e.target.value);
+            document.getElementById('convectionValue').textContent = convectionStrength.toFixed(1);
         });
 
         // Inicializar

@@ -59,6 +59,11 @@
         <div class="max-w-6xl mx-auto px-6 py-4">
             <div class="flex justify-between items-center">
                 <div>
+                    <nav class="text-xs text-gray-500 mb-1">
+                        <a href="https://cjlkaiser-cpu.github.io/eigenlab/_portal/index.html" class="hover:text-blue-400 transition">EigenLab</a>
+                        <span class="mx-1">/</span>
+                        <span class="text-gray-400">Physics Visual Lab</span>
+                    </nav>
                     <h1 class="text-2xl font-light">
                         <span class="text-blue-400 font-medium">Physics</span> Visual Lab
                     </h1>
@@ -78,7 +83,7 @@
                 Física <span class="text-blue-400 font-medium">visual</span>
             </h2>
             <p class="text-gray-400 max-w-2xl mx-auto">
-                18 simulaciones interactivas que dan vida a las ecuaciones de la física.
+                23 simulaciones interactivas que dan vida a las ecuaciones de la física.
                 Desde mecánica clásica hasta relatividad especial.
             </p>
         </section>
@@ -239,6 +244,23 @@
                 </div>
             </a>
 
+            <!-- Circuitos RLC -->
+            <a href="circuitos.html" class="card-link">
+                <div class="card relative bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden">
+                    <div class="card-border"></div>
+                    <div class="p-4">
+                        <canvas id="preview-circuitos" class="preview-canvas w-full h-40 bg-gray-950 mb-4"></canvas>
+                        <span class="category-tag bg-red-500/20 text-red-400">Electromagnetismo</span>
+                        <h3 class="text-lg font-medium mb-1 mt-2">Circuitos RLC</h3>
+                        <p class="text-gray-400 text-sm mb-3">Resistencias, inductores y capacitores en AC y DC. Impedancia, fasores, resonancia y factor de potencia. Visualiza el desfase entre voltaje y corriente.</p>
+                        <div class="equation text-blue-400/70 text-sm mb-4">Z = √(R² + (XL-XC)²)</div>
+                        <span class="block w-full text-center py-2 bg-blue-500/10 text-blue-400 rounded-lg hover:bg-blue-500/20 transition text-sm font-medium">
+                            Abrir Simulación →
+                        </span>
+                    </div>
+                </div>
+            </a>
+
             <!-- Difusión del Calor -->
             <a href="difusion-calor.html" class="card-link">
                 <div class="card relative bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden">
@@ -385,6 +407,74 @@
                         <h3 class="text-lg font-medium mb-1 mt-2">Orbifold Walker 3D</h3>
                         <p class="text-gray-400 text-sm mb-3">Espacio de tríadas de Tymoczko. Partícula navegando el orbifold T³/S₃ donde cada punto es un voicing. Visualización Three.js con attractores en acordes consonantes.</p>
                         <div class="equation text-blue-400/70 text-sm mb-4">T³/S₃ : (p₁, p₂, p₃) ↔ (x, y, z)</div>
+                        <span class="block w-full text-center py-2 bg-blue-500/10 text-blue-400 rounded-lg hover:bg-blue-500/20 transition text-sm font-medium">
+                            Abrir Simulación →
+                        </span>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Termodinámica (Ciclos) -->
+            <a href="termodinamica.html" class="card-link">
+                <div class="card relative bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden">
+                    <div class="card-border"></div>
+                    <div class="p-4">
+                        <canvas id="preview-termodinamica" class="preview-canvas w-full h-40 bg-gray-950 mb-4"></canvas>
+                        <span class="category-tag bg-orange-500/20 text-orange-400">Termodinámica</span>
+                        <h3 class="text-lg font-medium mb-1 mt-2">Ciclos Termodinámicos</h3>
+                        <p class="text-gray-400 text-sm mb-3">Diagrama PV con ciclos de Carnot, Otto y Diesel. Procesos isotérmicos, adiabáticos, isocóricos e isobáricos. Cálculo de eficiencia y balance de energía.</p>
+                        <div class="equation text-blue-400/70 text-sm mb-4">η = 1 - T_c/T_h, W = ∮PdV</div>
+                        <span class="block w-full text-center py-2 bg-blue-500/10 text-blue-400 rounded-lg hover:bg-blue-500/20 transition text-sm font-medium">
+                            Abrir Simulación →
+                        </span>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Entropía -->
+            <a href="entropia.html" class="card-link">
+                <div class="card relative bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden">
+                    <div class="card-border"></div>
+                    <div class="p-4">
+                        <canvas id="preview-entropia" class="preview-canvas w-full h-40 bg-gray-950 mb-4"></canvas>
+                        <span class="category-tag bg-orange-500/20 text-orange-400">Termodinámica</span>
+                        <h3 class="text-lg font-medium mb-1 mt-2">Entropía</h3>
+                        <p class="text-gray-400 text-sm mb-3">Segunda Ley de la Termodinámica. Expansión libre, mezcla de gases, equilibrio térmico y el Demonio de Maxwell. Microestados y distribución de Boltzmann.</p>
+                        <div class="equation text-blue-400/70 text-sm mb-4">S = k_B ln(Ω), ΔS ≥ 0</div>
+                        <span class="block w-full text-center py-2 bg-blue-500/10 text-blue-400 rounded-lg hover:bg-blue-500/20 transition text-sm font-medium">
+                            Abrir Simulación →
+                        </span>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Ondas Mecánicas -->
+            <a href="ondas.html" class="card-link">
+                <div class="card relative bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden">
+                    <div class="card-border"></div>
+                    <div class="p-4">
+                        <canvas id="preview-ondas" class="preview-canvas w-full h-40 bg-gray-950 mb-4"></canvas>
+                        <span class="category-tag bg-cyan-500/20 text-cyan-400">Ondas</span>
+                        <h3 class="text-lg font-medium mb-1 mt-2">Ondas Mecánicas</h3>
+                        <p class="text-gray-400 text-sm mb-3">Ondas transversales y longitudinales con partículas. Amplitud, longitud de onda, frecuencia y velocidad. Visualiza compresiones y rarefacciones.</p>
+                        <div class="equation text-blue-400/70 text-sm mb-4">y = A sin(kx - ωt), v = λf</div>
+                        <span class="block w-full text-center py-2 bg-blue-500/10 text-blue-400 rounded-lg hover:bg-blue-500/20 transition text-sm font-medium">
+                            Abrir Simulación →
+                        </span>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Efecto Túnel -->
+            <a href="efecto-tunel.html" class="card-link">
+                <div class="card relative bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden">
+                    <div class="card-border"></div>
+                    <div class="p-4">
+                        <canvas id="preview-tunel" class="preview-canvas w-full h-40 bg-gray-950 mb-4"></canvas>
+                        <span class="category-tag bg-purple-500/20 text-purple-400">Cuántica</span>
+                        <h3 class="text-lg font-medium mb-1 mt-2">Efecto Túnel</h3>
+                        <p class="text-gray-400 text-sm mb-3">Partículas atravesando barreras clásicamente prohibidas. Función de onda, coeficiente de transmisión y aplicaciones: STM, fusión, decaimiento alfa.</p>
+                        <div class="equation text-blue-400/70 text-sm mb-4">T ≈ e^{-2κa}, κ = √(2m(V₀-E))/ℏ</div>
                         <span class="block w-full text-center py-2 bg-blue-500/10 text-blue-400 rounded-lg hover:bg-blue-500/20 transition text-sm font-medium">
                             Abrir Simulación →
                         </span>
@@ -655,6 +745,71 @@
                         vy: 2
                     },
                     trail: []
+                };
+            }
+
+            // Termodinámica (Ciclos)
+            const termo = document.getElementById('preview-termodinamica');
+            if (termo) {
+                previews.termodinamica = {
+                    ctx: termo.getContext('2d'),
+                    w: termo.width = termo.offsetWidth * 2,
+                    h: termo.height = termo.offsetHeight * 2,
+                    t: 0
+                };
+            }
+
+            // Ondas Mecánicas
+            const ondas = document.getElementById('preview-ondas');
+            if (ondas) {
+                previews.ondas = {
+                    ctx: ondas.getContext('2d'),
+                    w: ondas.width = ondas.offsetWidth * 2,
+                    h: ondas.height = ondas.offsetHeight * 2
+                };
+            }
+
+            // Efecto Túnel
+            const tunel = document.getElementById('preview-tunel');
+            if (tunel) {
+                previews.tunel = {
+                    ctx: tunel.getContext('2d'),
+                    w: tunel.width = tunel.offsetWidth * 2,
+                    h: tunel.height = tunel.offsetHeight * 2
+                };
+            }
+
+            // Circuitos RLC
+            const circuitos = document.getElementById('preview-circuitos');
+            if (circuitos) {
+                previews.circuitos = {
+                    ctx: circuitos.getContext('2d'),
+                    w: circuitos.width = circuitos.offsetWidth * 2,
+                    h: circuitos.height = circuitos.offsetHeight * 2
+                };
+            }
+
+            // Entropía
+            const entropia = document.getElementById('preview-entropia');
+            if (entropia) {
+                const w = entropia.width = entropia.offsetWidth * 2;
+                const h = entropia.height = entropia.offsetHeight * 2;
+                // Create particles for entropy visualization
+                const particles = [];
+                for (let i = 0; i < 40; i++) {
+                    particles.push({
+                        x: Math.random() * w * 0.4 + 10, // Start on left
+                        y: Math.random() * (h - 20) + 10,
+                        vx: (Math.random() - 0.5) * 4,
+                        vy: (Math.random() - 0.5) * 4
+                    });
+                }
+                previews.entropia = {
+                    ctx: entropia.getContext('2d'),
+                    w, h,
+                    particles,
+                    barrierOpen: false,
+                    openTime: 0
                 };
             }
         }
@@ -1535,6 +1690,482 @@
                 a.ctx.strokeStyle = '#fff';
                 a.ctx.lineWidth = 1;
                 a.ctx.stroke();
+            }
+
+            // Termodinámica (Ciclo PV)
+            if (previews.termodinamica) {
+                const t = previews.termodinamica;
+                t.ctx.fillStyle = '#030712';
+                t.ctx.fillRect(0, 0, t.w, t.h);
+
+                const margin = 40;
+                const plotW = t.w - 2 * margin;
+                const plotH = t.h - 2 * margin;
+
+                // Axes
+                t.ctx.strokeStyle = '#374151';
+                t.ctx.lineWidth = 2;
+                t.ctx.beginPath();
+                t.ctx.moveTo(margin, margin);
+                t.ctx.lineTo(margin, t.h - margin);
+                t.ctx.lineTo(t.w - margin, t.h - margin);
+                t.ctx.stroke();
+
+                // Labels
+                t.ctx.fillStyle = '#9ca3af';
+                t.ctx.font = '14px Inter';
+                t.ctx.textAlign = 'center';
+                t.ctx.fillText('V', t.w / 2, t.h - 10);
+                t.ctx.save();
+                t.ctx.translate(15, t.h / 2);
+                t.ctx.rotate(-Math.PI / 2);
+                t.ctx.fillText('P', 0, 0);
+                t.ctx.restore();
+
+                // Carnot cycle path (animate around)
+                const cycle = [
+                    { v: 0.2, p: 0.8 }, // A - high P, low V
+                    { v: 0.5, p: 0.5 }, // B - isothermal expansion
+                    { v: 0.8, p: 0.35 }, // C - adiabatic expansion
+                    { v: 0.5, p: 0.25 }, // D - isothermal compression
+                ];
+
+                // Draw cycle
+                t.ctx.strokeStyle = '#f97316';
+                t.ctx.lineWidth = 3;
+                t.ctx.beginPath();
+                cycle.forEach((pt, i) => {
+                    const x = margin + pt.v * plotW;
+                    const y = margin + (1 - pt.p) * plotH;
+                    if (i === 0) t.ctx.moveTo(x, y);
+                    else t.ctx.lineTo(x, y);
+                });
+                t.ctx.closePath();
+                t.ctx.stroke();
+
+                // Fill cycle area
+                t.ctx.fillStyle = 'rgba(249, 115, 22, 0.15)';
+                t.ctx.fill();
+
+                // Animate state point
+                t.t = (t.t + 0.01) % 1;
+                const idx = Math.floor(t.t * 4);
+                const frac = (t.t * 4) % 1;
+                const from = cycle[idx];
+                const to = cycle[(idx + 1) % 4];
+                const stateV = from.v + (to.v - from.v) * frac;
+                const stateP = from.p + (to.p - from.p) * frac;
+
+                const stateX = margin + stateV * plotW;
+                const stateY = margin + (1 - stateP) * plotH;
+
+                // State point
+                t.ctx.fillStyle = '#fbbf24';
+                t.ctx.beginPath();
+                t.ctx.arc(stateX, stateY, 10, 0, Math.PI * 2);
+                t.ctx.fill();
+
+                // Glow
+                t.ctx.shadowColor = '#fbbf24';
+                t.ctx.shadowBlur = 15;
+                t.ctx.fill();
+                t.ctx.shadowBlur = 0;
+            }
+
+            // Ondas Mecánicas
+            if (previews.ondas) {
+                const o = previews.ondas;
+                o.ctx.fillStyle = '#030712';
+                o.ctx.fillRect(0, 0, o.w, o.h);
+
+                const numParticles = 40;
+                const A = 30; // amplitude
+                const lambda = o.w / 2;
+                const k = 2 * Math.PI / lambda;
+                const omega = 3;
+                const cy = o.h / 2;
+
+                // Draw wave line
+                o.ctx.strokeStyle = '#60a5fa40';
+                o.ctx.lineWidth = 2;
+                o.ctx.beginPath();
+                for (let x = 0; x < o.w; x += 2) {
+                    const y = cy + A * Math.sin(k * x - omega * time);
+                    if (x === 0) o.ctx.moveTo(x, y);
+                    else o.ctx.lineTo(x, y);
+                }
+                o.ctx.stroke();
+
+                // Draw particles on the wave
+                for (let i = 0; i < numParticles; i++) {
+                    const x = (i / numParticles) * o.w;
+                    const y = cy + A * Math.sin(k * x - omega * time);
+
+                    // Particle color based on displacement
+                    const disp = Math.sin(k * x - omega * time);
+                    const hue = 200 + disp * 30;
+
+                    o.ctx.fillStyle = `hsl(${hue}, 70%, 60%)`;
+                    o.ctx.beginPath();
+                    o.ctx.arc(x, y, 6, 0, Math.PI * 2);
+                    o.ctx.fill();
+
+                    // Velocity indicator (small vertical line)
+                    const vy = -A * omega * Math.cos(k * x - omega * time);
+                    o.ctx.strokeStyle = '#fbbf2480';
+                    o.ctx.lineWidth = 2;
+                    o.ctx.beginPath();
+                    o.ctx.moveTo(x, y);
+                    o.ctx.lineTo(x, y + vy * 0.3);
+                    o.ctx.stroke();
+                }
+
+                // Wavelength indicator
+                o.ctx.strokeStyle = '#22c55e';
+                o.ctx.lineWidth = 2;
+                o.ctx.setLineDash([4, 4]);
+                o.ctx.beginPath();
+                o.ctx.moveTo(o.w * 0.25, o.h - 25);
+                o.ctx.lineTo(o.w * 0.75, o.h - 25);
+                o.ctx.stroke();
+                o.ctx.setLineDash([]);
+
+                o.ctx.fillStyle = '#22c55e';
+                o.ctx.font = '12px Inter';
+                o.ctx.textAlign = 'center';
+                o.ctx.fillText('λ', o.w / 2, o.h - 10);
+            }
+
+            // Efecto Túnel Cuántico
+            if (previews.tunel) {
+                const t = previews.tunel;
+                t.ctx.fillStyle = '#030712';
+                t.ctx.fillRect(0, 0, t.w, t.h);
+
+                const cy = t.h / 2;
+                const barrierLeft = t.w * 0.4;
+                const barrierRight = t.w * 0.6;
+                const barrierHeight = t.h * 0.6;
+
+                // Barrier potential
+                t.ctx.fillStyle = 'rgba(168, 85, 247, 0.3)';
+                t.ctx.fillRect(barrierLeft, cy - barrierHeight / 2, barrierRight - barrierLeft, barrierHeight);
+                t.ctx.strokeStyle = '#a855f7';
+                t.ctx.lineWidth = 2;
+                t.ctx.strokeRect(barrierLeft, cy - barrierHeight / 2, barrierRight - barrierLeft, barrierHeight);
+
+                // Potential step indicator
+                t.ctx.strokeStyle = '#a855f780';
+                t.ctx.lineWidth = 2;
+                t.ctx.setLineDash([4, 4]);
+                t.ctx.beginPath();
+                t.ctx.moveTo(0, cy - barrierHeight / 2);
+                t.ctx.lineTo(barrierLeft, cy - barrierHeight / 2);
+                t.ctx.moveTo(barrierRight, cy - barrierHeight / 2);
+                t.ctx.lineTo(t.w, cy - barrierHeight / 2);
+                t.ctx.stroke();
+                t.ctx.setLineDash([]);
+
+                // V₀ label
+                t.ctx.fillStyle = '#a855f7';
+                t.ctx.font = '12px Inter';
+                t.ctx.textAlign = 'center';
+                t.ctx.fillText('V₀', (barrierLeft + barrierRight) / 2, cy - barrierHeight / 2 - 8);
+
+                // Incident wave (left side)
+                const k1 = 0.15;
+                const omega = 3;
+                const A1 = 35;
+
+                t.ctx.strokeStyle = '#22c55e';
+                t.ctx.lineWidth = 2.5;
+                t.ctx.beginPath();
+                for (let x = 0; x < barrierLeft; x += 2) {
+                    const phase = k1 * x - omega * time;
+                    const y = cy + A1 * Math.sin(phase);
+                    if (x === 0) t.ctx.moveTo(x, y);
+                    else t.ctx.lineTo(x, y);
+                }
+                t.ctx.stroke();
+
+                // Wave inside barrier (exponential decay)
+                const kappa = 0.04;
+                t.ctx.strokeStyle = '#fbbf24';
+                t.ctx.lineWidth = 2;
+                t.ctx.beginPath();
+                for (let x = barrierLeft; x < barrierRight; x += 2) {
+                    const decay = Math.exp(-kappa * (x - barrierLeft));
+                    const phase = -omega * time;
+                    const y = cy + A1 * decay * Math.sin(phase);
+                    if (x === barrierLeft) t.ctx.moveTo(x, y);
+                    else t.ctx.lineTo(x, y);
+                }
+                t.ctx.stroke();
+
+                // Transmitted wave (right side) - smaller amplitude
+                const T = Math.exp(-kappa * (barrierRight - barrierLeft));
+                const A2 = A1 * T * 2; // Amplified for visibility
+                t.ctx.strokeStyle = '#60a5fa';
+                t.ctx.lineWidth = 2;
+                t.ctx.beginPath();
+                for (let x = barrierRight; x < t.w; x += 2) {
+                    const phase = k1 * (x - barrierRight) - omega * time;
+                    const y = cy + A2 * Math.sin(phase);
+                    if (x === barrierRight) t.ctx.moveTo(x, y);
+                    else t.ctx.lineTo(x, y);
+                }
+                t.ctx.stroke();
+
+                // Particle probability cloud (animated)
+                const particleX = (time * 30) % (t.w + 100) - 50;
+                if (particleX < barrierLeft - 20) {
+                    // Before barrier - full probability
+                    t.ctx.fillStyle = 'rgba(34, 197, 94, 0.6)';
+                    t.ctx.beginPath();
+                    t.ctx.arc(particleX, cy, 10, 0, Math.PI * 2);
+                    t.ctx.fill();
+                } else if (particleX > barrierRight + 20) {
+                    // After barrier - transmitted (smaller)
+                    t.ctx.fillStyle = 'rgba(96, 165, 250, 0.4)';
+                    t.ctx.beginPath();
+                    t.ctx.arc(particleX, cy, 6, 0, Math.PI * 2);
+                    t.ctx.fill();
+                }
+
+                // Legend
+                t.ctx.font = '10px Inter';
+                t.ctx.textAlign = 'left';
+                t.ctx.fillStyle = '#22c55e';
+                t.ctx.fillText('ψ incidente', 10, t.h - 25);
+                t.ctx.fillStyle = '#60a5fa';
+                t.ctx.fillText('ψ transmitida', 10, t.h - 10);
+            }
+
+            // Circuitos RLC
+            if (previews.circuitos) {
+                const c = previews.circuitos;
+                c.ctx.fillStyle = '#030712';
+                c.ctx.fillRect(0, 0, c.w, c.h);
+
+                const cx = c.w / 2;
+                const cy = c.h / 2;
+                const omega = 3;
+
+                // Draw circuit loop
+                c.ctx.strokeStyle = '#1e293b';
+                c.ctx.lineWidth = 2;
+                c.ctx.beginPath();
+                c.ctx.roundRect(50, 30, c.w - 100, c.h - 60, 10);
+                c.ctx.stroke();
+
+                // AC Source
+                c.ctx.beginPath();
+                c.ctx.arc(50, cy, 18, 0, Math.PI * 2);
+                c.ctx.strokeStyle = '#fbbf24';
+                c.ctx.lineWidth = 2;
+                c.ctx.stroke();
+
+                // Sine wave inside source
+                c.ctx.beginPath();
+                for (let i = -10; i <= 10; i++) {
+                    const sx = 50 + i;
+                    const sy = cy + 6 * Math.sin(i * 0.4 + time * omega);
+                    if (i === -10) c.ctx.moveTo(sx, sy);
+                    else c.ctx.lineTo(sx, sy);
+                }
+                c.ctx.strokeStyle = '#fbbf24';
+                c.ctx.lineWidth = 1.5;
+                c.ctx.stroke();
+
+                // Resistor
+                const rx = c.w * 0.35;
+                c.ctx.strokeStyle = '#22c55e';
+                c.ctx.lineWidth = 2.5;
+                c.ctx.beginPath();
+                c.ctx.moveTo(rx - 25, 30);
+                for (let i = 0; i <= 6; i++) {
+                    c.ctx.lineTo(rx - 25 + i * 8, 30 + (i % 2 === 0 ? 0 : (i % 4 === 1 ? -10 : 10)));
+                }
+                c.ctx.stroke();
+
+                // Inductor
+                const lx = c.w * 0.55;
+                c.ctx.strokeStyle = '#a855f7';
+                c.ctx.lineWidth = 2.5;
+                c.ctx.beginPath();
+                c.ctx.moveTo(lx - 20, 30);
+                for (let i = 0; i < 4; i++) {
+                    c.ctx.arc(lx - 15 + i * 10, 30, 6, Math.PI, 0, false);
+                }
+                c.ctx.lineTo(lx + 25, 30);
+                c.ctx.stroke();
+
+                // Capacitor
+                const capx = c.w * 0.75;
+                c.ctx.strokeStyle = '#ef4444';
+                c.ctx.lineWidth = 3;
+                c.ctx.beginPath();
+                c.ctx.moveTo(capx - 4, 20);
+                c.ctx.lineTo(capx - 4, 40);
+                c.ctx.moveTo(capx + 4, 20);
+                c.ctx.lineTo(capx + 4, 40);
+                c.ctx.stroke();
+
+                // Animated current flow
+                const numElectrons = 8;
+                c.ctx.fillStyle = 'rgba(96, 165, 250, 0.8)';
+                for (let i = 0; i < numElectrons; i++) {
+                    const phase = (time * 2 + i / numElectrons) % 1;
+                    const perimeter = 2 * (c.w - 100) + 2 * (c.h - 60);
+                    const pos = phase * perimeter;
+                    let ex, ey;
+
+                    if (pos < c.w - 100) {
+                        ex = 50 + pos;
+                        ey = 30;
+                    } else if (pos < c.w - 100 + c.h - 60) {
+                        ex = c.w - 50;
+                        ey = 30 + (pos - (c.w - 100));
+                    } else if (pos < 2 * (c.w - 100) + c.h - 60) {
+                        ex = c.w - 50 - (pos - (c.w - 100 + c.h - 60));
+                        ey = c.h - 30;
+                    } else {
+                        ex = 50;
+                        ey = c.h - 30 - (pos - (2 * (c.w - 100) + c.h - 60));
+                    }
+
+                    c.ctx.beginPath();
+                    c.ctx.arc(ex, ey, 3, 0, Math.PI * 2);
+                    c.ctx.fill();
+                }
+
+                // Voltage waveform at bottom
+                c.ctx.strokeStyle = '#fbbf24';
+                c.ctx.lineWidth = 2;
+                c.ctx.beginPath();
+                for (let x = 80; x < c.w - 80; x += 2) {
+                    const y = c.h - 40 + 15 * Math.sin((x - 80) * 0.05 + time * omega);
+                    if (x === 80) c.ctx.moveTo(x, y);
+                    else c.ctx.lineTo(x, y);
+                }
+                c.ctx.stroke();
+
+                // Current waveform (phase shifted)
+                c.ctx.strokeStyle = '#60a5fa';
+                c.ctx.lineWidth = 2;
+                c.ctx.beginPath();
+                for (let x = 80; x < c.w - 80; x += 2) {
+                    const y = c.h - 40 + 12 * Math.sin((x - 80) * 0.05 + time * omega - 0.8);
+                    if (x === 80) c.ctx.moveTo(x, y);
+                    else c.ctx.lineTo(x, y);
+                }
+                c.ctx.stroke();
+
+                // Labels
+                c.ctx.font = '11px Inter';
+                c.ctx.fillStyle = '#22c55e';
+                c.ctx.textAlign = 'center';
+                c.ctx.fillText('R', c.w * 0.35, 55);
+                c.ctx.fillStyle = '#a855f7';
+                c.ctx.fillText('L', c.w * 0.55, 55);
+                c.ctx.fillStyle = '#ef4444';
+                c.ctx.fillText('C', c.w * 0.75, 55);
+            }
+
+            // Entropía
+            if (previews.entropia) {
+                const e = previews.entropia;
+                e.ctx.fillStyle = '#030712';
+                e.ctx.fillRect(0, 0, e.w, e.h);
+
+                const barrier = e.w / 2;
+
+                // Open barrier after some time
+                e.openTime += 0.02;
+                if (e.openTime > 2) {
+                    e.barrierOpen = true;
+                }
+                if (e.openTime > 8) {
+                    // Reset after particles spread
+                    e.openTime = 0;
+                    e.barrierOpen = false;
+                    e.particles.forEach(p => {
+                        p.x = Math.random() * e.w * 0.4 + 10;
+                        p.y = Math.random() * (e.h - 20) + 10;
+                    });
+                }
+
+                // Draw container
+                e.ctx.strokeStyle = '#374151';
+                e.ctx.lineWidth = 2;
+                e.ctx.strokeRect(5, 5, e.w - 10, e.h - 10);
+
+                // Draw barrier (if not open)
+                if (!e.barrierOpen) {
+                    e.ctx.strokeStyle = '#64748b';
+                    e.ctx.lineWidth = 3;
+                    e.ctx.beginPath();
+                    e.ctx.moveTo(barrier, 5);
+                    e.ctx.lineTo(barrier, e.h - 5);
+                    e.ctx.stroke();
+                } else {
+                    // Barrier opening animation
+                    const gapSize = Math.min((e.openTime - 2) * 50, e.h * 0.6);
+                    const gapCenter = e.h / 2;
+                    e.ctx.strokeStyle = '#64748b';
+                    e.ctx.lineWidth = 3;
+                    e.ctx.beginPath();
+                    e.ctx.moveTo(barrier, 5);
+                    e.ctx.lineTo(barrier, gapCenter - gapSize / 2);
+                    e.ctx.moveTo(barrier, gapCenter + gapSize / 2);
+                    e.ctx.lineTo(barrier, e.h - 5);
+                    e.ctx.stroke();
+                }
+
+                // Update and draw particles
+                e.particles.forEach(p => {
+                    // Move
+                    p.x += p.vx;
+                    p.y += p.vy;
+
+                    // Wall collisions
+                    if (p.x < 10) { p.x = 10; p.vx *= -1; }
+                    if (p.x > e.w - 10) { p.x = e.w - 10; p.vx *= -1; }
+                    if (p.y < 10) { p.y = 10; p.vy *= -1; }
+                    if (p.y > e.h - 10) { p.y = e.h - 10; p.vy *= -1; }
+
+                    // Barrier collision
+                    if (!e.barrierOpen) {
+                        if (p.x < barrier && p.x + p.vx > barrier - 5) {
+                            p.vx *= -1;
+                        }
+                    }
+
+                    // Color based on speed
+                    const speed = Math.sqrt(p.vx * p.vx + p.vy * p.vy);
+                    const hue = Math.max(0, 60 - speed * 10);
+                    e.ctx.fillStyle = `hsl(${hue}, 80%, 55%)`;
+                    e.ctx.beginPath();
+                    e.ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
+                    e.ctx.fill();
+                });
+
+                // Entropy indicator
+                let leftCount = 0;
+                e.particles.forEach(p => { if (p.x < barrier) leftCount++; });
+                const entropyLevel = 1 - Math.abs(leftCount / e.particles.length - 0.5) * 2;
+
+                e.ctx.fillStyle = '#64748b';
+                e.ctx.font = '10px Inter';
+                e.ctx.textAlign = 'left';
+                e.ctx.fillText('S', 10, e.h - 10);
+
+                // Entropy bar
+                e.ctx.fillStyle = '#1e293b';
+                e.ctx.fillRect(25, e.h - 18, 60, 10);
+                const barColor = entropyLevel < 0.5 ? '#22c55e' : (entropyLevel < 0.8 ? '#fbbf24' : '#ef4444');
+                e.ctx.fillStyle = barColor;
+                e.ctx.fillRect(25, e.h - 18, entropyLevel * 60, 10);
             }
 
             requestAnimationFrame(animate);
