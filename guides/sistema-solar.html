@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guía: Sistema Solar | Physics Visual Lab</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-bg: #0a0a0a; --color-surface: #141414; --color-surface-elevated: #1a1a1a;
+            --color-border: #262626; --color-text: #e5e5e5; --color-text-secondary: #a3a3a3;
+            --color-accent: #22c55e; --color-accent-dim: rgba(34,197,94,0.1);
+            --font-serif: 'Crimson Pro', Georgia, serif; --font-sans: 'Inter', system-ui, sans-serif;
+            --font-mono: 'Fira Code', monospace;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: var(--font-serif); font-size: 19px; line-height: 1.7; color: var(--color-text); background-color: var(--color-bg); padding: 2rem; max-width: 900px; margin: 0 auto; }
+        header { margin-bottom: 3rem; padding-bottom: 2rem; border-bottom: 1px solid var(--color-border); }
+        .breadcrumb { font-family: var(--font-sans); font-size: 0.85rem; color: var(--color-text-secondary); margin-bottom: 1rem; }
+        .breadcrumb a { color: var(--color-accent); text-decoration: none; }
+        .breadcrumb a:hover { text-decoration: underline; }
+        h1 { font-family: var(--font-serif); font-size: 2.5rem; font-weight: 600; margin-bottom: 0.5rem; letter-spacing: -0.02em; }
+        .subtitle { font-size: 1.25rem; color: var(--color-text-secondary); font-style: italic; }
+        h2 { font-family: var(--font-sans); font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--color-accent); margin-top: 3rem; margin-bottom: 1.25rem; }
+        h3 { font-family: var(--font-serif); font-size: 1.4rem; font-weight: 600; margin-top: 2rem; margin-bottom: 0.75rem; }
+        p { margin-bottom: 1.25rem; }
+        .intro { font-size: 1.15rem; color: var(--color-text-secondary); border-left: 3px solid var(--color-accent); padding-left: 1.5rem; margin: 2rem 0; }
+        .equation-block { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 8px; padding: 2rem; margin: 1.5rem 0; text-align: center; }
+        .equation { font-family: var(--font-mono); font-size: 1.35rem; color: var(--color-accent); margin-bottom: 0.75rem; }
+        .equation-label { font-family: var(--font-sans); font-size: 0.85rem; color: var(--color-text-secondary); }
+        .concept-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin: 1.5rem 0; }
+        .concept-card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 8px; padding: 1.5rem; }
+        .concept-card h4 { font-family: var(--font-sans); font-size: 1rem; font-weight: 600; margin-bottom: 0.75rem; color: var(--color-accent); }
+        .concept-card p { font-size: 0.95rem; margin-bottom: 0; color: var(--color-text-secondary); }
+        .key-insight { background: var(--color-accent-dim); border: 1px solid var(--color-accent); border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0; }
+        .key-insight strong { color: var(--color-accent); }
+        .experiment-block { background: var(--color-surface-elevated); border-radius: 8px; padding: 1.75rem; margin: 1.5rem 0; border-left: 3px solid var(--color-accent); }
+        .experiment-block h4 { font-family: var(--font-sans); font-weight: 600; margin-bottom: 1rem; }
+        .experiment-block ol { margin-left: 1.25rem; color: var(--color-text-secondary); }
+        .experiment-block li { margin-bottom: 0.5rem; }
+        .connections-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 1.5rem 0; }
+        .connection-item { display: flex; align-items: center; gap: 0.75rem; padding: 1rem; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 8px; text-decoration: none; color: var(--color-text); transition: border-color 0.2s; }
+        .connection-item:hover { border-color: var(--color-accent); background: var(--color-surface-elevated); }
+        .connection-icon { font-size: 1.5rem; }
+        .connection-text { font-family: var(--font-sans); font-size: 0.9rem; }
+        ul { margin-left: 1.25rem; margin-bottom: 1.25rem; }
+        li { margin-bottom: 0.5rem; }
+        footer { margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--color-border); text-align: center; }
+        .btn-launch { display: inline-flex; align-items: center; gap: 0.5rem; font-family: var(--font-sans); font-size: 1rem; font-weight: 500; padding: 1rem 2rem; background: var(--color-accent); color: #030712; border-radius: 8px; text-decoration: none; transition: opacity 0.2s; }
+        .btn-launch:hover { opacity: 0.9; }
+        .planet-table { width: 100%; border-collapse: collapse; font-family: var(--font-sans); font-size: 0.85rem; margin: 1.5rem 0; }
+        .planet-table th { text-align: left; padding: 0.6rem 0.75rem; background: var(--color-surface); border-bottom: 1px solid var(--color-border); color: var(--color-text-secondary); font-weight: 600; font-size: 0.75rem; text-transform: uppercase; }
+        .planet-table td { padding: 0.55rem 0.75rem; border-bottom: 1px solid var(--color-border); font-family: var(--font-mono); font-size: 0.82rem; }
+        .planet-table tr td:first-child { font-family: var(--font-sans); color: var(--color-text); }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="breadcrumb">
+            <a href="https://cjlkaiser-cpu.github.io/eigenlab/_portal/index.html">EigenLab</a> /
+            <a href="../index.html">Physics Visual Lab</a> /
+            <span>Guía: Sistema Solar</span>
+        </nav>
+        <h1>Sistema Solar</h1>
+        <p class="subtitle">Ocho planetas con períodos, excentricidades y velocidades reales</p>
+    </header>
+
+    <p class="intro">
+        La simulación no es una representación artística: usa los datos orbitales reales de cada
+        planeta y resuelve la ecuación de Kepler en cada frame para calcular la posición exacta.
+        El resultado es una imagen precisa del movimiento planetario, donde puedes verificar
+        directamente las tres leyes de Kepler.
+    </p>
+
+    <h2>La Gravitación Universal</h2>
+
+    <div class="equation-block">
+        <div class="equation">F = G · M · m / r²</div>
+        <div class="equation-label">La fuerza que mantiene cada planeta en su órbita. G = 6.674×10⁻¹¹ N·m²/kg²</div>
+    </div>
+
+    <p>Esta fuerza actúa continuamente en dirección al Sol, curvando la trayectoria del planeta en una elipse. La velocidad orbital no es constante: el planeta acelera al acercarse al Sol (perihelio) y frena al alejarse (afelio), exactamente como predice la segunda ley de Kepler.</p>
+
+    <h2>Datos Reales de los Planetas</h2>
+
+    <table class="planet-table">
+        <thead>
+            <tr><th>Planeta</th><th>a (UA)</th><th>e</th><th>T (días)</th><th>v_media (km/s)</th><th>Lunas</th></tr>
+        </thead>
+        <tbody>
+            <tr><td>Mercurio</td><td>0.387</td><td>0.206</td><td>88.0</td><td>47.4</td><td>0</td></tr>
+            <tr><td>Venus</td><td>0.723</td><td>0.007</td><td>224.7</td><td>35.0</td><td>0</td></tr>
+            <tr><td>Tierra</td><td>1.000</td><td>0.017</td><td>365.3</td><td>29.8</td><td>1</td></tr>
+            <tr><td>Marte</td><td>1.524</td><td>0.093</td><td>687.0</td><td>24.1</td><td>2</td></tr>
+            <tr><td>Júpiter</td><td>5.203</td><td>0.049</td><td>4332</td><td>13.1</td><td>95</td></tr>
+            <tr><td>Saturno</td><td>9.537</td><td>0.057</td><td>10759</td><td>9.7</td><td>146</td></tr>
+            <tr><td>Urano</td><td>19.19</td><td>0.046</td><td>30688</td><td>6.8</td><td>28</td></tr>
+            <tr><td>Neptuno</td><td>30.07</td><td>0.009</td><td>60182</td><td>5.4</td><td>16</td></tr>
+        </tbody>
+    </table>
+
+    <h2>La Ecuación de Kepler y Newton-Raphson</h2>
+
+    <p>Para calcular la posición del planeta en cualquier instante, la simulación resuelve la <em>ecuación de Kepler</em> con el método de Newton-Raphson en cada frame:</p>
+
+    <div class="equation-block">
+        <div class="equation">M = E − e · sin(E)</div>
+        <div class="equation-label">M = anomalía media (proporcional al tiempo) · E = anomalía excéntrica · e = excentricidad</div>
+    </div>
+
+    <p>Dada M, encontrar E requiere resolver esta ecuación trascendente iterativamente. Newton-Raphson converge en 3–5 iteraciones con precisión de 10⁻⁶. A partir de E se obtienen las coordenadas x, y de la posición orbital exacta.</p>
+
+    <div class="key-insight">
+        <strong>La excentricidad define la forma de la órbita.</strong> Con e = 0 la órbita es un círculo perfecto. Mercurio tiene e = 0.206: la mayor del sistema solar (exceptuando Plutón). Su distancia al Sol varía un 40% entre perihelio y afelio, causando una variación de temperatura de más de 600 °C. La Tierra tiene e = 0.017: casi circular.
+    </div>
+
+    <h2>Las Tres Leyes de Kepler (verificables en la sim)</h2>
+
+    <div class="concept-grid">
+        <div class="concept-card">
+            <h4>1ª Ley — Elipses</h4>
+            <p>Cada planeta describe una elipse con el Sol en uno de sus focos. Puedes ver la elipse de cada órbita directamente en la simulación, con el Sol desplazado del centro geométrico.</p>
+        </div>
+        <div class="concept-card">
+            <h4>2ª Ley — Áreas iguales</h4>
+            <p>El radio vector barre áreas iguales en tiempos iguales. Clic en un planeta y observa cómo acelera cerca del Sol y frena lejos. La velocidad mostrada varía continuamente.</p>
+        </div>
+        <div class="concept-card">
+            <h4>3ª Ley — T² ∝ a³</h4>
+            <p>Júpiter (a = 5.2 UA) tarda T = 11.86 años. T² = 140.7, a³ = 140.6. La tercera ley en acción: compara cualquier par de planetas con los datos de la tabla.</p>
+        </div>
+    </div>
+
+    <h2>Experimentos Guiados</h2>
+
+    <div class="experiment-block">
+        <h4>Experimento 1 — Verificar la tercera ley</h4>
+        <ol>
+            <li>Selecciona la Tierra: a = 1.00 UA, T = 365 días = 1 año. T²/a³ = 1/1 = 1.</li>
+            <li>Selecciona Marte: a = 1.524 UA, T = 687 días = 1.88 años. Calcula T²/a³ = 1.88²/1.524³ = 3.53/3.54 ≈ 1.</li>
+            <li>Prueba con Júpiter: T = 11.86 años, a = 5.203 UA. T²/a³ = 140.7/140.6 ≈ 1.</li>
+            <li>La constante T²/a³ = 1 (en unidades UA y años) es universal para todos los planetas del sistema solar.</li>
+        </ol>
+    </div>
+
+    <div class="experiment-block">
+        <h4>Experimento 2 — La velocidad orbital y la excentricidad</h4>
+        <ol>
+            <li>Selecciona Mercurio (e = 0.206, la más excéntrica). Observa cómo varía la velocidad mostrada durante la órbita.</li>
+            <li>En el perihelio (más cerca del Sol), la velocidad es máxima: ~59 km/s.</li>
+            <li>En el afelio (más lejos), es mínima: ~39 km/s. Diferencia del 50%.</li>
+            <li>Compara con Venus (e = 0.007, casi circular): la velocidad apenas varía (~0.3 km/s de diferencia).</li>
+        </ol>
+    </div>
+
+    <div class="experiment-block">
+        <h4>Experimento 3 — Escalas y el vacío del sistema solar</h4>
+        <ol>
+            <li>Observa la simulación a escala por defecto. Los planetas interiores se mueven rápido; los exteriores son lentos.</li>
+            <li>Usa el zoom para acercarte a los planetas interiores. La separación entre Mercurio y Neptuno es de ~30 UA.</li>
+            <li>Si la Tierra fuera una pelota de golf (42 mm), el Sol sería una esfera de 4.6 m a 500 m de distancia. Neptuno estaría a 15 km.</li>
+            <li>El sistema solar es 99.86% vacío (por volumen). Los planetas son motas de polvo en un espacio enorme.</li>
+        </ol>
+    </div>
+
+    <h2>Conexiones</h2>
+
+    <div class="connections-grid">
+        <a href="../orbitas-kepler.html" class="connection-item">
+            <span class="connection-icon">🪐</span>
+            <div class="connection-text"><strong>Órbitas de Kepler</strong><br>Control fino de a y e, segunda ley visual</div>
+        </a>
+        <a href="../mecanica-lagrangiana.html" class="connection-item">
+            <span class="connection-icon">📐</span>
+            <div class="connection-text"><strong>Mecánica Lagrangiana</strong><br>El formalismo detrás de las órbitas</div>
+        </a>
+        <a href="../relatividad.html" class="connection-item">
+            <span class="connection-icon">⚡</span>
+            <div class="connection-text"><strong>Relatividad Especial</strong><br>Precesión de Mercurio: corrección relativista</div>
+        </a>
+        <a href="../efecto-doppler.html" class="connection-item">
+            <span class="connection-icon">🔭</span>
+            <div class="connection-text"><strong>Efecto Doppler</strong><br>Cómo medimos velocidades estelares</div>
+        </a>
+    </div>
+
+    <footer>
+        <a href="../sistema-solar.html" class="btn-launch">Abrir simulación →</a>
+    </footer>
+</body>
+</html>

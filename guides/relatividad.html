@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guía: Relatividad Especial | Physics Visual Lab</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-bg: #0a0a0a; --color-surface: #141414; --color-surface-elevated: #1a1a1a;
+            --color-border: #262626; --color-text: #e5e5e5; --color-text-secondary: #a3a3a3;
+            --color-accent: #22c55e; --color-accent-dim: rgba(34,197,94,0.1);
+            --color-amber: #f59e0b;
+            --font-serif: 'Crimson Pro', Georgia, serif; --font-sans: 'Inter', system-ui, sans-serif;
+            --font-mono: 'Fira Code', monospace;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: var(--font-serif); font-size: 19px; line-height: 1.7; color: var(--color-text); background-color: var(--color-bg); padding: 2rem; max-width: 900px; margin: 0 auto; }
+        header { margin-bottom: 3rem; padding-bottom: 2rem; border-bottom: 1px solid var(--color-border); }
+        .breadcrumb { font-family: var(--font-sans); font-size: 0.85rem; color: var(--color-text-secondary); margin-bottom: 1rem; }
+        .breadcrumb a { color: var(--color-accent); text-decoration: none; }
+        .breadcrumb a:hover { text-decoration: underline; }
+        h1 { font-family: var(--font-serif); font-size: 2.5rem; font-weight: 600; margin-bottom: 0.5rem; letter-spacing: -0.02em; }
+        .subtitle { font-size: 1.25rem; color: var(--color-text-secondary); font-style: italic; }
+        h2 { font-family: var(--font-sans); font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--color-accent); margin-top: 3rem; margin-bottom: 1.25rem; }
+        h3 { font-family: var(--font-serif); font-size: 1.4rem; font-weight: 600; margin-top: 2rem; margin-bottom: 0.75rem; }
+        p { margin-bottom: 1.25rem; }
+        .intro { font-size: 1.15rem; color: var(--color-text-secondary); border-left: 3px solid var(--color-accent); padding-left: 1.5rem; margin: 2rem 0; }
+        .equation-block { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 8px; padding: 2rem; margin: 1.5rem 0; text-align: center; }
+        .equation-block.central { border-color: var(--color-amber); background: rgba(245,158,11,0.05); }
+        .equation { font-family: var(--font-mono); font-size: 1.4rem; color: var(--color-accent); margin-bottom: 0.75rem; }
+        .equation.amber { color: var(--color-amber); }
+        .equation-label { font-family: var(--font-sans); font-size: 0.85rem; color: var(--color-text-secondary); }
+        .concept-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin: 1.5rem 0; }
+        .concept-card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 8px; padding: 1.5rem; }
+        .concept-card h4 { font-family: var(--font-sans); font-size: 1rem; font-weight: 600; margin-bottom: 0.75rem; color: var(--color-accent); }
+        .concept-card p { font-size: 0.95rem; margin-bottom: 0; color: var(--color-text-secondary); }
+        .key-insight { background: var(--color-accent-dim); border: 1px solid var(--color-accent); border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0; }
+        .key-insight strong { color: var(--color-accent); }
+        .experiment-block { background: var(--color-surface-elevated); border-radius: 8px; padding: 1.75rem; margin: 1.5rem 0; border-left: 3px solid var(--color-accent); }
+        .experiment-block h4 { font-family: var(--font-sans); font-weight: 600; margin-bottom: 1rem; }
+        .experiment-block ol { margin-left: 1.25rem; color: var(--color-text-secondary); }
+        .experiment-block li { margin-bottom: 0.5rem; }
+        .connections-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 1.5rem 0; }
+        .connection-item { display: flex; align-items: center; gap: 0.75rem; padding: 1rem; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 8px; text-decoration: none; color: var(--color-text); transition: border-color 0.2s; }
+        .connection-item:hover { border-color: var(--color-accent); background: var(--color-surface-elevated); }
+        .connection-icon { font-size: 1.5rem; }
+        .connection-text { font-family: var(--font-sans); font-size: 0.9rem; }
+        ul { margin-left: 1.25rem; margin-bottom: 1.25rem; }
+        li { margin-bottom: 0.5rem; }
+        footer { margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--color-border); text-align: center; }
+        .btn-launch { display: inline-flex; align-items: center; gap: 0.5rem; font-family: var(--font-sans); font-size: 1rem; font-weight: 500; padding: 1rem 2rem; background: var(--color-accent); color: #030712; border-radius: 8px; text-decoration: none; transition: opacity 0.2s; }
+        .btn-launch:hover { opacity: 0.9; }
+        .gamma-table { width: 100%; border-collapse: collapse; font-family: var(--font-sans); font-size: 0.9rem; margin: 1.5rem 0; }
+        .gamma-table th { text-align: left; padding: 0.6rem 1rem; background: var(--color-surface); border-bottom: 1px solid var(--color-border); color: var(--color-text-secondary); font-weight: 600; font-size: 0.8rem; text-transform: uppercase; }
+        .gamma-table td { padding: 0.6rem 1rem; border-bottom: 1px solid var(--color-border); font-family: var(--font-mono); font-size: 0.85rem; }
+        .gamma-table td:first-child { font-family: var(--font-sans); color: var(--color-text); }
+        .gamma-table tr:last-child td { color: var(--color-amber); font-weight: bold; }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="breadcrumb">
+            <a href="https://cjlkaiser-cpu.github.io/eigenlab/_portal/index.html">EigenLab</a> /
+            <a href="../index.html">Physics Visual Lab</a> /
+            <span>Guía: Relatividad Especial</span>
+        </nav>
+        <h1>Relatividad Especial</h1>
+        <p class="subtitle">Factor de Lorentz, dilatación temporal y la equivalencia masa-energía</p>
+    </header>
+
+    <p class="intro">
+        Einstein publicó la relatividad especial en 1905 partiendo de dos postulados: las leyes
+        de la física son las mismas en todos los marcos inerciales, y la velocidad de la luz en
+        el vacío es c para todos los observadores. Las consecuencias —dilatación del tiempo,
+        contracción del espacio, E = mc²— son verificadas experimentalmente todos los días.
+    </p>
+
+    <h2>El Factor de Lorentz</h2>
+
+    <div class="equation-block central">
+        <div class="equation amber">γ = 1 / √(1 − v²/c²)</div>
+        <div class="equation-label">La cantidad fundamental de la relatividad especial. γ ≥ 1 siempre. γ → ∞ cuando v → c.</div>
+    </div>
+
+    <p>Todos los efectos relativistas se expresan en términos de γ. Para velocidades cotidianas (v ≪ c), γ ≈ 1 y los efectos son imperceptibles. Solo cuando v &gt; 0.1c los efectos se vuelven apreciables.</p>
+
+    <table class="gamma-table">
+        <thead>
+            <tr><th>Velocidad</th><th>β = v/c</th><th>γ</th><th>Dilatación temporal</th><th>Contracción de longitud</th></tr>
+        </thead>
+        <tbody>
+            <tr><td>Avión comercial</td><td>3×10⁻⁷</td><td>1.000000</td><td>×1.000000</td><td>99.9999…%</td></tr>
+            <tr><td>10% de c</td><td>0.10</td><td>1.005</td><td>×1.005</td><td>99.5%</td></tr>
+            <tr><td>50% de c</td><td>0.50</td><td>1.155</td><td>×1.155</td><td>86.6%</td></tr>
+            <tr><td>86.6% de c</td><td>0.866</td><td>2.000</td><td>×2.000</td><td>50.0%</td></tr>
+            <tr><td>99% de c</td><td>0.99</td><td>7.089</td><td>×7.089</td><td>14.1%</td></tr>
+            <tr><td>99.9% de c</td><td>0.999</td><td>22.37</td><td>×22.37</td><td>4.5%</td></tr>
+        </tbody>
+    </table>
+
+    <h2>Los Tres Efectos Relativistas</h2>
+
+    <div class="concept-grid">
+        <div class="concept-card">
+            <h4>Dilatación temporal</h4>
+            <p>Un reloj en movimiento va más lento. Si en el marco propio pasan Δt₀ segundos, el observador en reposo mide Δt = γ·Δt₀. Con γ = 7 (v = 99%c), cada segundo del viajero son 7 segundos del observador.</p>
+            <p style="font-family:var(--font-mono);font-size:0.85rem;color:var(--color-accent);margin-top:0.75rem;margin-bottom:0;">Δt = γ · Δt₀</p>
+        </div>
+        <div class="concept-card">
+            <h4>Contracción de longitud</h4>
+            <p>Un objeto en movimiento parece más corto en la dirección del movimiento. Si su longitud propia es L₀, el observador en reposo mide L = L₀/γ. A 86.6%c, el objeto se contrae a la mitad.</p>
+            <p style="font-family:var(--font-mono);font-size:0.85rem;color:var(--color-accent);margin-top:0.75rem;margin-bottom:0;">L = L₀ / γ</p>
+        </div>
+        <div class="concept-card">
+            <h4>Masa relativista</h4>
+            <p>La inercia de un objeto aumenta con la velocidad. Se necesita más fuerza para acelerarlo. En el límite v → c, la masa se vuelve infinita: ningún objeto con masa puede alcanzar c.</p>
+            <p style="font-family:var(--font-mono);font-size:0.85rem;color:var(--color-accent);margin-top:0.75rem;margin-bottom:0;">m = γ · m₀</p>
+        </div>
+    </div>
+
+    <h2>La Equivalencia Masa-Energía</h2>
+
+    <div class="equation-block central">
+        <div class="equation amber">E = mc² = γ · m₀c²</div>
+        <div class="equation-label">La energía total incluye la energía en reposo m₀c² más la energía cinética relativista</div>
+    </div>
+
+    <div class="equation-block">
+        <div class="equation">E² = (pc)² + (m₀c²)²</div>
+        <div class="equation-label">Relación energía-momento relativista. Para fotones (m₀=0): E = pc.</div>
+    </div>
+
+    <div class="key-insight">
+        <strong>E = mc² no solo aplica a bombas atómicas.</strong> La masa de un protón es menor que la suma de sus quarks constituyentes: la diferencia es energía de enlace (masa faltante × c²). Un imán tiene más masa cuando está magnetizado que cuando no. Incluso el calor aumenta levemente la masa de un cuerpo.
+    </div>
+
+    <h2>Verificaciones Experimentales</h2>
+
+    <div class="concept-grid">
+        <div class="concept-card">
+            <h4>Muones cósmicos</h4>
+            <p>Los muones creados a 15 km de altitud deberían desintegrarse antes de llegar al suelo (vida media = 2.2 μs). Pero llegan porque su tiempo propio va más lento (dilatación temporal, γ ≈ 30). Confirmado diariamente.</p>
+        </div>
+        <div class="concept-card">
+            <h4>GPS</h4>
+            <p>Los satélites GPS orbitan a v ≈ 3.9 km/s. La dilatación temporal relativista los atrasa ~7 μs/día. Sin corrección relativista, los GPS acumularían 11 km de error por día.</p>
+        </div>
+        <div class="concept-card">
+            <h4>Aceleradores de partículas</h4>
+            <p>En el LHC, los protones alcanzan v = 0.9999999c, γ ≈ 7461. Su masa relativista es 7461 veces la masa en reposo. Se necesita esa energía enorme para que F = dp/dt los acelere.</p>
+        </div>
+        <div class="concept-card">
+            <h4>Fisión y fusión nuclear</h4>
+            <p>En la fisión del uranio, la masa de los productos es ligeramente menor que la del U-235. La diferencia Δm ≈ 0.1% se convierte en energía: E = Δm·c². El 0.1% de masa → enorme energía por c² = (3×10⁸)².</p>
+        </div>
+    </div>
+
+    <h2>Controles de la Simulación</h2>
+
+    <ul>
+        <li><strong>Velocidad (0–99.9% de c)</strong> — Slider continuo. La nave en pantalla se contrae visualmente con la velocidad.</li>
+        <li><strong>Presets</strong> — Botones para 10%, 50%, 86.6% (γ=2), 95%, 99%, 99.9% c. El 86.6% es el punto donde γ = 2 exactamente.</li>
+        <li><strong>Panel γ</strong> — Muestra el factor de Lorentz en tiempo real con la fórmula.</li>
+        <li><strong>Tarjetas de efectos</strong> — Muestran los tres multiplicadores (γ para tiempo y masa, 1/γ para longitud) actualizados en tiempo real.</li>
+    </ul>
+
+    <h2>Experimentos Guiados</h2>
+
+    <div class="experiment-block">
+        <h4>Experimento 1 — El punto donde γ = 2</h4>
+        <ol>
+            <li>Pulsa el preset "86.6% c". El factor de Lorentz debe ser exactamente γ = 2.000.</li>
+            <li>Esto significa: los relojes a bordo van a la mitad de velocidad que los del observador.</li>
+            <li>Un viaje de 10 años a esa velocidad envejece al viajero 5 años, pero al observador en tierra 10 años.</li>
+            <li>La nave también tiene la mitad de su longitud propia, y su masa inercial es el doble.</li>
+        </ol>
+    </div>
+
+    <div class="experiment-block">
+        <h4>Experimento 2 — La divergencia asintótica</h4>
+        <ol>
+            <li>Observa γ mientras subes la velocidad lentamente desde 90% hasta 99.9%.</li>
+            <li>A 90%c: γ ≈ 2.3. A 99%c: γ ≈ 7.1. A 99.9%c: γ ≈ 22.4.</li>
+            <li>Para duplicar γ de 22 a 44, necesitarías ir del 99.9% al 99.97%c.</li>
+            <li>La energía necesaria para acelerar más crece como γ: doblar la velocidad desde el 99.9% requiere 44/22 = 2× más energía total pero solo un 0.07% más de velocidad.</li>
+        </ol>
+    </div>
+
+    <div class="experiment-block">
+        <h4>Experimento 3 — Calcular un viaje estelar</h4>
+        <ol>
+            <li>La estrella más cercana (Proxima Centauri) está a 4.24 años-luz.</li>
+            <li>A v = 99%c (γ ≈ 7.1): el viaje dura 4.24/0.99 ≈ 4.3 años para el observador en Tierra.</li>
+            <li>Pero el viajero experimenta solo 4.3/γ = 4.3/7.1 ≈ 0.6 años. ¡Menos de 8 meses!</li>
+            <li>A 99.9%c (γ ≈ 22.4): el viajero experimentaría solo 4.3/22.4 ≈ 70 días para un viaje de 4.3 años terrestres.</li>
+        </ol>
+    </div>
+
+    <h2>Conexiones</h2>
+
+    <div class="connections-grid">
+        <a href="../efecto-tunel.html" class="connection-item">
+            <span class="connection-icon">⚛</span>
+            <div class="connection-text"><strong>Efecto Túnel</strong><br>Mecánica cuántica: el otro pilar de la física moderna</div>
+        </a>
+        <a href="../sistema-solar.html" class="connection-item">
+            <span class="connection-icon">☀️</span>
+            <div class="connection-text"><strong>Sistema Solar</strong><br>Precesión de Mercurio: corrección relativista</div>
+        </a>
+        <a href="../efecto-doppler.html" class="connection-item">
+            <span class="connection-icon">🔭</span>
+            <div class="connection-text"><strong>Efecto Doppler</strong><br>Doppler relativista y corrimiento al rojo</div>
+        </a>
+        <a href="../gas-ideal.html" class="connection-item">
+            <span class="connection-icon">💨</span>
+            <div class="connection-text"><strong>Gas Ideal</strong><br>E=mc²: la energía interna como masa</div>
+        </a>
+    </div>
+
+    <footer>
+        <a href="../relatividad.html" class="btn-launch">Abrir simulación →</a>
+    </footer>
+</body>
+</html>

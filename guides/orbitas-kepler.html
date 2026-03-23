@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guía: Órbitas de Kepler | Physics Visual Lab</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-bg: #0a0a0a; --color-surface: #141414; --color-surface-elevated: #1a1a1a;
+            --color-border: #262626; --color-text: #e5e5e5; --color-text-secondary: #a3a3a3;
+            --color-accent: #22c55e; --color-accent-dim: rgba(34,197,94,0.1);
+            --font-serif: 'Crimson Pro', Georgia, serif; --font-sans: 'Inter', system-ui, sans-serif;
+            --font-mono: 'Fira Code', monospace;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: var(--font-serif); font-size: 19px; line-height: 1.7; color: var(--color-text); background-color: var(--color-bg); padding: 2rem; max-width: 900px; margin: 0 auto; }
+        header { margin-bottom: 3rem; padding-bottom: 2rem; border-bottom: 1px solid var(--color-border); }
+        .breadcrumb { font-family: var(--font-sans); font-size: 0.85rem; color: var(--color-text-secondary); margin-bottom: 1rem; }
+        .breadcrumb a { color: var(--color-accent); text-decoration: none; }
+        .breadcrumb a:hover { text-decoration: underline; }
+        h1 { font-family: var(--font-serif); font-size: 2.5rem; font-weight: 600; margin-bottom: 0.5rem; letter-spacing: -0.02em; }
+        .subtitle { font-size: 1.25rem; color: var(--color-text-secondary); font-style: italic; }
+        h2 { font-family: var(--font-sans); font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--color-accent); margin-top: 3rem; margin-bottom: 1.25rem; }
+        h3 { font-family: var(--font-serif); font-size: 1.4rem; font-weight: 600; margin-top: 2rem; margin-bottom: 0.75rem; }
+        p { margin-bottom: 1.25rem; }
+        .intro { font-size: 1.15rem; color: var(--color-text-secondary); border-left: 3px solid var(--color-accent); padding-left: 1.5rem; margin: 2rem 0; }
+        .equation-block { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 8px; padding: 2rem; margin: 1.5rem 0; text-align: center; }
+        .equation { font-family: var(--font-mono); font-size: 1.35rem; color: var(--color-accent); margin-bottom: 0.75rem; }
+        .equation-label { font-family: var(--font-sans); font-size: 0.85rem; color: var(--color-text-secondary); }
+        .concept-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin: 1.5rem 0; }
+        .concept-card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 8px; padding: 1.5rem; }
+        .concept-card h4 { font-family: var(--font-sans); font-size: 1rem; font-weight: 600; margin-bottom: 0.75rem; color: var(--color-accent); }
+        .concept-card p { font-size: 0.95rem; margin-bottom: 0; color: var(--color-text-secondary); }
+        .key-insight { background: var(--color-accent-dim); border: 1px solid var(--color-accent); border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0; }
+        .key-insight strong { color: var(--color-accent); }
+        .experiment-block { background: var(--color-surface-elevated); border-radius: 8px; padding: 1.75rem; margin: 1.5rem 0; border-left: 3px solid var(--color-accent); }
+        .experiment-block h4 { font-family: var(--font-sans); font-weight: 600; margin-bottom: 1rem; }
+        .experiment-block ol { margin-left: 1.25rem; color: var(--color-text-secondary); }
+        .experiment-block li { margin-bottom: 0.5rem; }
+        .connections-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 1.5rem 0; }
+        .connection-item { display: flex; align-items: center; gap: 0.75rem; padding: 1rem; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 8px; text-decoration: none; color: var(--color-text); transition: border-color 0.2s; }
+        .connection-item:hover { border-color: var(--color-accent); background: var(--color-surface-elevated); }
+        .connection-icon { font-size: 1.5rem; }
+        .connection-text { font-family: var(--font-sans); font-size: 0.9rem; }
+        ul { margin-left: 1.25rem; margin-bottom: 1.25rem; }
+        li { margin-bottom: 0.5rem; }
+        footer { margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--color-border); text-align: center; }
+        .btn-launch { display: inline-flex; align-items: center; gap: 0.5rem; font-family: var(--font-sans); font-size: 1rem; font-weight: 500; padding: 1rem 2rem; background: var(--color-accent); color: #030712; border-radius: 8px; text-decoration: none; transition: opacity 0.2s; }
+        .btn-launch:hover { opacity: 0.9; }
+        .law-grid { display: grid; grid-template-columns: 1fr; gap: 1rem; margin: 1.5rem 0; }
+        .law-card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 8px; padding: 1.5rem; display: grid; grid-template-columns: auto 1fr auto; gap: 1rem; align-items: start; }
+        .law-num { font-family: var(--font-mono); font-size: 1.8rem; color: var(--color-accent); font-weight: bold; }
+        .law-body h4 { font-family: var(--font-sans); font-size: 1rem; font-weight: 600; margin-bottom: 0.4rem; }
+        .law-body p { font-size: 0.95rem; color: var(--color-text-secondary); margin: 0; }
+        .law-formula { font-family: var(--font-mono); font-size: 0.95rem; color: var(--color-accent); white-space: nowrap; }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="breadcrumb">
+            <a href="https://cjlkaiser-cpu.github.io/eigenlab/_portal/index.html">EigenLab</a> /
+            <a href="../index.html">Physics Visual Lab</a> /
+            <span>Guía: Órbitas de Kepler</span>
+        </nav>
+        <h1>Órbitas de Kepler</h1>
+        <p class="subtitle">Las tres leyes que describe el movimiento de todos los planetas</p>
+    </header>
+
+    <p class="intro">
+        Johannes Kepler publicó sus tres leyes entre 1609 y 1619, destilándolas de los datos
+        observacionales de Tycho Brahe. Newton demostró en 1687 que todas ellas se derivan de
+        la gravitación universal. Esta simulación permite explorar cada ley interactivamente,
+        con control fino sobre la elipse orbital.
+    </p>
+
+    <h2>Las Tres Leyes</h2>
+
+    <div class="law-grid">
+        <div class="law-card">
+            <div class="law-num">I</div>
+            <div class="law-body">
+                <h4>Órbitas elípticas</h4>
+                <p>Cada planeta describe una elipse con el Sol en uno de sus focos. La elipse queda definida por su semieje mayor a y su excentricidad e. El Sol no está en el centro geométrico sino en un foco.</p>
+            </div>
+            <div class="law-formula">r = a(1−e²)/(1+e·cosθ)</div>
+        </div>
+        <div class="law-card">
+            <div class="law-num">II</div>
+            <div class="law-body">
+                <h4>Ley de las áreas</h4>
+                <p>El segmento planeta-Sol barre áreas iguales en tiempos iguales. Esto implica que el planeta se mueve más rápido cerca del Sol (perihelio) y más lento lejos (afelio). Es consecuencia de la conservación del momento angular.</p>
+            </div>
+            <div class="law-formula">dA/dt = L/2m</div>
+        </div>
+        <div class="law-card">
+            <div class="law-num">III</div>
+            <div class="law-body">
+                <h4>Ley de los períodos</h4>
+                <p>El cuadrado del período orbital es proporcional al cubo del semieje mayor. Válida para todos los planetas del mismo sistema estelar, con la misma constante de proporcionalidad.</p>
+            </div>
+            <div class="law-formula">T² ∝ a³</div>
+        </div>
+    </div>
+
+    <h2>La Geometría de la Elipse</h2>
+
+    <div class="equation-block">
+        <div class="equation">r_perihelio = a(1 − e) &nbsp;&nbsp; r_afelio = a(1 + e)</div>
+        <div class="equation-label">Distancias mínima y máxima al Sol. Con e = 0: r = a (círculo). Con e → 1: órbita casi parabólica.</div>
+    </div>
+
+    <p>La excentricidad e mide cuánto se desvía la elipse de un círculo:</p>
+    <ul>
+        <li><strong>e = 0</strong> — círculo perfecto. r_perihelio = r_afelio = a.</li>
+        <li><strong>e = 0.5</strong> — elipse moderada. r_perihelio = 0.5a, r_afelio = 1.5a.</li>
+        <li><strong>e = 0.9</strong> — elipse muy elongada. r_perihelio = 0.1a, r_afelio = 1.9a. El planeta pasa casi rozando el Sol.</li>
+        <li><strong>e ≥ 1</strong> — parábola o hipérbola: la órbita no se cierra. El cuerpo escapa del sistema.</li>
+    </ul>
+
+    <h2>La Segunda Ley y la Velocidad Orbital</h2>
+
+    <p>Como el momento angular L = m·r·v_⊥ se conserva (sin torques), cuando r es pequeño v debe ser grande. En el perihelio:</p>
+
+    <div class="equation-block">
+        <div class="equation">v_perihelio / v_afelio = r_afelio / r_perihelio = (1+e)/(1−e)</div>
+        <div class="equation-label">Con e = 0.9: la velocidad en el perihelio es 19× la del afelio.</div>
+    </div>
+
+    <div class="key-insight">
+        <strong>La segunda ley es la conservación del momento angular.</strong> No es casualidad que la misma ley que describe las órbitas planetarias explique por qué un patinador artístico gira más rápido al recoger los brazos. En ambos casos, L = mr²ω = cte. Al reducir r, ω debe aumentar.
+    </div>
+
+    <h2>Controles de la Simulación</h2>
+
+    <ul>
+        <li><strong>Semieje mayor a (0.3–3 UA)</strong> — Tamaño de la órbita. Por la tercera ley, T = a^(3/2) años. Triplicar a multiplica T por √27 ≈ 5.2.</li>
+        <li><strong>Excentricidad e (0–0.95)</strong> — Forma de la elipse. Con e = 0, órbita circular. Con e = 0.95, órbita muy elongada.</li>
+        <li><strong>Velocidad de simulación (0.1–5×)</strong> — Solo escala el tiempo visual, no afecta la física.</li>
+        <li><strong>Divisiones (1–12)</strong> — Número de sectores para visualizar la segunda ley. Todos los sectores tienen el mismo tiempo de barrido.</li>
+    </ul>
+
+    <p>El panel muestra en tiempo real: velocidad orbital (km/s), distancia al Sol (UA) y anomalía verdadera θ (el ángulo desde el perihelio).</p>
+
+    <h2>Experimentos Guiados</h2>
+
+    <div class="experiment-block">
+        <h4>Experimento 1 — Ver la segunda ley en acción</h4>
+        <ol>
+            <li>Ajusta e = 0.7, a = 1 UA. Activa 4 divisiones.</li>
+            <li>Los 4 sectores tienen áreas iguales, pero anchos muy distintos: los del perihelio son estrechos (planeta rápido), los del afelio son anchos (planeta lento).</li>
+            <li>Observa la velocidad en tiempo real: cerca del perihelio puede ser 3–5× mayor que en el afelio.</li>
+            <li>Aumenta las divisiones a 12: el contraste entre sectores cerca/lejos del Sol es aún más evidente.</li>
+        </ol>
+    </div>
+
+    <div class="experiment-block">
+        <h4>Experimento 2 — Verificar la tercera ley</h4>
+        <ol>
+            <li>Con e = 0 (circular) ajusta a = 1 UA. El período debe ser exactamente 1 año. Cronométralo.</li>
+            <li>Cambia a a = 4 UA. Por T² = a³: T = 4^(3/2) = 8 años.</li>
+            <li>Cambia a a = 9 UA: T = 9^(3/2) = 27 años.</li>
+            <li>Verifica que la velocidad de la órbita a = 9 UA es exactamente 1/3 de la de a = 1 UA (v ∝ 1/√a).</li>
+        </ol>
+    </div>
+
+    <div class="experiment-block">
+        <h4>Experimento 3 — Órbita casi parabólica (cometa)</h4>
+        <ol>
+            <li>Ajusta e = 0.95. Esta es una órbita similar a la de los cometas de largo período como el Halley (e = 0.967).</li>
+            <li>Observa que el planeta pasa rápidísimo por el perihelio y luego se pierde muy lejos.</li>
+            <li>Con a = 1 UA y e = 0.95: r_perihelio = 0.05 UA (mucho más cerca del Sol que Mercurio), r_afelio = 1.95 UA.</li>
+            <li>La velocidad en el perihelio es (1+0.95)/(1−0.95) = 39× la del afelio. Espectacular.</li>
+        </ol>
+    </div>
+
+    <h2>Conexiones</h2>
+
+    <div class="connections-grid">
+        <a href="../sistema-solar.html" class="connection-item">
+            <span class="connection-icon">☀️</span>
+            <div class="connection-text"><strong>Sistema Solar</strong><br>8 planetas con datos reales</div>
+        </a>
+        <a href="../mecanica-lagrangiana.html" class="connection-item">
+            <span class="connection-icon">📐</span>
+            <div class="connection-text"><strong>Mecánica Lagrangiana</strong><br>Derivación de las leyes de Kepler</div>
+        </a>
+        <a href="../pendulo-simple.html" class="connection-item">
+            <span class="connection-icon">🕰</span>
+            <div class="connection-text"><strong>Péndulo Simple</strong><br>Conservación de energía análoga</div>
+        </a>
+        <a href="../relatividad.html" class="connection-item">
+            <span class="connection-icon">⚡</span>
+            <div class="connection-text"><strong>Relatividad Especial</strong><br>Precesión de Mercurio: más allá de Kepler</div>
+        </a>
+    </div>
+
+    <footer>
+        <a href="../orbitas-kepler.html" class="btn-launch">Abrir simulación →</a>
+    </footer>
+</body>
+</html>

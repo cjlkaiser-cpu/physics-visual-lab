@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guía: Campo Eléctrico | Physics Visual Lab</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-bg: #0a0a0a; --color-surface: #141414; --color-surface-elevated: #1a1a1a;
+            --color-border: #262626; --color-text: #e5e5e5; --color-text-secondary: #a3a3a3;
+            --color-accent: #22c55e; --color-accent-dim: rgba(34,197,94,0.1);
+            --font-serif: 'Crimson Pro', Georgia, serif; --font-sans: 'Inter', system-ui, sans-serif;
+            --font-mono: 'Fira Code', monospace;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: var(--font-serif); font-size: 19px; line-height: 1.7; color: var(--color-text); background-color: var(--color-bg); padding: 2rem; max-width: 900px; margin: 0 auto; }
+        header { margin-bottom: 3rem; padding-bottom: 2rem; border-bottom: 1px solid var(--color-border); }
+        .breadcrumb { font-family: var(--font-sans); font-size: 0.85rem; color: var(--color-text-secondary); margin-bottom: 1rem; }
+        .breadcrumb a { color: var(--color-accent); text-decoration: none; }
+        .breadcrumb a:hover { text-decoration: underline; }
+        h1 { font-family: var(--font-serif); font-size: 2.5rem; font-weight: 600; margin-bottom: 0.5rem; letter-spacing: -0.02em; }
+        .subtitle { font-size: 1.25rem; color: var(--color-text-secondary); font-style: italic; }
+        h2 { font-family: var(--font-sans); font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--color-accent); margin-top: 3rem; margin-bottom: 1.25rem; }
+        h3 { font-family: var(--font-serif); font-size: 1.4rem; font-weight: 600; margin-top: 2rem; margin-bottom: 0.75rem; }
+        p { margin-bottom: 1.25rem; }
+        .intro { font-size: 1.15rem; color: var(--color-text-secondary); border-left: 3px solid var(--color-accent); padding-left: 1.5rem; margin: 2rem 0; }
+        .equation-block { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 8px; padding: 2rem; margin: 1.5rem 0; text-align: center; }
+        .equation { font-family: var(--font-mono); font-size: 1.35rem; color: var(--color-accent); margin-bottom: 0.75rem; }
+        .equation-label { font-family: var(--font-sans); font-size: 0.85rem; color: var(--color-text-secondary); }
+        .concept-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin: 1.5rem 0; }
+        .concept-card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 8px; padding: 1.5rem; }
+        .concept-card h4 { font-family: var(--font-sans); font-size: 1rem; font-weight: 600; margin-bottom: 0.75rem; color: var(--color-accent); }
+        .concept-card p { font-size: 0.95rem; margin-bottom: 0; color: var(--color-text-secondary); }
+        .key-insight { background: var(--color-accent-dim); border: 1px solid var(--color-accent); border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0; }
+        .key-insight strong { color: var(--color-accent); }
+        .experiment-block { background: var(--color-surface-elevated); border-radius: 8px; padding: 1.75rem; margin: 1.5rem 0; border-left: 3px solid var(--color-accent); }
+        .experiment-block h4 { font-family: var(--font-sans); font-weight: 600; margin-bottom: 1rem; }
+        .experiment-block ol { margin-left: 1.25rem; color: var(--color-text-secondary); }
+        .experiment-block li { margin-bottom: 0.5rem; }
+        .connections-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 1.5rem 0; }
+        .connection-item { display: flex; align-items: center; gap: 0.75rem; padding: 1rem; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 8px; text-decoration: none; color: var(--color-text); transition: border-color 0.2s; }
+        .connection-item:hover { border-color: var(--color-accent); background: var(--color-surface-elevated); }
+        .connection-icon { font-size: 1.5rem; }
+        .connection-text { font-family: var(--font-sans); font-size: 0.9rem; }
+        ul { margin-left: 1.25rem; margin-bottom: 1.25rem; }
+        li { margin-bottom: 0.5rem; }
+        footer { margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--color-border); text-align: center; }
+        .btn-launch { display: inline-flex; align-items: center; gap: 0.5rem; font-family: var(--font-sans); font-size: 1rem; font-weight: 500; padding: 1rem 2rem; background: var(--color-accent); color: #030712; border-radius: 8px; text-decoration: none; transition: opacity 0.2s; }
+        .btn-launch:hover { opacity: 0.9; }
+        .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin: 1.5rem 0; }
+        @media (max-width: 600px) { .two-col { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="breadcrumb">
+            <a href="https://cjlkaiser-cpu.github.io/eigenlab/_portal/index.html">EigenLab</a> /
+            <a href="../index.html">Physics Visual Lab</a> /
+            <span>Guía: Campo Eléctrico</span>
+        </nav>
+        <h1>Campo Eléctrico</h1>
+        <p class="subtitle">Líneas de campo, potencial y la ley de Coulomb</p>
+    </header>
+
+    <p class="intro">
+        El campo eléctrico es la región del espacio en la que una carga de prueba experimenta una
+        fuerza. Visualizarlo como líneas de campo convierte un objeto matemático abstracto en algo
+        que revela de inmediato la dirección y magnitud de la fuerza en cada punto del espacio.
+    </p>
+
+    <h2>La Ley de Coulomb</h2>
+
+    <div class="equation-block">
+        <div class="equation">F = k · q₁ · q₂ / r²</div>
+        <div class="equation-label">k = 8.99×10⁹ N·m²/C². Positivo → repulsión. Negativo → atracción.</div>
+    </div>
+
+    <p>El campo eléctrico E en un punto es la fuerza por unidad de carga de prueba:</p>
+
+    <div class="equation-block">
+        <div class="equation">E = F / q_prueba = k · q / r² · r̂</div>
+        <div class="equation-label">Apunta hacia afuera de cargas positivas, hacia adentro de negativas</div>
+    </div>
+
+    <p>Para múltiples cargas, el campo total es la suma vectorial de los campos individuales (principio de superposición). Es exactamente lo que calcula la simulación en cada punto del lienzo.</p>
+
+    <h2>Líneas de Campo</h2>
+
+    <p>Las líneas de campo son curvas que en cada punto son tangentes al vector E. Sus propiedades:</p>
+
+    <div class="concept-grid">
+        <div class="concept-card">
+            <h4>Dirección</h4>
+            <p>Salen de las cargas positivas y entran en las negativas. Una carga de prueba positiva seguiría exactamente las líneas de campo.</p>
+        </div>
+        <div class="concept-card">
+            <h4>Densidad</h4>
+            <p>Donde las líneas están más juntas, el campo es más intenso. Cerca de una carga puntual la densidad aumenta como 1/r².</p>
+        </div>
+        <div class="concept-card">
+            <h4>No se cruzan</h4>
+            <p>Dos líneas de campo nunca se intersectan. Si lo hicieran, habría dos direcciones del campo en ese punto, lo que es imposible.</p>
+        </div>
+        <div class="concept-card">
+            <h4>Perpendiculares al potencial</h4>
+            <p>Las líneas de campo son siempre perpendiculares a las superficies equipotenciales. El campo apunta en la dirección de máxima bajada de potencial.</p>
+        </div>
+    </div>
+
+    <h2>El Potencial Eléctrico</h2>
+
+    <div class="equation-block">
+        <div class="equation">V = k · q / r &nbsp;&nbsp;&nbsp; E = −∇V</div>
+        <div class="equation-label">El campo es el negativo del gradiente del potencial</div>
+    </div>
+
+    <p>El potencial V es un escalar (más fácil de sumar que vectores). Las <em>equipotenciales</em> son curvas donde V es constante: una carga de prueba puede moverse sobre ellas sin ganar ni perder energía. La simulación las muestra como curvas de nivel sobre el mapa de color del potencial.</p>
+
+    <div class="key-insight">
+        <strong>El campo y el potencial son dos descripciones del mismo objeto físico.</strong> El potencial V es el campo escalar del que se deriva el campo vectorial E. Trabajar con V es más cómodo para calcular energía; trabajar con E es más directo para calcular fuerzas. La simulación visualiza ambos simultáneamente.
+    </div>
+
+    <h2>Configuraciones Clásicas</h2>
+
+    <div class="two-col">
+        <div class="concept-card">
+            <h4>Dipolo eléctrico (+q, −q)</h4>
+            <p>Las líneas de campo van de + a −. El campo entre las cargas se refuerza; fuera, se debilita. A gran distancia, el campo cae como 1/r³ (más rápido que una carga sola).</p>
+        </div>
+        <div class="concept-card">
+            <h4>Dos cargas iguales (+q, +q)</h4>
+            <p>Las líneas se repelen. Hay un punto neutro exactamente en el centro donde E = 0 por cancelación. El campo a gran distancia cae como 1/r² (como una sola carga 2q).</p>
+        </div>
+    </div>
+
+    <h2>Controles de la Simulación</h2>
+
+    <ul>
+        <li><strong>Tipo de carga</strong> — Alterna entre positiva (+, roja) y negativa (−, azul).</li>
+        <li><strong>Magnitud |q|</strong> — Intensidad de la carga colocada. Afecta el número de líneas que salen de ella y la densidad del campo.</li>
+        <li><strong>Densidad de líneas</strong> — Cuántas líneas de campo se trazan por unidad de carga. Más líneas = visualización más precisa pero más lenta.</li>
+        <li><strong>Clic en el lienzo</strong> — Coloca una carga en esa posición. Las líneas de campo se recalculan automáticamente.</li>
+        <li><strong>Panel de cargas</strong> — Lista las cargas colocadas; puedes eliminarlas individualmente.</li>
+    </ul>
+
+    <h2>Experimentos Guiados</h2>
+
+    <div class="experiment-block">
+        <h4>Experimento 1 — El dipolo eléctrico</h4>
+        <ol>
+            <li>Coloca una carga positiva (+) en el centro-izquierda y una negativa (−) en el centro-derecha.</li>
+            <li>Observa que todas las líneas de campo van de + a −, nunca al revés.</li>
+            <li>Entre las dos cargas, las líneas están más juntas (campo más intenso).</li>
+            <li>El potencial V = 0 en el plano perpendicular que pasa entre las dos cargas (por simetría).</li>
+        </ol>
+    </div>
+
+    <div class="experiment-block">
+        <h4>Experimento 2 — Punto neutro entre cargas iguales</h4>
+        <ol>
+            <li>Coloca dos cargas positivas de igual magnitud simétricamente.</li>
+            <li>En el punto exacto a mitad de distancia entre ellas, los dos campos se cancelan: E = 0.</li>
+            <li>Observa que ninguna línea de campo atraviesa ese punto: las líneas se alejan de él.</li>
+            <li>Este punto neutro es un equilibrio inestable: una carga puesta ahí exactamente está en equilibrio, pero cualquier desplazamiento la hace alejarse.</li>
+        </ol>
+    </div>
+
+    <div class="experiment-block">
+        <h4>Experimento 3 — Superposición con tres cargas</h4>
+        <ol>
+            <li>Coloca un triángulo de tres cargas positivas. Hay tres puntos neutros internos.</li>
+            <li>Añade una carga negativa en el centro. El campo interno cambia completamente.</li>
+            <li>Observa el principio de superposición: el campo total en cada punto es la suma vectorial de los cuatro campos individuales.</li>
+            <li>Aumenta la densidad de líneas para ver con más detalle la estructura del campo resultante.</li>
+        </ol>
+    </div>
+
+    <h2>Analogía Gravitacional</h2>
+
+    <p>La ley de Coulomb y la gravitación universal tienen exactamente la misma forma matemática: F ∝ 1/r². La diferencia es que la gravedad solo atrae (no hay masa negativa), mientras que las cargas eléctricas se atraen o se repelen. Todo lo que ves en esta simulación tiene un análogo gravitacional directo.</p>
+
+    <h2>Conexiones</h2>
+
+    <div class="connections-grid">
+        <a href="../circuitos.html" class="connection-item">
+            <span class="connection-icon">⚡</span>
+            <div class="connection-text"><strong>Circuito RLC</strong><br>Campo aplicado a circuitos reales</div>
+        </a>
+        <a href="../sistema-solar.html" class="connection-item">
+            <span class="connection-icon">☀️</span>
+            <div class="connection-text"><strong>Sistema Solar</strong><br>F ∝ 1/r²: la misma ley, gravitacional</div>
+        </a>
+        <a href="../ondas.html" class="connection-item">
+            <span class="connection-icon">🌊</span>
+            <div class="connection-text"><strong>Ondas Mecánicas</strong><br>Ondas EM: campo eléctrico oscilante</div>
+        </a>
+        <a href="../efecto-tunel.html" class="connection-item">
+            <span class="connection-icon">⚛</span>
+            <div class="connection-text"><strong>Efecto Túnel</strong><br>Barrera de potencial eléctrico</div>
+        </a>
+    </div>
+
+    <footer>
+        <a href="../campo-electrico.html" class="btn-launch">Abrir simulación →</a>
+    </footer>
+</body>
+</html>
