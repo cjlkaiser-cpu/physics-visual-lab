@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guía: Óptica y Ley de Snell | Physics Visual Lab</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-bg: #0a0a0a; --color-surface: #141414; --color-surface-elevated: #1a1a1a;
+            --color-border: #262626; --color-text: #e5e5e5; --color-text-secondary: #a3a3a3;
+            --color-accent: #22c55e; --color-accent-dim: rgba(34,197,94,0.1);
+            --font-serif: 'Crimson Pro', Georgia, serif; --font-sans: 'Inter', system-ui, sans-serif;
+            --font-mono: 'Fira Code', monospace;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: var(--font-serif); font-size: 19px; line-height: 1.7; color: var(--color-text); background-color: var(--color-bg); padding: 2rem; max-width: 900px; margin: 0 auto; }
+        header { margin-bottom: 3rem; padding-bottom: 2rem; border-bottom: 1px solid var(--color-border); }
+        .breadcrumb { font-family: var(--font-sans); font-size: 0.85rem; color: var(--color-text-secondary); margin-bottom: 1rem; }
+        .breadcrumb a { color: var(--color-accent); text-decoration: none; }
+        .breadcrumb a:hover { text-decoration: underline; }
+        h1 { font-family: var(--font-serif); font-size: 2.5rem; font-weight: 600; margin-bottom: 0.5rem; letter-spacing: -0.02em; }
+        .subtitle { font-size: 1.25rem; color: var(--color-text-secondary); font-style: italic; }
+        h2 { font-family: var(--font-sans); font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--color-accent); margin-top: 3rem; margin-bottom: 1.25rem; }
+        h3 { font-family: var(--font-serif); font-size: 1.4rem; font-weight: 600; margin-top: 2rem; margin-bottom: 0.75rem; }
+        p { margin-bottom: 1.25rem; }
+        .intro { font-size: 1.15rem; color: var(--color-text-secondary); border-left: 3px solid var(--color-accent); padding-left: 1.5rem; margin: 2rem 0; }
+        .equation-block { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 8px; padding: 2rem; margin: 1.5rem 0; text-align: center; }
+        .equation { font-family: var(--font-mono); font-size: 1.4rem; color: var(--color-accent); margin-bottom: 0.75rem; }
+        .equation-label { font-family: var(--font-sans); font-size: 0.85rem; color: var(--color-text-secondary); }
+        .concept-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin: 1.5rem 0; }
+        .concept-card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 8px; padding: 1.5rem; }
+        .concept-card h4 { font-family: var(--font-sans); font-size: 1rem; font-weight: 600; margin-bottom: 0.75rem; color: var(--color-accent); }
+        .concept-card p { font-size: 0.95rem; margin-bottom: 0; color: var(--color-text-secondary); }
+        .key-insight { background: var(--color-accent-dim); border: 1px solid var(--color-accent); border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0; }
+        .key-insight strong { color: var(--color-accent); }
+        .warning-box { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0; }
+        .warning-box strong { color: #f87171; }
+        .experiment-block { background: var(--color-surface-elevated); border-radius: 8px; padding: 1.75rem; margin: 1.5rem 0; border-left: 3px solid var(--color-accent); }
+        .experiment-block h4 { font-family: var(--font-sans); font-weight: 600; margin-bottom: 1rem; }
+        .experiment-block ol { margin-left: 1.25rem; color: var(--color-text-secondary); }
+        .experiment-block li { margin-bottom: 0.5rem; }
+        .connections-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 1.5rem 0; }
+        .connection-item { display: flex; align-items: center; gap: 0.75rem; padding: 1rem; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 8px; text-decoration: none; color: var(--color-text); transition: border-color 0.2s; }
+        .connection-item:hover { border-color: var(--color-accent); background: var(--color-surface-elevated); }
+        .connection-icon { font-size: 1.5rem; }
+        .connection-text { font-family: var(--font-sans); font-size: 0.9rem; }
+        ul { margin-left: 1.25rem; margin-bottom: 1.25rem; }
+        li { margin-bottom: 0.5rem; }
+        footer { margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--color-border); text-align: center; }
+        .btn-launch { display: inline-flex; align-items: center; gap: 0.5rem; font-family: var(--font-sans); font-size: 1rem; font-weight: 500; padding: 1rem 2rem; background: var(--color-accent); color: #030712; border-radius: 8px; text-decoration: none; transition: opacity 0.2s; }
+        .btn-launch:hover { opacity: 0.9; }
+        .material-table { width: 100%; border-collapse: collapse; font-family: var(--font-sans); font-size: 0.9rem; margin: 1.5rem 0; }
+        .material-table th { text-align: left; padding: 0.6rem 1rem; background: var(--color-surface); border-bottom: 1px solid var(--color-border); color: var(--color-text-secondary); font-weight: 600; font-size: 0.8rem; text-transform: uppercase; }
+        .material-table td { padding: 0.6rem 1rem; border-bottom: 1px solid var(--color-border); }
+        .material-table td:nth-child(2) { font-family: var(--font-mono); color: var(--color-accent); }
+        .material-table td:last-child { color: var(--color-text-secondary); font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="breadcrumb">
+            <a href="https://cjlkaiser-cpu.github.io/eigenlab/_portal/index.html">EigenLab</a> /
+            <a href="../index.html">Physics Visual Lab</a> /
+            <span>Guía: Óptica y Ley de Snell</span>
+        </nav>
+        <h1>Óptica: Reflexión y Refracción</h1>
+        <p class="subtitle">Por qué la luz se dobla al pasar de un medio a otro</p>
+    </header>
+
+    <p class="intro">
+        La luz viaja a velocidades diferentes en distintos medios. Cuando un rayo cruza la interfaz entre
+        dos medios, la parte del frente de onda que entra primero cambia de velocidad antes que la parte
+        que sigue atrás. El resultado es un cambio de dirección —refracción— exactamente predecible por
+        la ley de Snell.
+    </p>
+
+    <h2>La Ley de Snell</h2>
+
+    <div class="equation-block">
+        <div class="equation">n₁ · sin(θ₁) = n₂ · sin(θ₂)</div>
+        <div class="equation-label">θ se mide siempre respecto a la normal de la superficie, no a la superficie misma</div>
+    </div>
+
+    <p>El índice de refracción n de un medio es la razón entre la velocidad de la luz en el vacío c y la velocidad en ese medio v:</p>
+
+    <div class="equation-block">
+        <div class="equation">n = c / v</div>
+        <div class="equation-label">n ≥ 1 siempre. Cuanto mayor n, más "lento" viaja la luz en ese medio.</div>
+    </div>
+
+    <h2>Los Cuatro Materiales de la Simulación</h2>
+
+    <table class="material-table">
+        <thead>
+            <tr><th>Material</th><th>n</th><th>v = c/n</th><th>Uso típico</th></tr>
+        </thead>
+        <tbody>
+            <tr><td>Aire</td><td>1.00</td><td>3.00 × 10⁸ m/s</td><td>Referencia</td></tr>
+            <tr><td>Agua</td><td>1.33</td><td>2.26 × 10⁸ m/s</td><td>Piscinas, océanos, ojos</td></tr>
+            <tr><td>Vidrio</td><td>1.50</td><td>2.00 × 10⁸ m/s</td><td>Lentes, prismas, fibra óptica</td></tr>
+            <tr><td>Diamante</td><td>2.42</td><td>1.24 × 10⁸ m/s</td><td>Gemas, recubrimientos ópticos</td></tr>
+        </tbody>
+    </table>
+
+    <h2>Reflexión Total Interna</h2>
+
+    <p>Cuando la luz pasa de un medio <em>más denso</em> a uno <em>menos denso</em> (n₁ &gt; n₂), hay un ángulo límite θ_c a partir del cual no puede refractarse: toda la luz se refleja. Esto se llama reflexión total interna.</p>
+
+    <div class="equation-block">
+        <div class="equation">θ_c = arcsin(n₂ / n₁)</div>
+        <div class="equation-label">Ángulo crítico. Solo existe cuando n₁ &gt; n₂ (ej: vidrio→aire, no aire→vidrio).</div>
+    </div>
+
+    <div class="key-insight">
+        <strong>La reflexión total interna es perfecta (100%).</strong> Un espejo normal refleja ~90-95% de la luz; el resto se absorbe. La reflexión total interna refleja el 100%, sin pérdidas. Es por eso que las fibras ópticas que transmiten internet pueden llevar señales kilómetros sin amplificar: la luz "rebota" entre las paredes sin pérdida.
+    </div>
+
+    <h3>Ángulos críticos notables</h3>
+
+    <div class="concept-grid">
+        <div class="concept-card">
+            <h4>Vidrio → Aire: 41.8°</h4>
+            <p>La base de los prismas de periscopio y de los binoculares: los prismas de vidrio total-interno reemplazan a los espejos con mayor eficiencia.</p>
+        </div>
+        <div class="concept-card">
+            <h4>Agua → Aire: 48.6°</h4>
+            <p>Un pez mirando hacia arriba solo puede ver el mundo exterior en un cono de 97.2°. Fuera de ese cono, ve el reflejo del fondo del lago.</p>
+        </div>
+        <div class="concept-card">
+            <h4>Diamante → Aire: 24.4°</h4>
+            <p>Ángulo crítico muy pequeño: casi cualquier rayo que entra al diamante termina reflejándose internamente, creando el destello característico de las gemas talladas.</p>
+        </div>
+    </div>
+
+    <h2>La Ley de Reflexión</h2>
+
+    <p>Independientemente de la refracción, siempre hay algo de luz reflejada en la interfaz. Para reflexión especular:</p>
+
+    <div class="equation-block">
+        <div class="equation">θ_incidencia = θ_reflexión</div>
+        <div class="equation-label">Ambos ángulos medidos respecto a la normal. El rayo reflejado está en el mismo plano que el incidente.</div>
+    </div>
+
+    <p>La simulación muestra el rayo reflejado como una línea más tenue. Cuando ocurre reflexión total interna, el rayo refractado desaparece y el reflejado se vuelve brillante.</p>
+
+    <h2>Controles de la Simulación</h2>
+
+    <ul>
+        <li><strong>θ₁ (0–89°)</strong> — Ángulo de incidencia. A 0° el rayo es perpendicular (sin desviación). A 89° rasante.</li>
+        <li><strong>Medio superior n₁</strong> — Cuatro opciones: Aire (1.00), Agua (1.33), Vidrio (1.50), Diamante (2.42).</li>
+        <li><strong>Medio inferior n₂</strong> — Igual. Para reflexión total interna necesitas n₁ &gt; n₂.</li>
+        <li>El panel derecho muestra θ₂ calculado, θ_crítico (si aplica) y un indicador de reflexión total interna.</li>
+    </ul>
+
+    <h2>Experimentos Guiados</h2>
+
+    <div class="experiment-block">
+        <h4>Experimento 1 — Verificar Snell numéricamente</h4>
+        <ol>
+            <li>Selecciona n₁ = Aire (1.00), n₂ = Vidrio (1.50). Ajusta θ₁ = 45°.</li>
+            <li>Calcula θ₂ = arcsin(sin(45°)/1.50) = arcsin(0.471) ≈ 28.1°.</li>
+            <li>Comprueba que el panel muestra ≈ 28°. El rayo se dobla hacia la normal al entrar al vidrio (desaceleración).</li>
+            <li>Ahora invierte: n₁ = Vidrio, n₂ = Aire, θ₁ = 28°. El rayo debe salir a ≈ 45°. La ley de Snell es reversible.</li>
+        </ol>
+    </div>
+
+    <div class="experiment-block">
+        <h4>Experimento 2 — Encontrar el ángulo crítico del diamante</h4>
+        <ol>
+            <li>Selecciona n₁ = Diamante (2.42), n₂ = Aire (1.00).</li>
+            <li>Con θ₁ = 20°: hay rayo refractado. Con θ₁ = 25°: el aviso de reflexión total interna aparece.</li>
+            <li>El ángulo crítico teórico es arcsin(1/2.42) ≈ 24.4°. Ajusta θ₁ exactamente a 24° y 25° para ver la transición.</li>
+            <li>Esto explica por qué los diamantes brillan tanto: la mayoría de los rayos internos se reflejan totalmente y salen por la cara superior en forma de destellos.</li>
+        </ol>
+    </div>
+
+    <div class="experiment-block">
+        <h4>Experimento 3 — El prisma inverso: de agua al aire</h4>
+        <ol>
+            <li>Selecciona n₁ = Agua (1.33), n₂ = Aire (1.00). Ángulo crítico ≈ 48.6°.</li>
+            <li>Ajusta θ₁ = 40° (menos que θ_c): hay refracción, el rayo sale al aire.</li>
+            <li>Aumenta θ₁ a 50° (más que θ_c): reflexión total interna. El rayo no sale al aire.</li>
+            <li>Este es exactamente lo que ve un pez mirando hacia arriba: más allá de ~49° desde la vertical, solo ve el reflejo del fondo.</li>
+        </ol>
+    </div>
+
+    <h2>Aplicaciones de la Ley de Snell</h2>
+
+    <div class="concept-grid">
+        <div class="concept-card">
+            <h4>Fibra óptica</h4>
+            <p>Un núcleo de vidrio (n ≈ 1.50) rodeado de un revestimiento con n ligeramente menor. Los rayos que entran en el núcleo con ángulos apropiados sufren reflexión total interna y viajan kilómetros sin salirse.</p>
+        </div>
+        <div class="concept-card">
+            <h4>Lentes correctoras</h4>
+            <p>Una lente convergente es más gruesa en el centro que en los bordes. Los rayos que pasan por los bordes se refractan más (Snell) y convergen al mismo punto focal que los que pasan por el centro.</p>
+        </div>
+        <div class="concept-card">
+            <h4>Espejismo</h4>
+            <p>El aire caliente cerca del suelo tiene menor n que el aire más frío arriba. La luz se dobla continuamente (Snell en gradiente) hasta reflejarse totalmente, creando la imagen invertida del cielo que parece agua.</p>
+        </div>
+        <div class="concept-card">
+            <h4>Arco iris</h4>
+            <p>La dispersión: el índice n del agua es ligeramente diferente para cada longitud de onda (color). Snell separa los colores al entrar y salir de las gotas de lluvia, creando el espectro visible.</p>
+        </div>
+    </div>
+
+    <h2>Conexiones</h2>
+
+    <div class="connections-grid">
+        <a href="../ondas.html" class="connection-item">
+            <span class="connection-icon">🌊</span>
+            <div class="connection-text"><strong>Ondas Mecánicas</strong><br>La misma física: cambio de velocidad</div>
+        </a>
+        <a href="../interferencia.html" class="connection-item">
+            <span class="connection-icon">〰</span>
+            <div class="connection-text"><strong>Interferencia</strong><br>Constructiva/destructiva en lentes</div>
+        </a>
+        <a href="../efecto-tunel.html" class="connection-item">
+            <span class="connection-icon">⚛</span>
+            <div class="connection-text"><strong>Efecto Túnel</strong><br>Cuando la reflexión total "gotea"</div>
+        </a>
+        <a href="../relatividad.html" class="connection-item">
+            <span class="connection-icon">⚡</span>
+            <div class="connection-text"><strong>Relatividad Especial</strong><br>c = velocidad límite; n explica c/n</div>
+        </a>
+    </div>
+
+    <footer>
+        <a href="../optica.html" class="btn-launch">Abrir simulación →</a>
+    </footer>
+</body>
+</html>

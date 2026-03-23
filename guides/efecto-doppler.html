@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guía: Efecto Doppler | Physics Visual Lab</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-bg: #0a0a0a; --color-surface: #141414; --color-surface-elevated: #1a1a1a;
+            --color-border: #262626; --color-text: #e5e5e5; --color-text-secondary: #a3a3a3;
+            --color-accent: #22c55e; --color-accent-dim: rgba(34,197,94,0.1);
+            --font-serif: 'Crimson Pro', Georgia, serif; --font-sans: 'Inter', system-ui, sans-serif;
+            --font-mono: 'Fira Code', monospace;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: var(--font-serif); font-size: 19px; line-height: 1.7; color: var(--color-text); background-color: var(--color-bg); padding: 2rem; max-width: 900px; margin: 0 auto; }
+        header { margin-bottom: 3rem; padding-bottom: 2rem; border-bottom: 1px solid var(--color-border); }
+        .breadcrumb { font-family: var(--font-sans); font-size: 0.85rem; color: var(--color-text-secondary); margin-bottom: 1rem; }
+        .breadcrumb a { color: var(--color-accent); text-decoration: none; }
+        .breadcrumb a:hover { text-decoration: underline; }
+        h1 { font-family: var(--font-serif); font-size: 2.5rem; font-weight: 600; margin-bottom: 0.5rem; letter-spacing: -0.02em; }
+        .subtitle { font-size: 1.25rem; color: var(--color-text-secondary); font-style: italic; }
+        h2 { font-family: var(--font-sans); font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--color-accent); margin-top: 3rem; margin-bottom: 1.25rem; }
+        h3 { font-family: var(--font-serif); font-size: 1.4rem; font-weight: 600; margin-top: 2rem; margin-bottom: 0.75rem; }
+        p { margin-bottom: 1.25rem; }
+        .intro { font-size: 1.15rem; color: var(--color-text-secondary); border-left: 3px solid var(--color-accent); padding-left: 1.5rem; margin: 2rem 0; }
+        .equation-block { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 8px; padding: 2rem; margin: 1.5rem 0; text-align: center; }
+        .equation { font-family: var(--font-mono); font-size: 1.4rem; color: var(--color-accent); margin-bottom: 0.75rem; }
+        .equation-label { font-family: var(--font-sans); font-size: 0.85rem; color: var(--color-text-secondary); }
+        .concept-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin: 1.5rem 0; }
+        .concept-card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 8px; padding: 1.5rem; }
+        .concept-card h4 { font-family: var(--font-sans); font-size: 1rem; font-weight: 600; margin-bottom: 0.75rem; color: var(--color-accent); }
+        .concept-card p { font-size: 0.95rem; margin-bottom: 0; color: var(--color-text-secondary); }
+        .key-insight { background: var(--color-accent-dim); border: 1px solid var(--color-accent); border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0; }
+        .key-insight strong { color: var(--color-accent); }
+        .experiment-block { background: var(--color-surface-elevated); border-radius: 8px; padding: 1.75rem; margin: 1.5rem 0; border-left: 3px solid var(--color-accent); }
+        .experiment-block h4 { font-family: var(--font-sans); font-weight: 600; margin-bottom: 1rem; }
+        .experiment-block ol { margin-left: 1.25rem; color: var(--color-text-secondary); }
+        .experiment-block li { margin-bottom: 0.5rem; }
+        .warning-box { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0; }
+        .warning-box strong { color: #f87171; }
+        .connections-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 1.5rem 0; }
+        .connection-item { display: flex; align-items: center; gap: 0.75rem; padding: 1rem; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 8px; text-decoration: none; color: var(--color-text); transition: border-color 0.2s; }
+        .connection-item:hover { border-color: var(--color-accent); background: var(--color-surface-elevated); }
+        .connection-icon { font-size: 1.5rem; }
+        .connection-text { font-family: var(--font-sans); font-size: 0.9rem; }
+        ul { margin-left: 1.25rem; margin-bottom: 1.25rem; }
+        li { margin-bottom: 0.5rem; }
+        footer { margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--color-border); text-align: center; }
+        .btn-launch { display: inline-flex; align-items: center; gap: 0.5rem; font-family: var(--font-sans); font-size: 1rem; font-weight: 500; padding: 1rem 2rem; background: var(--color-accent); color: #030712; border-radius: 8px; text-decoration: none; transition: opacity 0.2s; }
+        .btn-launch:hover { opacity: 0.9; }
+        .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin: 1.5rem 0; }
+        @media (max-width: 600px) { .two-col { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="breadcrumb">
+            <a href="https://cjlkaiser-cpu.github.io/eigenlab/_portal/index.html">EigenLab</a> /
+            <a href="../index.html">Physics Visual Lab</a> /
+            <span>Guía: Efecto Doppler</span>
+        </nav>
+        <h1>Efecto Doppler</h1>
+        <p class="subtitle">Por qué una ambulancia suena más aguda al acercarse y más grave al alejarse</p>
+    </header>
+
+    <p class="intro">
+        Cuando una fuente de ondas se mueve respecto al observador, las ondas que llegan se comprimen
+        o estiran, cambiando la frecuencia percibida. Este efecto —descrito por Christian Doppler en 1842—
+        aparece en sonido, luz, radar, ultrasonidos médicos y ondas gravitacionales.
+    </p>
+
+    <h2>La Fórmula del Doppler</h2>
+
+    <div class="equation-block">
+        <div class="equation">f' = f₀ · v / (v ∓ vs)</div>
+        <div class="equation-label">
+            f₀ = frecuencia emitida · v = velocidad del sonido (343 m/s) · vs = velocidad de la fuente<br>
+            − cuando la fuente se acerca (f' &gt; f₀) · + cuando la fuente se aleja (f' &lt; f₀)
+        </div>
+    </div>
+
+    <h3>Intuición geométrica</h3>
+
+    <p>Imagina que la fuente emite una cresta cada T = 1/f₀ segundos. Si en ese tiempo se ha movido una distancia vs·T hacia el observador, la siguiente cresta parte desde más cerca. El espacio entre crestas —la longitud de onda percibida— es:</p>
+
+    <div class="equation-block">
+        <div class="equation">λ' = λ − vs·T = (v − vs) / f₀</div>
+        <div class="equation-label">Longitud de onda comprimida cuando la fuente se acerca</div>
+    </div>
+
+    <p>Como v = f'·λ', se obtiene directamente la fórmula del Doppler.</p>
+
+    <h2>Casos Especiales</h2>
+
+    <div class="concept-grid">
+        <div class="concept-card">
+            <h4>Fuente estática (vs = 0)</h4>
+            <p>f' = f₀. Sin movimiento relativo, no hay efecto Doppler. Las ondas son concéntricas y la frecuencia percibida es la emitida.</p>
+        </div>
+        <div class="concept-card">
+            <h4>Fuente muy lenta (vs ≪ v)</h4>
+            <p>Aproximación lineal: f' ≈ f₀(1 ± vs/v). Cada 10% de la velocidad del sonido añade ~10% de cambio en frecuencia.</p>
+        </div>
+        <div class="concept-card">
+            <h4>Velocidad sónica (vs = v)</h4>
+            <p>f' → ∞. Todas las crestas se acumulan en el mismo frente: el cono de Mach. La fuente "alcanza" sus propias ondas. Es la barrera del sonido.</p>
+        </div>
+        <div class="concept-card">
+            <h4>Supersónico (vs &gt; v)</h4>
+            <p>La fórmula clásica ya no aplica. La fuente supera sus ondas, formando una onda de choque cónica (bang sónico). La simulación puede acercarse a este límite con vs = 300 m/s.</p>
+        </div>
+    </div>
+
+    <div class="key-insight">
+        <strong>El Doppler cambia la frecuencia, no la velocidad.</strong> Las ondas siguen viajando a v = 343 m/s en el aire independientemente de cuán rápido se mueva la fuente (mientras vs &lt; v). Lo que cambia es cuántas crestas por segundo llegan al observador.
+    </div>
+
+    <h2>Doppler Relativista y Electromagnético</h2>
+
+    <p>Para la luz (y otras ondas electromagnéticas), la fórmula clásica falla porque la velocidad de la luz es constante para todos los observadores. Se usa la versión relativista:</p>
+
+    <div class="equation-block">
+        <div class="equation">f' = f₀ √[(1 − β)/(1 + β)] &nbsp; donde β = vs/c</div>
+        <div class="equation-label">Efecto Doppler relativista. Para β ≪ 1 se recupera la fórmula clásica.</div>
+    </div>
+
+    <p>El corrimiento al rojo cosmológico que usó Hubble para medir la expansión del universo es exactamente este efecto: las galaxias que se alejan de nosotros tienen su luz desplazada hacia longitudes de onda más largas (rojo).</p>
+
+    <h2>Aplicaciones Reales</h2>
+
+    <div class="concept-grid">
+        <div class="concept-card">
+            <h4>Radar de velocidad</h4>
+            <p>Emite microondas y mide el Doppler de la señal reflejada en un vehículo. El cambio de frecuencia es proporcional a la velocidad del vehículo: Δf = 2vs·f₀/c.</p>
+        </div>
+        <div class="concept-card">
+            <h4>Ecografía Doppler</h4>
+            <p>Mide la velocidad del flujo sanguíneo en tiempo real. El ultrasonido rebota en los glóbulos rojos en movimiento y el Doppler de la señal reflejada revela la velocidad y dirección del flujo.</p>
+        </div>
+        <div class="concept-card">
+            <h4>Radares meteorológicos</h4>
+            <p>Los radares Doppler miden la velocidad de las gotas de lluvia. Pueden detectar tornados por el patrón de velocidades radiales opuestas en la misma nube.</p>
+        </div>
+        <div class="concept-card">
+            <h4>Ondas gravitacionales</h4>
+            <p>El detector LIGO mide el Doppler de la luz láser causado por el paso de ondas gravitacionales. El "chirp" que detectó en 2015 es el Doppler de dos agujeros negros fusionándose.</p>
+        </div>
+    </div>
+
+    <h2>La Simulación: Sonificación en Tiempo Real</h2>
+
+    <p>La simulación usa la Web Audio API para reproducir la frecuencia percibida en tiempo real. El oscilador genera directamente f', así que puedes <em>escuchar</em> el efecto Doppler mientras observas las ondas comprimirse visualmente.</p>
+
+    <ul>
+        <li><strong>Velocidad de la fuente (0–300 m/s)</strong> — En el rango 0–343 m/s (subsónico). A 343 m/s, la fuente alcanza sus propias ondas.</li>
+        <li><strong>Frecuencia base (200–800 Hz)</strong> — La frecuencia emitida f₀. El panel muestra f₀ y f' simultáneamente.</li>
+        <li><strong>Sonido toggle</strong> — Activa/desactiva el audio en tiempo real. Útil para comparar lo que ves con lo que oyes.</li>
+    </ul>
+
+    <h2>Experimentos Guiados</h2>
+
+    <div class="experiment-block">
+        <h4>Experimento 1 — Escuchar el cambio de frecuencia</h4>
+        <ol>
+            <li>Activa el sonido. Fija f₀ = 440 Hz (La musical), vs = 50 m/s.</li>
+            <li>Escucha la frecuencia mientras la fuente se acerca. Debería ser f' = 440 · 343/(343−50) ≈ 514 Hz.</li>
+            <li>Cuando la fuente pasa y se aleja, f' = 440 · 343/(343+50) ≈ 383 Hz.</li>
+            <li>La diferencia de ~131 Hz es audiblemente grande: casi una tercera musical.</li>
+        </ol>
+    </div>
+
+    <div class="experiment-block">
+        <h4>Experimento 2 — Aproximarse a la barrera del sonido</h4>
+        <ol>
+            <li>Aumenta gradualmente vs desde 0 hasta 300 m/s mientras observas las ondas.</li>
+            <li>A bajas velocidades, las ondas son circulares concéntricas pero comprimidas al frente.</li>
+            <li>A vs ≈ 200 m/s (Mach 0.58), la compresión al frente es ya muy visible.</li>
+            <li>A vs ≈ 300 m/s (Mach 0.87), el frente de onda casi se cierra. f' →∞ teóricamente.</li>
+            <li>Observa el panel: f' sube dramáticamente mientras vs se acerca a 343 m/s.</li>
+        </ol>
+    </div>
+
+    <div class="experiment-block">
+        <h4>Experimento 3 — Verificar la fórmula numéricamente</h4>
+        <ol>
+            <li>Fija f₀ = 500 Hz, vs = 100 m/s (acercándose).</li>
+            <li>Calcula a mano: f' = 500 · 343 / (343 − 100) = 500 · 343/243 ≈ 706 Hz.</li>
+            <li>Comprueba que el panel muestra ≈ 706 Hz.</li>
+            <li>Ahora vs = 100 m/s alejándose: f' = 500 · 343/(343+100) = 500 · 343/443 ≈ 387 Hz.</li>
+            <li>El rango de variación (706 − 387 = 319 Hz) es enorme comparado con la frecuencia base.</li>
+        </ol>
+    </div>
+
+    <h2>Conexiones</h2>
+
+    <div class="connections-grid">
+        <a href="../ondas.html" class="connection-item">
+            <span class="connection-icon">🌊</span>
+            <div class="connection-text"><strong>Ondas Mecánicas</strong><br>La onda base sin movimiento</div>
+        </a>
+        <a href="../interferencia.html" class="connection-item">
+            <span class="connection-icon">〰</span>
+            <div class="connection-text"><strong>Interferencia</strong><br>Superposición de ondas</div>
+        </a>
+        <a href="../relatividad.html" class="connection-item">
+            <span class="connection-icon">⚡</span>
+            <div class="connection-text"><strong>Relatividad Especial</strong><br>Doppler relativista y corrimiento al rojo</div>
+        </a>
+        <a href="../sistema-solar.html" class="connection-item">
+            <span class="connection-icon">🪐</span>
+            <div class="connection-text"><strong>Sistema Solar</strong><br>Velocidades orbitales y Doppler estelar</div>
+        </a>
+    </div>
+
+    <footer>
+        <a href="../efecto-doppler.html" class="btn-launch">Abrir simulación →</a>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guía: Síntesis de Fourier | Physics Visual Lab</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-bg: #0a0a0a; --color-surface: #141414; --color-surface-elevated: #1a1a1a;
+            --color-border: #262626; --color-text: #e5e5e5; --color-text-secondary: #a3a3a3;
+            --color-accent: #22c55e; --color-accent-dim: rgba(34,197,94,0.1);
+            --font-serif: 'Crimson Pro', Georgia, serif; --font-sans: 'Inter', system-ui, sans-serif;
+            --font-mono: 'Fira Code', monospace;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: var(--font-serif); font-size: 19px; line-height: 1.7; color: var(--color-text); background-color: var(--color-bg); padding: 2rem; max-width: 900px; margin: 0 auto; }
+        header { margin-bottom: 3rem; padding-bottom: 2rem; border-bottom: 1px solid var(--color-border); }
+        .breadcrumb { font-family: var(--font-sans); font-size: 0.85rem; color: var(--color-text-secondary); margin-bottom: 1rem; }
+        .breadcrumb a { color: var(--color-accent); text-decoration: none; }
+        .breadcrumb a:hover { text-decoration: underline; }
+        h1 { font-family: var(--font-serif); font-size: 2.5rem; font-weight: 600; margin-bottom: 0.5rem; letter-spacing: -0.02em; }
+        .subtitle { font-size: 1.25rem; color: var(--color-text-secondary); font-style: italic; }
+        h2 { font-family: var(--font-sans); font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--color-accent); margin-top: 3rem; margin-bottom: 1.25rem; }
+        h3 { font-family: var(--font-serif); font-size: 1.4rem; font-weight: 600; margin-top: 2rem; margin-bottom: 0.75rem; }
+        p { margin-bottom: 1.25rem; }
+        .intro { font-size: 1.15rem; color: var(--color-text-secondary); border-left: 3px solid var(--color-accent); padding-left: 1.5rem; margin: 2rem 0; }
+        .equation-block { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 8px; padding: 2rem; margin: 1.5rem 0; text-align: center; }
+        .equation { font-family: var(--font-mono); font-size: 1.3rem; color: var(--color-accent); margin-bottom: 0.75rem; }
+        .equation-label { font-family: var(--font-sans); font-size: 0.85rem; color: var(--color-text-secondary); }
+        .concept-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin: 1.5rem 0; }
+        .concept-card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 8px; padding: 1.5rem; }
+        .concept-card h4 { font-family: var(--font-sans); font-size: 1rem; font-weight: 600; margin-bottom: 0.75rem; color: var(--color-accent); }
+        .concept-card p { font-size: 0.95rem; margin-bottom: 0; color: var(--color-text-secondary); }
+        .key-insight { background: var(--color-accent-dim); border: 1px solid var(--color-accent); border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0; }
+        .key-insight strong { color: var(--color-accent); }
+        .experiment-block { background: var(--color-surface-elevated); border-radius: 8px; padding: 1.75rem; margin: 1.5rem 0; border-left: 3px solid var(--color-accent); }
+        .experiment-block h4 { font-family: var(--font-sans); font-weight: 600; margin-bottom: 1rem; }
+        .experiment-block ol { margin-left: 1.25rem; color: var(--color-text-secondary); }
+        .experiment-block li { margin-bottom: 0.5rem; }
+        .connections-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 1.5rem 0; }
+        .connection-item { display: flex; align-items: center; gap: 0.75rem; padding: 1rem; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 8px; text-decoration: none; color: var(--color-text); transition: border-color 0.2s; }
+        .connection-item:hover { border-color: var(--color-accent); background: var(--color-surface-elevated); }
+        .connection-icon { font-size: 1.5rem; }
+        .connection-text { font-family: var(--font-sans); font-size: 0.9rem; }
+        ul { margin-left: 1.25rem; margin-bottom: 1.25rem; }
+        li { margin-bottom: 0.5rem; }
+        footer { margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--color-border); text-align: center; }
+        .btn-launch { display: inline-flex; align-items: center; gap: 0.5rem; font-family: var(--font-sans); font-size: 1rem; font-weight: 500; padding: 1rem 2rem; background: var(--color-accent); color: #030712; border-radius: 8px; text-decoration: none; transition: opacity 0.2s; }
+        .btn-launch:hover { opacity: 0.9; }
+        .wave-series { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 1.5rem 0; }
+        .wave-card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 8px; padding: 1.25rem; }
+        .wave-card h4 { font-family: var(--font-sans); font-size: 0.9rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--color-accent); }
+        .wave-card .formula { font-family: var(--font-mono); font-size: 0.8rem; color: var(--color-text-secondary); margin-bottom: 0.5rem; }
+        .wave-card p { font-size: 0.85rem; color: var(--color-text-secondary); margin: 0; }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="breadcrumb">
+            <a href="https://cjlkaiser-cpu.github.io/eigenlab/_portal/index.html">EigenLab</a> /
+            <a href="../index.html">Physics Visual Lab</a> /
+            <span>Guía: Síntesis de Fourier</span>
+        </nav>
+        <h1>Síntesis de Fourier</h1>
+        <p class="subtitle">Cualquier onda periódica es una suma de senoidales</p>
+    </header>
+
+    <p class="intro">
+        El teorema de Fourier afirma que cualquier función periódica, por compleja que sea, puede
+        escribirse como una suma (posiblemente infinita) de senos y cosenos. Esto no es solo una
+        curiosidad matemática: es la base del procesado de señal, la síntesis de sonido, la compresión
+        de imágenes (JPEG), el análisis de sismogramas y la mecánica cuántica.
+    </p>
+
+    <h2>La Serie de Fourier</h2>
+
+    <div class="equation-block">
+        <div class="equation">f(t) = a₀/2 + Σ [aₙcos(nωt) + bₙsin(nωt)]</div>
+        <div class="equation-label">Serie de Fourier general. ω = 2πf₀ es la frecuencia angular fundamental.</div>
+    </div>
+
+    <p>Los coeficientes aₙ y bₙ se calculan por integración:</p>
+
+    <div class="equation-block">
+        <div class="equation">aₙ = (2/T) ∫ f(t)·cos(nωt) dt &nbsp;&nbsp; bₙ = (2/T) ∫ f(t)·sin(nωt) dt</div>
+        <div class="equation-label">Los coeficientes miden "cuánto" de cada armónico hay en la señal original</div>
+    </div>
+
+    <div class="key-insight">
+        <strong>La transformada de Fourier es una proyección.</strong> Igual que un vector puede proyectarse sobre ejes ortogonales, una función puede proyectarse sobre las funciones base {sin(nωt), cos(nωt)}, que son ortogonales entre sí. Los coeficientes son las "coordenadas" de la función en el espacio de frecuencias.
+    </div>
+
+    <h2>Las Cuatro Ondas Predefinidas</h2>
+
+    <div class="wave-series">
+        <div class="wave-card">
+            <h4>Senoidal</h4>
+            <div class="formula">f(t) = sin(ωt)</div>
+            <p>Un solo armónico. El espectro tiene exactamente una barra. Es la onda "pura".</p>
+        </div>
+        <div class="wave-card">
+            <h4>Cuadrada</h4>
+            <div class="formula">4/π · Σ sin((2n-1)ωt)/(2n-1)</div>
+            <p>Solo armónicos impares (1, 3, 5, …) con amplitudes 1, 1/3, 1/5, … Los bordes nítidos requieren infinitos armónicos.</p>
+        </div>
+        <div class="wave-card">
+            <h4>Diente de sierra</h4>
+            <div class="formula">2/π · Σ (-1)ⁿ⁺¹ sin(nωt)/n</div>
+            <p>Todos los armónicos (pares e impares) con amplitudes 1, 1/2, 1/3, 1/4, … Descenso lento.</p>
+        </div>
+        <div class="wave-card">
+            <h4>Triangular</h4>
+            <div class="formula">8/π² · Σ (-1)ⁿ sin((2n-1)ωt)/(2n-1)²</div>
+            <p>Solo armónicos impares, pero con amplitudes 1, 1/9, 1/25, … (caída ∝ 1/n²). Más suave que la cuadrada.</p>
+        </div>
+    </div>
+
+    <h2>El Fenómeno de Gibbs</h2>
+
+    <p>Al aproximar una onda cuadrada con un número finito de armónicos, aparece un sobrepico (~9% de la altura) justo en las discontinuidades, que no desaparece al añadir más armónicos: simplemente se hace más estrecho pero igual de alto. Esto es el <em>fenómeno de Gibbs</em>.</p>
+
+    <div class="key-insight">
+        <strong>Observa el fenómeno de Gibbs en la simulación:</strong> selecciona onda Cuadrada con 1 armónico. La onda es una senoidal suave. Con 4, ya se parece a una cuadrada. Con 16, la forma es casi perfecta pero aparecen pequeñas oscilaciones en las esquinas. Ese ~9% extra nunca desaparece completamente.
+    </div>
+
+    <h2>Timbre Musical y Armónicos</h2>
+
+    <p>La razón por la que un violín y una flauta suenan diferentes aunque toquen la misma nota (misma f₀) es que tienen diferentes espectros de armónicos. El <em>timbre</em> de un instrumento es su "huella digital" en el espacio de frecuencias:</p>
+
+    <div class="concept-grid">
+        <div class="concept-card">
+            <h4>Flauta</h4>
+            <p>Espectro dominado por el fundamental. Pocos armónicos de alta frecuencia. Sonido "limpio" y suave.</p>
+        </div>
+        <div class="concept-card">
+            <h4>Violín</h4>
+            <p>Espectro rico en armónicos impares y pares hasta orden 8-10. El arco excita la cuerda de forma similar a una cuadrada.</p>
+        </div>
+        <div class="concept-card">
+            <h4>Clarinete</h4>
+            <p>Al ser tubo cerrado en un extremo, solo tiene armónicos impares (1, 3, 5, …), como la onda cuadrada de Fourier.</p>
+        </div>
+        <div class="concept-card">
+            <h4>Sintetizador</h4>
+            <p>La síntesis aditiva construye timbres exactamente como en la simulación: sumando armónicos con amplitudes y fases elegidas libremente.</p>
+        </div>
+    </div>
+
+    <h2>Controles de la Simulación</h2>
+
+    <ul>
+        <li><strong>Ondas predefinidas</strong> — Carga los coeficientes correctos de Fourier para cada forma de onda.</li>
+        <li><strong>Frecuencia fundamental (0.5–5 Hz)</strong> — Cambia la velocidad visual; no afecta la forma ni el espectro.</li>
+        <li><strong>Número de armónicos (1–16)</strong> — Cuántos armónicos se suman. Con 1 → senoidal pura. Con 16 → aproximación casi perfecta.</li>
+        <li><strong>Amplitud por armónico</strong> — Sliders individuales para cada armónico n = 1 … N. Ajústalos libremente para crear formas de onda personalizadas.</li>
+    </ul>
+
+    <h2>Experimentos Guiados</h2>
+
+    <div class="experiment-block">
+        <h4>Experimento 1 — Construir una onda cuadrada armónico a armónico</h4>
+        <ol>
+            <li>Selecciona onda Cuadrada. Baja el número de armónicos a 1 y sube gradualmente.</li>
+            <li>Con 1 armónico: senoidal pura.</li>
+            <li>Con 2: añade el tercer armónico (n=3, amplitud 1/3). La onda ya tiene esquinas.</li>
+            <li>Con 4: onda cuadrada reconocible. Con 8: casi perfecta. Con 16: bordes muy nítidos con el "rebote" de Gibbs visible.</li>
+            <li>Observa el espectro (canvas inferior): solo hay barras en n=1, 3, 5, 7, … Los pares son cero.</li>
+        </ol>
+    </div>
+
+    <div class="experiment-block">
+        <h4>Experimento 2 — Diferencia entre diente de sierra y triangular</h4>
+        <ol>
+            <li>Cambia entre Diente de sierra y Triangular con 8 armónicos.</li>
+            <li>Ambas tienen bordes, pero la triangular es más suave. ¿Por qué?</li>
+            <li>Mira el espectro: la triangular tiene amplitudes ∝ 1/n² (decaen mucho más rápido). Los armónicos altos son casi cero.</li>
+            <li>El diente de sierra tiene amplitudes ∝ 1/n (decaen más lento). Más energía en frecuencias altas → bordes más abruptos.</li>
+        </ol>
+    </div>
+
+    <div class="experiment-block">
+        <h4>Experimento 3 — Crear un timbre personalizado</h4>
+        <ol>
+            <li>Selecciona onda senoidal, 8 armónicos.</li>
+            <li>Sube el armónico n=1 al máximo, n=3 a la mitad, n=5 a un cuarto. Deja el resto en cero.</li>
+            <li>Esto simula el timbre de un clarinete (armónicos impares).</li>
+            <li>Ahora añade algo de n=2 y n=4: el sonido se "ensucia" y suena más como un violín.</li>
+            <li>Elimina todos los armónicos excepto n=1: onda puramente senoidal, como una flauta.</li>
+        </ol>
+    </div>
+
+    <h2>Conexiones</h2>
+
+    <div class="connections-grid">
+        <a href="../ondas.html" class="connection-item">
+            <span class="connection-icon">🌊</span>
+            <div class="connection-text"><strong>Ondas Mecánicas</strong><br>La onda senoidal fundamental</div>
+        </a>
+        <a href="../efecto-doppler.html" class="connection-item">
+            <span class="connection-icon">🚑</span>
+            <div class="connection-text"><strong>Efecto Doppler</strong><br>Cambio de frecuencia en el espectro</div>
+        </a>
+        <a href="../interferencia.html" class="connection-item">
+            <span class="connection-icon">〰</span>
+            <div class="connection-text"><strong>Interferencia</strong><br>Superposición física de ondas</div>
+        </a>
+        <a href="../circuitos.html" class="connection-item">
+            <span class="connection-icon">⚡</span>
+            <div class="connection-text"><strong>Circuito RLC</strong><br>Filtros = selectores de armónicos</div>
+        </a>
+    </div>
+
+    <footer>
+        <a href="../fourier.html" class="btn-launch">Abrir simulación →</a>
+    </footer>
+</body>
+</html>
