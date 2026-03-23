@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guía: Atractor Multi-Cuerpo | Physics Visual Lab</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-bg: #0a0a0a;
+            --color-surface: #141414;
+            --color-surface-elevated: #1a1a1a;
+            --color-border: #262626;
+            --color-text: #e5e5e5;
+            --color-text-secondary: #a3a3a3;
+            --color-accent: #22c55e;
+            --color-accent-dim: rgba(34, 197, 94, 0.1);
+            --color-amber: #f59e0b;
+            --color-amber-dim: rgba(245, 158, 11, 0.12);
+            --font-serif: 'Crimson Pro', Georgia, serif;
+            --font-sans: 'Inter', system-ui, sans-serif;
+            --font-mono: 'Fira Code', monospace;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: var(--font-serif);
+            font-size: 19px;
+            line-height: 1.7;
+            color: var(--color-text);
+            background-color: var(--color-bg);
+            padding: 2rem;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        header { margin-bottom: 3rem; padding-bottom: 2rem; border-bottom: 1px solid var(--color-border); }
+        .breadcrumb { font-family: var(--font-sans); font-size: 0.85rem; color: var(--color-text-secondary); margin-bottom: 1rem; }
+        .breadcrumb a { color: var(--color-accent); text-decoration: none; }
+        .breadcrumb a:hover { text-decoration: underline; }
+        h1 { font-family: var(--font-serif); font-size: 2.5rem; font-weight: 600; margin-bottom: 0.5rem; letter-spacing: -0.02em; }
+        .subtitle { font-size: 1.25rem; color: var(--color-text-secondary); font-style: italic; }
+        h2 { font-family: var(--font-sans); font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--color-accent); margin-top: 3rem; margin-bottom: 1.25rem; }
+        h3 { font-family: var(--font-serif); font-size: 1.4rem; font-weight: 600; margin-top: 2rem; margin-bottom: 0.75rem; }
+        p { margin-bottom: 1.25rem; }
+        .intro { font-size: 1.15rem; color: var(--color-text-secondary); border-left: 3px solid var(--color-accent); padding-left: 1.5rem; margin: 2rem 0; }
+        .equation-block { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 8px; padding: 2rem; margin: 1.5rem 0; text-align: center; }
+        .equation { font-family: var(--font-mono); font-size: 1.4rem; color: var(--color-accent); margin-bottom: 0.75rem; }
+        .equation.amber { color: var(--color-amber); }
+        .equation-label { font-family: var(--font-sans); font-size: 0.85rem; color: var(--color-text-secondary); }
+        .concept-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin: 1.5rem 0; }
+        .concept-card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 8px; padding: 1.5rem; }
+        .concept-card h4 { font-family: var(--font-sans); font-size: 1rem; font-weight: 600; margin-bottom: 0.75rem; color: var(--color-accent); }
+        .concept-card p { font-size: 0.95rem; margin-bottom: 0; color: var(--color-text-secondary); }
+        .key-insight { background: var(--color-accent-dim); border: 1px solid var(--color-accent); border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0; }
+        .key-insight strong { color: var(--color-accent); }
+        .chaos-insight { background: var(--color-amber-dim); border: 1px solid var(--color-amber); border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0; }
+        .chaos-insight strong { color: var(--color-amber); }
+        .experiment-block { background: var(--color-surface-elevated); border-radius: 8px; padding: 1.75rem; margin: 1.5rem 0; border-left: 3px solid var(--color-accent); }
+        .experiment-block h4 { font-family: var(--font-sans); font-weight: 600; margin-bottom: 1rem; }
+        .experiment-block ol { margin-left: 1.25rem; color: var(--color-text-secondary); }
+        .experiment-block li { margin-bottom: 0.5rem; }
+        .warning-box { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0; }
+        .warning-box strong { color: #f87171; }
+        .connections-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 1.5rem 0; }
+        .connection-item { display: flex; align-items: center; gap: 0.75rem; padding: 1rem; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 8px; text-decoration: none; color: var(--color-text); transition: border-color 0.2s, background-color 0.2s; }
+        .connection-item:hover { border-color: var(--color-accent); background: var(--color-surface-elevated); }
+        .connection-icon { font-size: 1.5rem; }
+        .connection-text { font-family: var(--font-sans); font-size: 0.9rem; }
+        ul { margin-left: 1.25rem; margin-bottom: 1.25rem; }
+        li { margin-bottom: 0.5rem; }
+        footer { margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--color-border); text-align: center; }
+        .btn-launch { display: inline-flex; align-items: center; gap: 0.5rem; font-family: var(--font-sans); font-size: 1rem; font-weight: 500; padding: 1rem 2rem; background: var(--color-accent); color: #030712; border-radius: 8px; text-decoration: none; transition: opacity 0.2s; }
+        .btn-launch:hover { opacity: 0.9; }
+        .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin: 1.5rem 0; }
+        @media (max-width: 600px) { .two-col { grid-template-columns: 1fr; } }
+        .attractor-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin: 1.5rem 0; }
+        .attractor-card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 8px; padding: 1rem; text-align: center; }
+        .attractor-card .num { font-family: var(--font-mono); font-size: 1.5rem; color: var(--color-amber); font-weight: bold; }
+        .attractor-card .desc { font-family: var(--font-sans); font-size: 0.8rem; color: var(--color-text-secondary); margin-top: 0.25rem; }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="breadcrumb">
+            <a href="https://cjlkaiser-cpu.github.io/eigenlab/_portal/index.html">EigenLab</a> /
+            <a href="../index.html">Physics Visual Lab</a> /
+            <span>Guía: Atractor Multi-Cuerpo</span>
+        </nav>
+        <h1>Atractor Multi-Cuerpo</h1>
+        <p class="subtitle">Caos determinista: el futuro depende del presente con precisión infinita</p>
+    </header>
+
+    <p class="intro">
+        Una partícula atraída por N cuerpos fijos dispuestos en círculo. Las ecuaciones son perfectamente
+        deterministas: dado el estado inicial, el futuro está completamente determinado. Sin embargo, la
+        trayectoria es impredecible en la práctica: una perturbación microscópica en la posición inicial
+        produce una trayectoria completamente diferente. Este es el <em>caos determinista</em>.
+    </p>
+
+    <h2>El Sistema Físico</h2>
+
+    <p>N atractores (centros de fuerza) están fijos en los vértices de un polígono regular. Una partícula libre se mueve bajo la acción de la suma de sus fuerzas más una fricción viscosa:</p>
+
+    <div class="equation-block">
+        <div class="equation">F_i = K / r_i^n · r̂_i</div>
+        <div class="equation-label">Fuerza de cada atractor sobre la partícula. r̂ es el vector unitario hacia el atractor.</div>
+    </div>
+
+    <div class="equation-block">
+        <div class="equation">mẍ = Σ F_i − γ ẋ</div>
+        <div class="equation-label">Ecuación de movimiento total. γ es el coeficiente de fricción.</div>
+    </div>
+
+    <p>La suma vectorial de N fuerzas que compiten crea un <em>campo de potencial</em> complejo con múltiples mínimos (cuencas de atracción). La trayectoria de la partícula depende críticamente de por cuál cuenca "cae" en cada paso.</p>
+
+    <h2>El Exponente n: Geometría del Potencial</h2>
+
+    <p>El exponente n controla cómo decae la fuerza con la distancia y cambia radicalmente la topología del campo:</p>
+
+    <div class="two-col">
+        <div class="concept-card">
+            <h4>n = 2 (gravitacional)</h4>
+            <p>F ∝ 1/r². Las cuencas de atracción son suaves y las fronteras entre ellas son relativamente regulares. El atractor más cercano casi siempre "gana".</p>
+        </div>
+        <div class="concept-card">
+            <h4>n = 3 (umbral del caos)</h4>
+            <p>Las fronteras entre cuencas se vuelven fractales. Cerca de las líneas de separación, una pequeña variación en posición puede enviar la partícula a cualquier atractor.</p>
+        </div>
+    </div>
+    <div class="two-col">
+        <div class="concept-card">
+            <h4>n = 3.5 (caos profundo)</h4>
+            <p>Las fronteras fractales se densifican. La predicción a largo plazo se vuelve imposible incluso con alta precisión numérica.</p>
+        </div>
+        <div class="concept-card">
+            <h4>n = 4 (ultra local)</h4>
+            <p>La fuerza decae muy rápidamente. El atractor más cercano domina casi siempre, pero las cuencas forman patrones de alta frecuencia fractal en las fronteras.</p>
+        </div>
+    </div>
+
+    <h2>Los N Atractores</h2>
+
+    <p>La simulación permite elegir entre 3 y 8 atractores. La simetría del polígono determina el número de cuencas y la complejidad del diagrama:</p>
+
+    <div class="attractor-grid">
+        <div class="attractor-card"><div class="num">3</div><div class="desc">triángulo — cuencas simples</div></div>
+        <div class="attractor-card"><div class="num">4</div><div class="desc">cuadrado — simetría doblada</div></div>
+        <div class="attractor-card"><div class="num">5</div><div class="desc">pentágono — default, caos moderado</div></div>
+        <div class="attractor-card"><div class="num">6</div><div class="desc">hexágono — patrón tipo copo</div></div>
+        <div class="attractor-card"><div class="num">7</div><div class="desc">heptágono — sin simetría cuadrática</div></div>
+        <div class="attractor-card"><div class="num">8</div><div class="desc">octágono — máxima complejidad</div></div>
+    </div>
+
+    <h2>Sensibilidad a Condiciones Iniciales</h2>
+
+    <div class="chaos-insight">
+        <strong>El experimento de las dos partículas</strong> es la demostración más directa del caos. Actívalo con el checkbox "Dos partículas". Las dos partículas parten de posiciones casi idénticas (diferencia de 10⁻⁶ unidades). Durante unos ciclos siguen juntas; luego sus trayectorias divergen exponencialmente hasta ser completamente independientes.
+    </div>
+
+    <p>El indicador de <em>divergencia</em> en el panel mide la distancia entre ambas partículas. En un sistema no caótico, esta distancia crecería linealmente o permanecería acotada. En el atractor multi-cuerpo, crece exponencialmente:</p>
+
+    <div class="equation-block">
+        <div class="equation amber">|δx(t)| ≈ |δx₀| · e^(λt)</div>
+        <div class="equation-label">λ es el exponente de Lyapunov. Si λ > 0, el sistema es caótico.</div>
+    </div>
+
+    <h2>El Campo de Potencial</h2>
+
+    <p>El fondo de la simulación muestra el <em>campo de potencial</em> V(x,y) como un mapa de color. Las zonas oscuras son pozos de potencial (donde están los atractores); las zonas claras son crestas de potencial (fronteras entre cuencas).</p>
+
+    <p>La partícula se mueve cuesta abajo en este paisaje de potencial, pero como tiene inercia (velocidad inicial), puede "saltar" de una cuenca a otra antes de asentarse. Con suficiente fricción, eventualmente cae en el atractor más cercano; con poca fricción, puede explorar todo el campo durante mucho tiempo.</p>
+
+    <h2>Controles de la Simulación</h2>
+
+    <ul>
+        <li><strong>Fuerza K (20–300)</strong> — Intensidad de atracción. Mayor K → caída más rápida hacia los atractores.</li>
+        <li><strong>Fricción γ (0–0.05)</strong> — Amortiguamiento. Con γ = 0, la partícula nunca se asienta. Con γ alto, cae rápidamente en el atractor más cercano y el caos disminuye.</li>
+        <li><strong>Exponente n (2–4, pasos 0.5)</strong> — Geometría del potencial. n = 3 es el umbral clásico de caos fractal.</li>
+        <li><strong>Velocidad inicial (1–15)</strong> — Energía cinética de partida. Mayor velocidad → más "rebotes" entre cuencas antes de asentarse.</li>
+        <li><strong>Longitud del trail (50–800)</strong> — Cuántos frames de trayectoria se muestran. Un trail largo revela la estructura fractal de las fronteras.</li>
+    </ul>
+
+    <h2>Experimentos Guiados</h2>
+
+    <div class="experiment-block">
+        <h4>Experimento 1 — El umbral del caos en n</h4>
+        <ol>
+            <li>Selecciona 5 atractores, fricción media (0.003), velocidad inicial 5.</li>
+            <li>Ajusta el exponente a n = 2. Observa la trayectoria durante 30 segundos. Anota en cuál atractor termina.</li>
+            <li>Cambia a n = 3. Resetea. Repite varias veces con las mismas condiciones. ¿Termina siempre en el mismo atractor?</li>
+            <li>Con n = 4, el comportamiento es más errático cerca de las fronteras. Observa cómo los colores del campo de potencial se vuelven más "nervioso" en las fronteras.</li>
+            <li>El umbral del caos para este tipo de sistema ocurre alrededor de n = 2.5–3.</li>
+        </ol>
+    </div>
+
+    <div class="experiment-block">
+        <h4>Experimento 2 — Divergencia de Lyapunov</h4>
+        <ol>
+            <li>Activa "Dos partículas". Selecciona n = 3, 5 atractores, fricción baja (0.001).</li>
+            <li>Observa el indicador de divergencia. Durante los primeros ciclos, las dos trayectorias son indistinguibles.</li>
+            <li>En el momento en que la partícula pasa cerca de una frontera entre cuencas, la divergencia se dispara.</li>
+            <li>A partir de ahí, las dos partículas van a atractores distintos: el sistema "eligió" destinos diferentes a partir de condiciones microscópicamente distintas.</li>
+            <li>Resetea y repite: cada vez, el momento y el destino de la bifurcación puede ser diferente.</li>
+        </ol>
+    </div>
+
+    <div class="experiment-block">
+        <h4>Experimento 3 — Fricción y predictibilidad</h4>
+        <ol>
+            <li>Selecciona n = 3.5, 6 atractores.</li>
+            <li>Con fricción alta (~0.01): la partícula cae rápidamente en el atractor más cercano. El sistema es predecible.</li>
+            <li>Con fricción cero (~0.0): la partícula orbita caóticamente durante largo tiempo sin asentarse. La trayectoria llena el espacio.</li>
+            <li>Encuentra el valor de fricción donde el comportamiento pasa de predecible a impredecible. Este es el umbral práctico de caos para este sistema.</li>
+        </ol>
+    </div>
+
+    <h2>Fractalidad de las Cuencas</h2>
+
+    <p>La figura que forman las fronteras entre cuencas de atracción es un <em>fractal</em>: tiene la misma estructura a todas las escalas. Si pudieras hacer zoom infinito en la frontera entre dos cuencas, siempre encontrarías más estructura detallada, nunca una línea suave.</p>
+
+    <div class="key-insight">
+        <strong>La frontera fractal es la firma del caos.</strong> Exactamente en la frontera entre cuencas, la más pequeña perturbación decide a cuál atractor va la partícula. Este conjunto de puntos "indecidibles" tiene dimensión fractal mayor que 1 pero menor que 2. Cuanto mayor sea esa dimensión, más caótico es el sistema.
+    </div>
+
+    <h2>Conexiones</h2>
+
+    <div class="connections-grid">
+        <a href="../pendulo-simple.html" class="connection-item">
+            <span class="connection-icon">🕰</span>
+            <div class="connection-text"><strong>Péndulo Simple</strong><br>Oscilador sin caos</div>
+        </a>
+        <a href="https://cjlkaiser-cpu.github.io/chaos-lab/" class="connection-item">
+            <span class="connection-icon">🌀</span>
+            <div class="connection-text"><strong>Chaos Lab</strong><br>Lorenz, Mandelbrot y más caos</div>
+        </a>
+        <a href="../gas-ideal.html" class="connection-item">
+            <span class="connection-icon">💨</span>
+            <div class="connection-text"><strong>Gas Ideal</strong><br>Caos estadístico: muchas partículas</div>
+        </a>
+        <a href="../orbitas-kepler.html" class="connection-item">
+            <span class="connection-icon">🪐</span>
+            <div class="connection-text"><strong>Órbitas de Kepler</strong><br>N-cuerpos gravitacionales reales</div>
+        </a>
+    </div>
+
+    <footer>
+        <a href="../atractor-multicuerpo.html" class="btn-launch">
+            Abrir simulación →
+        </a>
+    </footer>
+</body>
+</html>

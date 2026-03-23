@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guía: Péndulo Simple | Physics Visual Lab</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-bg: #0a0a0a;
+            --color-surface: #141414;
+            --color-surface-elevated: #1a1a1a;
+            --color-border: #262626;
+            --color-text: #e5e5e5;
+            --color-text-secondary: #a3a3a3;
+            --color-accent: #22c55e;
+            --color-accent-dim: rgba(34, 197, 94, 0.1);
+            --font-serif: 'Crimson Pro', Georgia, serif;
+            --font-sans: 'Inter', system-ui, sans-serif;
+            --font-mono: 'Fira Code', monospace;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: var(--font-serif);
+            font-size: 19px;
+            line-height: 1.7;
+            color: var(--color-text);
+            background-color: var(--color-bg);
+            padding: 2rem;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        header { margin-bottom: 3rem; padding-bottom: 2rem; border-bottom: 1px solid var(--color-border); }
+        .breadcrumb { font-family: var(--font-sans); font-size: 0.85rem; color: var(--color-text-secondary); margin-bottom: 1rem; }
+        .breadcrumb a { color: var(--color-accent); text-decoration: none; }
+        .breadcrumb a:hover { text-decoration: underline; }
+        h1 { font-family: var(--font-serif); font-size: 2.5rem; font-weight: 600; margin-bottom: 0.5rem; letter-spacing: -0.02em; }
+        .subtitle { font-size: 1.25rem; color: var(--color-text-secondary); font-style: italic; }
+        h2 { font-family: var(--font-sans); font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--color-accent); margin-top: 3rem; margin-bottom: 1.25rem; }
+        h3 { font-family: var(--font-serif); font-size: 1.4rem; font-weight: 600; margin-top: 2rem; margin-bottom: 0.75rem; }
+        p { margin-bottom: 1.25rem; }
+        .intro { font-size: 1.15rem; color: var(--color-text-secondary); border-left: 3px solid var(--color-accent); padding-left: 1.5rem; margin: 2rem 0; }
+        .equation-block { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 8px; padding: 2rem; margin: 1.5rem 0; text-align: center; }
+        .equation { font-family: var(--font-mono); font-size: 1.4rem; color: var(--color-accent); margin-bottom: 0.75rem; }
+        .equation-label { font-family: var(--font-sans); font-size: 0.85rem; color: var(--color-text-secondary); }
+        .concept-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin: 1.5rem 0; }
+        .concept-card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 8px; padding: 1.5rem; }
+        .concept-card h4 { font-family: var(--font-sans); font-size: 1rem; font-weight: 600; margin-bottom: 0.75rem; color: var(--color-accent); }
+        .concept-card p { font-size: 0.95rem; margin-bottom: 0; color: var(--color-text-secondary); }
+        .key-insight { background: var(--color-accent-dim); border: 1px solid var(--color-accent); border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0; }
+        .key-insight strong { color: var(--color-accent); }
+        .experiment-block { background: var(--color-surface-elevated); border-radius: 8px; padding: 1.75rem; margin: 1.5rem 0; border-left: 3px solid var(--color-accent); }
+        .experiment-block h4 { font-family: var(--font-sans); font-weight: 600; margin-bottom: 1rem; }
+        .experiment-block ol { margin-left: 1.25rem; color: var(--color-text-secondary); }
+        .experiment-block li { margin-bottom: 0.5rem; }
+        .warning-box { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0; }
+        .warning-box strong { color: #f87171; }
+        .connections-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 1.5rem 0; }
+        .connection-item { display: flex; align-items: center; gap: 0.75rem; padding: 1rem; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 8px; text-decoration: none; color: var(--color-text); transition: border-color 0.2s, background-color 0.2s; }
+        .connection-item:hover { border-color: var(--color-accent); background: var(--color-surface-elevated); }
+        .connection-icon { font-size: 1.5rem; }
+        .connection-text { font-family: var(--font-sans); font-size: 0.9rem; }
+        ul { margin-left: 1.25rem; margin-bottom: 1.25rem; }
+        li { margin-bottom: 0.5rem; }
+        footer { margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--color-border); text-align: center; }
+        .btn-launch { display: inline-flex; align-items: center; gap: 0.5rem; font-family: var(--font-sans); font-size: 1rem; font-weight: 500; padding: 1rem 2rem; background: var(--color-accent); color: #030712; border-radius: 8px; text-decoration: none; transition: opacity 0.2s; }
+        .btn-launch:hover { opacity: 0.9; }
+        .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin: 1.5rem 0; }
+        @media (max-width: 600px) { .two-col { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="breadcrumb">
+            <a href="https://cjlkaiser-cpu.github.io/eigenlab/_portal/index.html">EigenLab</a> /
+            <a href="../index.html">Physics Visual Lab</a> /
+            <span>Guía: Péndulo Simple</span>
+        </nav>
+        <h1>Péndulo Simple</h1>
+        <p class="subtitle">El oscilador más antiguo de la física — y el que más miente</p>
+    </header>
+
+    <main>
+        <p class="intro">
+            Un peso colgando de una cuerda. Parece trivial. Galileo lo observó en la catedral de Pisa
+            en 1583 y descubrió algo sorprendente: el período no depende de la masa ni (casi) del ángulo.
+            Esa "casi" esconde una no-linealidad que tardó siglos en resolverse completamente.
+        </p>
+
+        <h2>La Ecuación de Movimiento</h2>
+
+        <p>
+            Aplicar la Segunda Ley de Newton a la dirección tangencial de la trayectoria circular da:
+        </p>
+
+        <div class="equation-block">
+            <div class="equation">θ̈ + (g/l)·sin(θ) = 0</div>
+            <div class="equation-label">Ecuación no lineal del péndulo simple. θ es el ángulo, l la longitud, g la gravedad.</div>
+        </div>
+
+        <p>
+            El término <code>sin(θ)</code> es lo que hace la ecuación <em>no lineal</em>. No tiene
+            solución analítica exacta en el caso general. Para ángulos pequeños (θ &lt; 15°), se puede
+            usar la aproximación <code>sin(θ) ≈ θ</code>, que convierte la ecuación en un oscilador
+            armónico simple con solución exacta:
+        </p>
+
+        <div class="two-col">
+            <div class="equation-block">
+                <div class="equation">θ̈ + (g/l)·θ = 0</div>
+                <div class="equation-label">Aproximación lineal (ángulos pequeños)</div>
+            </div>
+            <div class="equation-block">
+                <div class="equation">T ≈ 2π√(l/g)</div>
+                <div class="equation-label">Período (válido para θ₀ &lt; 15°)</div>
+            </div>
+        </div>
+
+        <h2>El Método Numérico — RK4</h2>
+
+        <p>
+            Para resolver la ecuación no lineal, la simulación usa <strong>Runge-Kutta de orden 4</strong>,
+            uno de los integradores numéricos más precisos para ecuaciones diferenciales ordinarias.
+            En lugar de dar un salto grande con la derivada actual (Euler), RK4 evalúa cuatro pendientes
+            dentro de cada paso de tiempo y las combina:
+        </p>
+
+        <div class="equation-block">
+            <div class="equation">k₁ = f(tₙ, yₙ)</div>
+            <div class="equation">k₂ = f(tₙ + h/2, yₙ + h·k₁/2)</div>
+            <div class="equation">k₃ = f(tₙ + h/2, yₙ + h·k₂/2)</div>
+            <div class="equation">k₄ = f(tₙ + h, yₙ + h·k₃)</div>
+            <div class="equation" style="margin-top:0.75rem">yₙ₊₁ = yₙ + h(k₁ + 2k₂ + 2k₃ + k₄)/6</div>
+            <div class="equation-label">El error de RK4 decrece con h⁵ por paso — extremadamente preciso.</div>
+        </div>
+
+        <p>
+            La energía total del sistema se conserva con RK4, a diferencia del método de Euler
+            (primer orden) que tiende a acumular error y hace que el péndulo "gane" energía artificialmente.
+        </p>
+
+        <h2>No-Linealidad: El Período Depende del Ángulo</h2>
+
+        <p>
+            La afirmación de Galileo — que el período es independiente del ángulo — es solo una aproximación.
+            La fórmula exacta del período involucra una integral elíptica:
+        </p>
+
+        <div class="equation-block">
+            <div class="equation">T = 4√(l/g) · K(sin(θ₀/2))</div>
+            <div class="equation-label">K es la integral elíptica completa de primera especie. Para θ₀ = 90°, T es ~18% mayor que la aproximación.</div>
+        </div>
+
+        <div class="key-insight">
+            <strong>Observa esto en la simulación:</strong> Lanza el péndulo con θ₀ = 10° y anota el período.
+            Luego hazlo con θ₀ = 80°. El período será notablemente mayor. El oscilador armónico simple
+            es isocronal (período constante); el péndulo real, no.
+        </div>
+
+        <h2>Energía: la Conversión Perpetua</h2>
+
+        <p>
+            Sin amortiguamiento, la energía total del péndulo se conserva. Oscila continuamente entre
+            energía cinética (máxima en el punto inferior) y energía potencial (máxima en los extremos):
+        </p>
+
+        <div class="concept-grid">
+            <div class="concept-card">
+                <h4>Energía Cinética</h4>
+                <p><code>T = ½ml²θ̇²</code><br>Máxima cuando θ = 0 (punto más bajo). La velocidad angular θ̇ es máxima ahí.</p>
+            </div>
+            <div class="concept-card">
+                <h4>Energía Potencial</h4>
+                <p><code>V = mgl(1 - cos θ)</code><br>Máxima en los extremos cuando θ = θ₀. El péndulo está momentáneamente quieto.</p>
+            </div>
+            <div class="concept-card">
+                <h4>Energía Total</h4>
+                <p><code>E = T + V = mgl(1 - cos θ₀)</code><br>Constante sin amortiguamiento. La simulación lo verifica en tiempo real.</p>
+            </div>
+        </div>
+
+        <h2>Controles de la Simulación</h2>
+
+        <div class="concept-grid">
+            <div class="concept-card">
+                <h4>Longitud (0.5 – 4 m)</h4>
+                <p>Afecta directamente el período: T ∝ √l. Doblar la longitud multiplica el período por √2 ≈ 1.41.</p>
+            </div>
+            <div class="concept-card">
+                <h4>Ángulo inicial (–90° a 90°)</h4>
+                <p>Controla la amplitud. Para ángulos grandes, el período se alarga y la no-linealidad es visible.</p>
+            </div>
+            <div class="concept-card">
+                <h4>Gravedad (1 – 20 m/s²)</h4>
+                <p>T ∝ 1/√g. En la Luna (1.62 m/s²) el péndulo oscila 2.5× más lento que en la Tierra.</p>
+            </div>
+            <div class="concept-card">
+                <h4>Amortiguamiento</h4>
+                <p>Modela la fricción del aire: θ̈ + b·θ̇ + (g/l)sin(θ) = 0. La energía decrece exponencialmente.</p>
+            </div>
+        </div>
+
+        <p>
+            El <strong>metrónomo</strong> (botón de audio) emite un clic en cada cruce por la posición
+            central — el momento de máxima velocidad. Útil para escuchar directamente el período y
+            comparar dos configuraciones.
+        </p>
+
+        <h2>Experimento Guiado</h2>
+
+        <div class="experiment-block">
+            <h4>¿Cuándo deja de ser válida la aproximación de ángulo pequeño?</h4>
+            <ol>
+                <li>Configura l = 2 m, g = 9.8 m/s², sin amortiguamiento.</li>
+                <li>Lanza con θ₀ = 10°. Anota el período mostrado en pantalla.</li>
+                <li>Calcula el período teórico: T = 2π√(2/9.8) ≈ 2.84 s. ¿Coincide?</li>
+                <li>Ahora sube el ángulo a 45°. ¿El período cambia? ¿Cuánto?</li>
+                <li>Súbelo a 85°. El período debería ser ~20% mayor que el teórico lineal.</li>
+                <li>Activa el metrónomo en ambos casos y escucha la diferencia de tempo.</li>
+            </ol>
+        </div>
+
+        <div class="experiment-block">
+            <h4>Gravedad en otros planetas</h4>
+            <ol>
+                <li>Fija l = 1 m, θ₀ = 30°.</li>
+                <li>Con g = 9.8 m/s² (Tierra): T ≈ 2.01 s.</li>
+                <li>Baja g a 1.62 m/s² (Luna): T debería ser ≈ 4.94 s. ¿Se cumple la relación T ∝ 1/√g?</li>
+                <li>Sube g a 24.8 m/s² (Júpiter): T ≈ 1.26 s. El péndulo oscila casi 4× más rápido que en la Luna.</li>
+            </ol>
+        </div>
+
+        <h2>Limitaciones del Modelo</h2>
+
+        <ul>
+            <li><strong>Masa puntual:</strong> La simulación ignora el momento de inercia del bob (objeto colgante).</li>
+            <li><strong>Cuerda sin masa:</strong> En la realidad, el peso de la cuerda modifica el período.</li>
+            <li><strong>Amortiguamiento lineal:</strong> El modelo usa fricción ∝ velocidad, no la resistencia aerodinámica real (∝ v²).</li>
+            <li><strong>2D estricto:</strong> No hay movimiento fuera del plano, lo que ocurre en péndulos reales con suficiente energía (péndulo esférico).</li>
+        </ul>
+
+        <h2>Conexiones Interdisciplinarias</h2>
+
+        <div class="connections-grid">
+            <a href="../oscilador-forzado.html" class="connection-item">
+                <span class="connection-icon">〰️</span>
+                <span class="connection-text">Oscilador Forzado<br><small>Resonancia cuando ω = ω₀</small></span>
+            </a>
+            <a href="../pendulos-desacoplados.html" class="connection-item">
+                <span class="connection-icon">⚖️</span>
+                <span class="connection-text">Péndulos Desacoplados<br><small>Polirritmos y diferencia de fase</small></span>
+            </a>
+            <a href="../mecanica-lagrangiana.html" class="connection-item">
+                <span class="connection-icon">∂</span>
+                <span class="connection-text">Mecánica Lagrangiana<br><small>El péndulo como caso de estudio</small></span>
+            </a>
+            <a href="../../Physics Sound Lab/metronomos/pendulo/index.html" class="connection-item">
+                <span class="connection-icon">🎵</span>
+                <span class="connection-text">Metrónomo Péndulo<br><small>Sonificación del movimiento</small></span>
+            </a>
+        </div>
+
+        <h2>Para Explorar Más</h2>
+        <ul>
+            <li><strong>Péndulo doble:</strong> Dos péndulos acoplados en cadena. Sistema caótico — sensibilidad extrema a condiciones iniciales.</li>
+            <li><strong>Péndulo de Foucault:</strong> Péndulo largo que demuestra la rotación de la Tierra por la precesión de su plano de oscilación.</li>
+            <li><strong>Integral elíptica:</strong> La solución exacta del período involucra funciones que no se pueden expresar en términos elementales.</li>
+            <li><strong>Reloj de péndulo:</strong> Christiaan Huygens (1656) usó la isocronía del péndulo para construir el primer reloj preciso.</li>
+        </ul>
+    </main>
+
+    <footer>
+        <a href="../pendulo-simple.html" class="btn-launch">Abrir Simulación</a>
+    </footer>
+</body>
+</html>

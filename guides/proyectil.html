@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guía: Movimiento Proyectil | Physics Visual Lab</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-bg: #0a0a0a;
+            --color-surface: #141414;
+            --color-surface-elevated: #1a1a1a;
+            --color-border: #262626;
+            --color-text: #e5e5e5;
+            --color-text-secondary: #a3a3a3;
+            --color-accent: #22c55e;
+            --color-accent-dim: rgba(34, 197, 94, 0.1);
+            --font-serif: 'Crimson Pro', Georgia, serif;
+            --font-sans: 'Inter', system-ui, sans-serif;
+            --font-mono: 'Fira Code', monospace;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: var(--font-serif); font-size: 19px; line-height: 1.7; color: var(--color-text); background-color: var(--color-bg); padding: 2rem; max-width: 900px; margin: 0 auto; }
+        header { margin-bottom: 3rem; padding-bottom: 2rem; border-bottom: 1px solid var(--color-border); }
+        .breadcrumb { font-family: var(--font-sans); font-size: 0.85rem; color: var(--color-text-secondary); margin-bottom: 1rem; }
+        .breadcrumb a { color: var(--color-accent); text-decoration: none; }
+        .breadcrumb a:hover { text-decoration: underline; }
+        h1 { font-family: var(--font-serif); font-size: 2.5rem; font-weight: 600; margin-bottom: 0.5rem; letter-spacing: -0.02em; }
+        .subtitle { font-size: 1.25rem; color: var(--color-text-secondary); font-style: italic; }
+        h2 { font-family: var(--font-sans); font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--color-accent); margin-top: 3rem; margin-bottom: 1.25rem; }
+        h3 { font-family: var(--font-serif); font-size: 1.4rem; font-weight: 600; margin-top: 2rem; margin-bottom: 0.75rem; }
+        p { margin-bottom: 1.25rem; }
+        .intro { font-size: 1.15rem; color: var(--color-text-secondary); border-left: 3px solid var(--color-accent); padding-left: 1.5rem; margin: 2rem 0; }
+        .equation-block { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 8px; padding: 2rem; margin: 1.5rem 0; text-align: center; }
+        .equation { font-family: var(--font-mono); font-size: 1.3rem; color: var(--color-accent); margin-bottom: 0.5rem; }
+        .equation-label { font-family: var(--font-sans); font-size: 0.85rem; color: var(--color-text-secondary); }
+        .concept-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin: 1.5rem 0; }
+        .concept-card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 8px; padding: 1.5rem; }
+        .concept-card h4 { font-family: var(--font-sans); font-size: 1rem; font-weight: 600; margin-bottom: 0.75rem; color: var(--color-accent); }
+        .concept-card p { font-size: 0.95rem; margin-bottom: 0; color: var(--color-text-secondary); }
+        .key-insight { background: var(--color-accent-dim); border: 1px solid var(--color-accent); border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0; }
+        .key-insight strong { color: var(--color-accent); }
+        .experiment-block { background: var(--color-surface-elevated); border-radius: 8px; padding: 1.75rem; margin: 1.5rem 0; border-left: 3px solid var(--color-accent); }
+        .experiment-block h4 { font-family: var(--font-sans); font-weight: 600; margin-bottom: 1rem; }
+        .experiment-block ol { margin-left: 1.25rem; color: var(--color-text-secondary); }
+        .experiment-block li { margin-bottom: 0.5rem; }
+        .warning-box { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0; }
+        .warning-box strong { color: #f87171; }
+        .connections-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 1.5rem 0; }
+        .connection-item { display: flex; align-items: center; gap: 0.75rem; padding: 1rem; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 8px; text-decoration: none; color: var(--color-text); transition: border-color 0.2s; }
+        .connection-item:hover { border-color: var(--color-accent); background: var(--color-surface-elevated); }
+        .connection-icon { font-size: 1.5rem; }
+        .connection-text { font-family: var(--font-sans); font-size: 0.9rem; }
+        ul { margin-left: 1.25rem; margin-bottom: 1.25rem; }
+        li { margin-bottom: 0.5rem; }
+        footer { margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--color-border); text-align: center; }
+        .btn-launch { display: inline-flex; align-items: center; gap: 0.5rem; font-family: var(--font-sans); font-size: 1rem; font-weight: 500; padding: 1rem 2rem; background: var(--color-accent); color: #030712; border-radius: 8px; text-decoration: none; transition: opacity 0.2s; }
+        .btn-launch:hover { opacity: 0.9; }
+        .planet-table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.95rem; }
+        .planet-table th { font-family: var(--font-sans); font-weight: 600; text-align: left; padding: 0.75rem 1rem; background: var(--color-surface); border-bottom: 2px solid var(--color-accent); }
+        .planet-table td { padding: 0.65rem 1rem; border-bottom: 1px solid var(--color-border); }
+        .planet-table tr:hover { background: var(--color-surface); }
+        .planet-name { font-family: var(--font-mono); color: var(--color-accent); font-weight: 600; }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="breadcrumb">
+            <a href="https://cjlkaiser-cpu.github.io/eigenlab/_portal/index.html">EigenLab</a> /
+            <a href="../index.html">Physics Visual Lab</a> /
+            <span>Guía: Movimiento Proyectil</span>
+        </nav>
+        <h1>Movimiento Proyectil</h1>
+        <p class="subtitle">Galileo, la parábola y el ángulo que lo maximiza todo</p>
+    </header>
+
+    <main>
+        <p class="intro">
+            En 1638, Galileo demostró que el movimiento de un proyectil se puede descomponer en dos
+            movimientos independientes: horizontal (velocidad constante) y vertical (aceleración uniforme
+            por gravedad). Esta superposición produce una parábola perfecta — en ausencia de aire.
+        </p>
+
+        <h2>Las Ecuaciones de Movimiento</h2>
+
+        <p>
+            Con velocidad inicial v₀ y ángulo de lanzamiento θ, las componentes son independientes.
+            El eje horizontal no tiene fuerza neta; el eje vertical tiene la gravedad constante:
+        </p>
+
+        <div class="equation-block">
+            <div class="equation">x(t) = v₀ cos(θ) · t</div>
+            <div class="equation">y(t) = v₀ sin(θ) · t − ½g t²</div>
+            <div class="equation-label">Cinemática 2D. La trayectoria x-y resulta en una parábola.</div>
+        </div>
+
+        <p>
+            De estas ecuaciones se derivan directamente las dos métricas más útiles del lanzamiento:
+        </p>
+
+        <div class="concept-grid">
+            <div class="concept-card">
+                <h4>Alcance horizontal</h4>
+                <p><code>R = v₀² sin(2θ) / g</code><br><br>Máximo cuando θ = 45°, porque sin(90°) = 1. Simétrico: 30° y 60° dan el mismo alcance.</p>
+            </div>
+            <div class="concept-card">
+                <h4>Altura máxima</h4>
+                <p><code>H = v₀² sin²(θ) / 2g</code><br><br>Máxima cuando θ = 90° (lanzamiento vertical). Crece con v₀² — duplicar la velocidad cuadruplica la altura.</p>
+            </div>
+            <div class="concept-card">
+                <h4>Tiempo de vuelo</h4>
+                <p><code>t_total = 2v₀ sin(θ) / g</code><br><br>El tiempo en el aire. La mitad es ascenso, la mitad es descenso (sin resistencia del aire).</p>
+            </div>
+        </div>
+
+        <h2>El Ángulo Óptimo y la Resistencia del Aire</h2>
+
+        <p>
+            Sin resistencia del aire, 45° maximiza el alcance — lo garantiza la fórmula R ∝ sin(2θ).
+            Pero con resistencia del aire (<code>F_drag = −bv</code>), el ángulo óptimo baja:
+        </p>
+
+        <div class="key-insight">
+            <strong>Regla práctica:</strong> Con resistencia del aire moderada, el ángulo óptimo cae
+            a ~40°. Con resistencia alta (pelota de tenis, balón de fútbol), puede bajar a 35° o menos.
+            Un cañón de artillería del siglo XIX apuntaba a ~45°; un fusil moderno apunta a ~30°
+            porque la bala experimenta mayor resistencia proporcional.
+        </div>
+
+        <p>
+            La simulación modela resistencia lineal. En la realidad, la resistencia aerodinámica
+            típicamente crece con v² (régimen turbulento), pero la física cualitativa — ángulo óptimo
+            menor a 45° — es la misma.
+        </p>
+
+        <h2>Gravedad en el Sistema Solar</h2>
+
+        <p>
+            La simulación incluye cuatro opciones de gravedad. El alcance crece inversamente con g,
+            así que el mismo lanzamiento va mucho más lejos en la Luna:
+        </p>
+
+        <table class="planet-table">
+            <thead>
+                <tr>
+                    <th>Cuerpo</th>
+                    <th>g (m/s²)</th>
+                    <th>Alcance relativo (= Tierra × ?)</th>
+                    <th>Tiempo de vuelo relativo</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><span class="planet-name">Luna</span></td>
+                    <td>1.62</td>
+                    <td>× 6.0</td>
+                    <td>× 2.5</td>
+                </tr>
+                <tr>
+                    <td><span class="planet-name">Marte</span></td>
+                    <td>3.7</td>
+                    <td>× 2.6</td>
+                    <td>× 1.6</td>
+                </tr>
+                <tr>
+                    <td><span class="planet-name">Tierra</span></td>
+                    <td>9.8</td>
+                    <td>× 1.0</td>
+                    <td>× 1.0</td>
+                </tr>
+                <tr>
+                    <td><span class="planet-name">Júpiter</span></td>
+                    <td>24.8</td>
+                    <td>× 0.39</td>
+                    <td>× 0.63</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>Experimentos Guiados</h2>
+
+        <div class="experiment-block">
+            <h4>1. Verificar el ángulo óptimo</h4>
+            <ol>
+                <li>Fija v₀ = 50 m/s, resistencia del aire = 0, gravedad = 9.8 m/s².</li>
+                <li>Lanza con θ = 30°. Anota el alcance.</li>
+                <li>Lanza con θ = 45°. El alcance debería ser mayor.</li>
+                <li>Lanza con θ = 60°. Compara con θ = 30° — deberían ser iguales (¿lo son?).</li>
+                <li>Ahora sube la resistencia del aire a 0.02. ¿El ángulo óptimo sigue siendo 45°?</li>
+            </ol>
+        </div>
+
+        <div class="experiment-block">
+            <h4>2. Comparar planetas</h4>
+            <ol>
+                <li>Con v₀ = 50 m/s y θ = 45°, lanza en la Tierra. Anota alcance y tiempo.</li>
+                <li>Cambia a Luna (g = 1.62 m/s²). El alcance debería ser ≈ 6× mayor.</li>
+                <li>Cambia a Júpiter (g = 24.8 m/s²). El proyectil cae rápido.</li>
+                <li>Usa "Mostrar trayectorias anteriores" para superponer los cuatro planetas.</li>
+            </ol>
+        </div>
+
+        <div class="experiment-block">
+            <h4>3. El efecto de la velocidad inicial</h4>
+            <ol>
+                <li>Con θ = 45°, g = 9.8, sin resistencia: lanza con v₀ = 20 m/s. Anota alcance.</li>
+                <li>Dobla la velocidad a v₀ = 40 m/s. ¿El alcance se duplica o se cuadruplica?</li>
+                <li>La fórmula dice R ∝ v₀², así que cuadruplica. Verifica.</li>
+            </ol>
+        </div>
+
+        <h2>Limitaciones del Modelo</h2>
+
+        <ul>
+            <li><strong>Tierra plana:</strong> Para alcances grandes (&gt;100 km), la curvatura de la Tierra importa. Los misiles balísticos requieren mecánica orbital.</li>
+            <li><strong>Atmósfera homogénea:</strong> La densidad del aire disminuye con la altura, reduciendo la resistencia a mayor altitud.</li>
+            <li><strong>Resistencia lineal:</strong> F_drag = bv es una simplificación. El régimen real para objetos sólidos es F ∝ v².</li>
+            <li><strong>Sin rotación:</strong> La fuerza de Coriolis afecta proyectiles de largo alcance (efecto Coriolis en artillería naval).</li>
+            <li><strong>Sin sustentación:</strong> Un balón de fútbol con efecto Magnus experimentaría una fuerza perpendicular a su trayectoria.</li>
+        </ul>
+
+        <h2>Conexiones Interdisciplinarias</h2>
+
+        <div class="connections-grid">
+            <a href="../orbitas-kepler.html" class="connection-item">
+                <span class="connection-icon">🪐</span>
+                <span class="connection-text">Órbitas de Kepler<br><small>El proyectil que nunca cae</small></span>
+            </a>
+            <a href="../colisiones.html" class="connection-item">
+                <span class="connection-icon">💥</span>
+                <span class="connection-text">Colisiones 2D<br><small>Conservación de momento</small></span>
+            </a>
+            <a href="../efecto-doppler.html" class="connection-item">
+                <span class="connection-icon">〰️</span>
+                <span class="connection-text">Efecto Doppler<br><small>Objetos en movimiento emitiendo ondas</small></span>
+            </a>
+        </div>
+
+        <h2>Para Explorar Más</h2>
+        <ul>
+            <li><strong>Órbita circular:</strong> Newton imaginó un cañón en lo alto de una montaña muy alta. Si v₀ es suficientemente grande, el proyectil orbita la Tierra en lugar de caer — el movimiento orbital es proyectil que "siempre falla al suelo".</li>
+            <li><strong>Tiro parabólico con viento:</strong> El viento agrega una componente horizontal constante, desplazando el punto de impacto.</li>
+            <li><strong>Deporte y balística:</strong> El ángulo de lanzamiento óptimo en atletismo (lanzamiento de jabalina) es menor a 45° por el centro de gravedad y la aerodinámica del implemento.</li>
+        </ul>
+    </main>
+
+    <footer>
+        <a href="../proyectil.html" class="btn-launch">Abrir Simulación</a>
+    </footer>
+</body>
+</html>

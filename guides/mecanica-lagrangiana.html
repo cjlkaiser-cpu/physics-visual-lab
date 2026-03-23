@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guía: Mecánica Lagrangiana | Physics Visual Lab</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-bg: #0a0a0a;
+            --color-surface: #141414;
+            --color-surface-elevated: #1a1a1a;
+            --color-border: #262626;
+            --color-text: #e5e5e5;
+            --color-text-secondary: #a3a3a3;
+            --color-accent: #22c55e;
+            --color-accent-dim: rgba(34, 197, 94, 0.1);
+            --font-serif: 'Crimson Pro', Georgia, serif;
+            --font-sans: 'Inter', system-ui, sans-serif;
+            --font-mono: 'Fira Code', monospace;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: var(--font-serif);
+            font-size: 19px;
+            line-height: 1.7;
+            color: var(--color-text);
+            background-color: var(--color-bg);
+            padding: 2rem;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        header { margin-bottom: 3rem; padding-bottom: 2rem; border-bottom: 1px solid var(--color-border); }
+        .breadcrumb { font-family: var(--font-sans); font-size: 0.85rem; color: var(--color-text-secondary); margin-bottom: 1rem; }
+        .breadcrumb a { color: var(--color-accent); text-decoration: none; }
+        .breadcrumb a:hover { text-decoration: underline; }
+        h1 { font-family: var(--font-serif); font-size: 2.5rem; font-weight: 600; margin-bottom: 0.5rem; letter-spacing: -0.02em; }
+        .subtitle { font-size: 1.25rem; color: var(--color-text-secondary); font-style: italic; }
+        h2 { font-family: var(--font-sans); font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--color-accent); margin-top: 3rem; margin-bottom: 1.25rem; }
+        h3 { font-family: var(--font-serif); font-size: 1.4rem; font-weight: 600; margin-top: 2rem; margin-bottom: 0.75rem; }
+        p { margin-bottom: 1.25rem; }
+        .intro { font-size: 1.15rem; color: var(--color-text-secondary); border-left: 3px solid var(--color-accent); padding-left: 1.5rem; margin: 2rem 0; }
+        .equation-block { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 8px; padding: 2rem; margin: 1.5rem 0; text-align: center; }
+        .equation { font-family: var(--font-mono); font-size: 1.4rem; color: var(--color-accent); margin-bottom: 0.75rem; }
+        .equation-sm { font-family: var(--font-mono); font-size: 1.1rem; color: var(--color-accent); margin-bottom: 0.5rem; }
+        .equation-label { font-family: var(--font-sans); font-size: 0.85rem; color: var(--color-text-secondary); }
+        .concept-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin: 1.5rem 0; }
+        .concept-card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 8px; padding: 1.5rem; }
+        .concept-card h4 { font-family: var(--font-sans); font-size: 1rem; font-weight: 600; margin-bottom: 0.75rem; color: var(--color-accent); }
+        .concept-card p { font-size: 0.95rem; margin-bottom: 0; color: var(--color-text-secondary); }
+        .key-insight { background: var(--color-accent-dim); border: 1px solid var(--color-accent); border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0; }
+        .key-insight strong { color: var(--color-accent); }
+        .derivation-block { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 8px; padding: 2rem; margin: 1.5rem 0; }
+        .derivation-block h4 { font-family: var(--font-sans); font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--color-text-secondary); margin-bottom: 1.5rem; }
+        .step { display: flex; gap: 1.5rem; margin-bottom: 1.5rem; align-items: flex-start; }
+        .step:last-child { margin-bottom: 0; }
+        .step-num { font-family: var(--font-sans); font-size: 0.75rem; font-weight: 600; color: var(--color-accent); background: var(--color-accent-dim); border: 1px solid var(--color-accent); border-radius: 50%; width: 2rem; height: 2rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 0.2rem; }
+        .step-content { flex: 1; }
+        .step-content .eq { font-family: var(--font-mono); font-size: 1.05rem; color: var(--color-accent); margin-bottom: 0.4rem; }
+        .step-content .note { font-size: 0.9rem; color: var(--color-text-secondary); }
+        .step-divider { text-align: center; color: var(--color-text-secondary); font-family: var(--font-mono); margin: 1rem 0; font-size: 1.2rem; }
+        .connections-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 1.5rem 0; }
+        .connection-item { display: flex; align-items: center; gap: 0.75rem; padding: 1rem; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 8px; text-decoration: none; color: var(--color-text); transition: border-color 0.2s, background-color 0.2s; }
+        .connection-item:hover { border-color: var(--color-accent); background: var(--color-surface-elevated); }
+        .connection-icon { font-size: 1.5rem; }
+        .connection-text { font-family: var(--font-sans); font-size: 0.9rem; }
+        ul { margin-left: 1.25rem; margin-bottom: 1.25rem; }
+        li { margin-bottom: 0.5rem; }
+        footer { margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--color-border); text-align: center; }
+        .btn-launch { display: inline-flex; align-items: center; gap: 0.5rem; font-family: var(--font-sans); font-size: 1rem; font-weight: 500; padding: 1rem 2rem; background: var(--color-accent); color: #030712; border-radius: 8px; text-decoration: none; transition: opacity 0.2s; }
+        .btn-launch:hover { opacity: 0.9; }
+        .compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin: 1.5rem 0; }
+        .compare-card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 8px; padding: 1.5rem; }
+        .compare-card h4 { font-family: var(--font-sans); font-size: 0.9rem; font-weight: 600; margin-bottom: 1rem; color: var(--color-text-secondary); }
+        .compare-card .feature { font-size: 0.95rem; margin-bottom: 0.6rem; color: var(--color-text); }
+        @media (max-width: 600px) { .compare-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="breadcrumb">
+            <a href="https://cjlkaiser-cpu.github.io/eigenlab/_portal/index.html">EigenLab</a> /
+            <a href="../index.html">Physics Visual Lab</a> /
+            <span>Guía: Mecánica Lagrangiana</span>
+        </nav>
+        <h1>Mecánica Lagrangiana</h1>
+        <p class="subtitle">De la energía a las ecuaciones de movimiento, sin vectores de fuerza</p>
+    </header>
+
+    <p class="intro">
+        Newton describió el movimiento a través de fuerzas. Lagrange, en 1788, propuso una alternativa más profunda:
+        describir el movimiento a través de la energía del sistema. El resultado es una formulación que funciona
+        en cualquier sistema de coordenadas, elimina las fuerzas de vínculo de forma automática, y revela estructuras
+        de simetría invisibles para Newton.
+    </p>
+
+    <h2>La Pizarra</h2>
+
+    <p>La simulación es una pizarra educativa estática que muestra la derivación completa del movimiento de un péndulo usando el formalismo lagrangiano. No hay controles interactivos: la intención es que puedas seguir el argumento paso a paso, como en una clase de física teórica.</p>
+
+    <h2>El Lagrangiano</h2>
+
+    <p>La pieza central del formalismo es el <em>Lagrangiano</em> L, definido como la diferencia entre la energía cinética T y la energía potencial V:</p>
+
+    <div class="equation-block">
+        <div class="equation">L = T − V</div>
+        <div class="equation-label">El Lagrangiano del sistema</div>
+    </div>
+
+    <div class="key-insight">
+        <strong>¿Por qué T − V y no T + V?</strong> La energía total T + V se conserva (principio de conservación de energía). La diferencia T − V es la cantidad que, cuando se extremaliza a lo largo de una trayectoria, produce exactamente las ecuaciones de Newton. Este resultado profundo se deriva del <em>Principio de Mínima Acción</em> de Hamilton.
+    </div>
+
+    <h3>Las Ecuaciones de Euler-Lagrange</h3>
+
+    <p>Para cada coordenada generalizada qᵢ del sistema, existe una ecuación de movimiento:</p>
+
+    <div class="equation-block">
+        <div class="equation">d/dt (∂L/∂q̇ᵢ) − ∂L/∂qᵢ = 0</div>
+        <div class="equation-label">Ecuación de Euler-Lagrange para la coordenada qᵢ</div>
+    </div>
+
+    <p>Esta ecuación dice: la derivada temporal del <em>momento generalizado</em> (∂L/∂q̇) debe igualar la <em>fuerza generalizada</em> (∂L/∂q). Es la segunda ley de Newton escrita en coordenadas generalizadas.</p>
+
+    <h2>Coordenadas Generalizadas</h2>
+
+    <p>Una de las grandes ventajas del formalismo lagrangiano es que puedes elegir <em>cualquier</em> conjunto de coordenadas que describa el sistema de forma única. Para el péndulo, en lugar de coordenadas cartesianas (x, y) sujetas a la restricción x² + y² = L², usamos directamente el ángulo θ:</p>
+
+    <div class="concept-grid">
+        <div class="concept-card">
+            <h4>Formulación newtoniana</h4>
+            <p>Requiere coordenadas x, y con restricción de longitud. La tensión del hilo aparece como fuerza de vínculo y debe eliminarse manualmente. Dos ecuaciones acopladas.</p>
+        </div>
+        <div class="concept-card">
+            <h4>Formulación lagrangiana</h4>
+            <p>Una sola coordenada q = θ. La longitud fija es automáticamente satisfecha. La tensión nunca aparece. Una sola ecuación: θ̈ + (g/L)sin(θ) = 0.</p>
+        </div>
+    </div>
+
+    <h2>Derivación Completa: el Péndulo Simple</h2>
+
+    <p>La pizarra muestra estos pasos. Sigámoslos aquí con detalle.</p>
+
+    <div class="derivation-block">
+        <h4>Paso a paso</h4>
+
+        <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-content">
+                <div class="eq">q = θ &nbsp;&nbsp; (coordenada generalizada)</div>
+                <div class="note">La posición de la masa queda completamente determinada por el ángulo θ que forma el hilo con la vertical.</div>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-num">2</div>
+            <div class="step-content">
+                <div class="eq">x = L sin(θ) &nbsp;&nbsp; y = −L cos(θ)</div>
+                <div class="note">Posición cartesiana de la masa en función de θ. El origen está en el pivote.</div>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-num">3</div>
+            <div class="step-content">
+                <div class="eq">ẋ = L θ̇ cos(θ) &nbsp;&nbsp; ẏ = L θ̇ sin(θ)</div>
+                <div class="note">Velocidades cartesianas, obtenidas derivando respecto al tiempo. Aparece θ̇ = dθ/dt.</div>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-num">4</div>
+            <div class="step-content">
+                <div class="eq">T = ½m(ẋ² + ẏ²) = ½mL²θ̇²</div>
+                <div class="note">Energía cinética. Se simplifica notablemente: cos²(θ) + sin²(θ) = 1.</div>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-num">5</div>
+            <div class="step-content">
+                <div class="eq">V = mgy = −mgL cos(θ)</div>
+                <div class="note">Energía potencial gravitacional. El mínimo está en θ = 0 (posición de equilibrio).</div>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-num">6</div>
+            <div class="step-content">
+                <div class="eq">L = T − V = ½mL²θ̇² + mgL cos(θ)</div>
+                <div class="note">El Lagrangiano del péndulo. Contiene toda la dinámica del sistema.</div>
+            </div>
+        </div>
+
+        <div class="step-divider">↓ Aplicar Euler-Lagrange ↓</div>
+
+        <div class="step">
+            <div class="step-num">7</div>
+            <div class="step-content">
+                <div class="eq">∂L/∂θ̇ = mL²θ̇</div>
+                <div class="note">Momento generalizado: derivada del Lagrangiano respecto a la velocidad angular θ̇. Es el momento angular de la masa.</div>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-num">8</div>
+            <div class="step-content">
+                <div class="eq">d/dt(∂L/∂θ̇) = mL²θ̈</div>
+                <div class="note">Derivada temporal del momento generalizado. Aparece la aceleración angular θ̈.</div>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-num">9</div>
+            <div class="step-content">
+                <div class="eq">∂L/∂θ = −mgL sin(θ)</div>
+                <div class="note">Fuerza generalizada: derivada del Lagrangiano respecto a θ. El signo negativo indica que apunta hacia el equilibrio.</div>
+            </div>
+        </div>
+
+        <div class="step-divider">↓ Euler-Lagrange: mL²θ̈ − (−mgL sin θ) = 0 ↓</div>
+
+        <div class="step">
+            <div class="step-num">10</div>
+            <div class="step-content">
+                <div class="eq">θ̈ + (g/L) sin(θ) = 0</div>
+                <div class="note">Ecuación de movimiento del péndulo simple. Dividimos por mL². La masa desaparece.</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="key-insight">
+        <strong>La masa desaparece.</strong> El hecho de que m cancele en el último paso no es una coincidencia: refleja el <em>principio de equivalencia</em> de Galileo. Todos los péndulos del mismo largo oscilan con el mismo período, independientemente de su masa. El lagrangiano lo hace automáticamente evidente.
+    </div>
+
+    <h2>Comparación con Newton</h2>
+
+    <div class="compare-grid">
+        <div class="compare-card">
+            <h4>Segunda ley de Newton</h4>
+            <div class="feature">F = ma (vectorial)</div>
+            <div class="feature">Necesita fuerza de tensión del hilo</div>
+            <div class="feature">Dos ecuaciones en x, y</div>
+            <div class="feature">Coordenadas cartesianas</div>
+            <div class="feature">Eliminar vínculos manualmente</div>
+        </div>
+        <div class="compare-card">
+            <h4>Euler-Lagrange</h4>
+            <div class="feature">d/dt(∂L/∂q̇) = ∂L/∂q (escalar)</div>
+            <div class="feature">La tensión nunca aparece</div>
+            <div class="feature">Una ecuación en θ</div>
+            <div class="feature">Cualquier coordenada generalizada</div>
+            <div class="feature">Los vínculos están implícitos</div>
+        </div>
+    </div>
+
+    <h2>Extensiones del Formalismo</h2>
+
+    <p>El formalismo lagrangiano no es solo una técnica: es una estructura que se extiende a toda la física:</p>
+
+    <div class="concept-grid">
+        <div class="concept-card">
+            <h4>Mecánica hamiltoniana</h4>
+            <p>Transformada de Legendre del lagrangiano. Introduce el espacio de fases (q, p) y da lugar a los corchetes de Poisson, precursores de la mecánica cuántica.</p>
+        </div>
+        <div class="concept-card">
+            <h4>Teorema de Noether</h4>
+            <p>Toda simetría continua del lagrangiano corresponde a una ley de conservación. Invarianza temporal → energía. Invarianza traslacional → momento lineal. Invarianza rotacional → momento angular.</p>
+        </div>
+        <div class="concept-card">
+            <h4>Teoría de campos</h4>
+            <p>El electromagnetismo, la mecánica cuántica de campos y el modelo estándar de partículas se formulan todos como densidades lagrangianas L(φ, ∂μφ).</p>
+        </div>
+        <div class="concept-card">
+            <h4>Relatividad general</h4>
+            <p>La acción de Einstein-Hilbert S = ∫R√-g d⁴x es un lagrangiano. Las ecuaciones de campo de Einstein son sus ecuaciones de Euler-Lagrange.</p>
+        </div>
+    </div>
+
+    <h2>La Simulación como Pizarra</h2>
+
+    <p>A diferencia del resto de simulaciones del Physics Visual Lab, <em>Mecánica Lagrangiana</em> no tiene controles ni animación. Es una pizarra estática en estilo "tiza sobre encerado" que muestra la derivación completa. Está diseñada para ser estudiada en detalle antes de interactuar con el péndulo dinámico.</p>
+
+    <p>El orden recomendado es:</p>
+    <ol style="margin-left: 1.25rem; margin-bottom: 1.25rem;">
+        <li>Leer esta guía teórica</li>
+        <li>Estudiar la pizarra (la simulación)</li>
+        <li>Abrir el <a href="pendulo-simple.html" style="color: var(--color-accent);">Péndulo Simple</a> y reconocer la ecuación que acabas de derivar funcionando en tiempo real</li>
+    </ol>
+
+    <h2>Conexiones</h2>
+
+    <div class="connections-grid">
+        <a href="../pendulo-simple.html" class="connection-item">
+            <span class="connection-icon">🕰</span>
+            <div class="connection-text"><strong>Péndulo Simple</strong><br>La ecuación derivada, en acción</div>
+        </a>
+        <a href="../pendulos-desacoplados.html" class="connection-item">
+            <span class="connection-icon">🎵</span>
+            <div class="connection-text"><strong>Péndulos Desacoplados</strong><br>Dos sistemas independientes</div>
+        </a>
+        <a href="../orbitas-kepler.html" class="connection-item">
+            <span class="connection-icon">🪐</span>
+            <div class="connection-text"><strong>Órbitas de Kepler</strong><br>Lagrangiano en coordenadas polares</div>
+        </a>
+        <a href="../atractor-multicuerpo.html" class="connection-item">
+            <span class="connection-icon">🌀</span>
+            <div class="connection-text"><strong>Atractor Multi-Cuerpo</strong><br>Caos desde el mismo formalismo</div>
+        </a>
+    </div>
+
+    <footer>
+        <a href="../mecanica-lagrangiana.html" class="btn-launch">
+            Abrir la pizarra →
+        </a>
+    </footer>
+</body>
+</html>

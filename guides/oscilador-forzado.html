@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guía: Oscilador Forzado | Physics Visual Lab</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-bg: #0a0a0a;
+            --color-surface: #141414;
+            --color-surface-elevated: #1a1a1a;
+            --color-border: #262626;
+            --color-text: #e5e5e5;
+            --color-text-secondary: #a3a3a3;
+            --color-accent: #22c55e;
+            --color-accent-dim: rgba(34, 197, 94, 0.1);
+            --color-purple: #a855f7;
+            --color-purple-dim: rgba(168, 85, 247, 0.12);
+            --font-serif: 'Crimson Pro', Georgia, serif;
+            --font-sans: 'Inter', system-ui, sans-serif;
+            --font-mono: 'Fira Code', monospace;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: var(--font-serif);
+            font-size: 19px;
+            line-height: 1.7;
+            color: var(--color-text);
+            background-color: var(--color-bg);
+            padding: 2rem;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        header { margin-bottom: 3rem; padding-bottom: 2rem; border-bottom: 1px solid var(--color-border); }
+        .breadcrumb { font-family: var(--font-sans); font-size: 0.85rem; color: var(--color-text-secondary); margin-bottom: 1rem; }
+        .breadcrumb a { color: var(--color-accent); text-decoration: none; }
+        .breadcrumb a:hover { text-decoration: underline; }
+        h1 { font-family: var(--font-serif); font-size: 2.5rem; font-weight: 600; margin-bottom: 0.5rem; letter-spacing: -0.02em; }
+        .subtitle { font-size: 1.25rem; color: var(--color-text-secondary); font-style: italic; }
+        h2 { font-family: var(--font-sans); font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--color-accent); margin-top: 3rem; margin-bottom: 1.25rem; }
+        h3 { font-family: var(--font-serif); font-size: 1.4rem; font-weight: 600; margin-top: 2rem; margin-bottom: 0.75rem; }
+        p { margin-bottom: 1.25rem; }
+        .intro { font-size: 1.15rem; color: var(--color-text-secondary); border-left: 3px solid var(--color-accent); padding-left: 1.5rem; margin: 2rem 0; }
+        .equation-block { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 8px; padding: 2rem; margin: 1.5rem 0; text-align: center; }
+        .equation-block.resonance { border-color: var(--color-purple); background: var(--color-purple-dim); }
+        .equation { font-family: var(--font-mono); font-size: 1.4rem; color: var(--color-accent); margin-bottom: 0.75rem; }
+        .equation.purple { color: var(--color-purple); }
+        .equation-label { font-family: var(--font-sans); font-size: 0.85rem; color: var(--color-text-secondary); }
+        .concept-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin: 1.5rem 0; }
+        .concept-card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 8px; padding: 1.5rem; }
+        .concept-card h4 { font-family: var(--font-sans); font-size: 1rem; font-weight: 600; margin-bottom: 0.75rem; color: var(--color-accent); }
+        .concept-card p { font-size: 0.95rem; margin-bottom: 0; color: var(--color-text-secondary); }
+        .key-insight { background: var(--color-accent-dim); border: 1px solid var(--color-accent); border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0; }
+        .key-insight strong { color: var(--color-accent); }
+        .resonance-insight { background: var(--color-purple-dim); border: 1px solid var(--color-purple); border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0; }
+        .resonance-insight strong { color: var(--color-purple); }
+        .experiment-block { background: var(--color-surface-elevated); border-radius: 8px; padding: 1.75rem; margin: 1.5rem 0; border-left: 3px solid var(--color-accent); }
+        .experiment-block h4 { font-family: var(--font-sans); font-weight: 600; margin-bottom: 1rem; }
+        .experiment-block ol { margin-left: 1.25rem; color: var(--color-text-secondary); }
+        .experiment-block li { margin-bottom: 0.5rem; }
+        .warning-box { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0; }
+        .warning-box strong { color: #f87171; }
+        .connections-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 1.5rem 0; }
+        .connection-item { display: flex; align-items: center; gap: 0.75rem; padding: 1rem; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 8px; text-decoration: none; color: var(--color-text); transition: border-color 0.2s, background-color 0.2s; }
+        .connection-item:hover { border-color: var(--color-accent); background: var(--color-surface-elevated); }
+        .connection-icon { font-size: 1.5rem; }
+        .connection-text { font-family: var(--font-sans); font-size: 0.9rem; }
+        ul { margin-left: 1.25rem; margin-bottom: 1.25rem; }
+        li { margin-bottom: 0.5rem; }
+        footer { margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--color-border); text-align: center; }
+        .btn-launch { display: inline-flex; align-items: center; gap: 0.5rem; font-family: var(--font-sans); font-size: 1rem; font-weight: 500; padding: 1rem 2rem; background: var(--color-accent); color: #030712; border-radius: 8px; text-decoration: none; transition: opacity 0.2s; }
+        .btn-launch:hover { opacity: 0.9; }
+        .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin: 1.5rem 0; }
+        @media (max-width: 600px) { .two-col { grid-template-columns: 1fr; } }
+        .damping-table { width: 100%; border-collapse: collapse; font-family: var(--font-sans); font-size: 0.9rem; margin: 1.5rem 0; }
+        .damping-table th { text-align: left; padding: 0.6rem 1rem; background: var(--color-surface); border-bottom: 1px solid var(--color-border); color: var(--color-text-secondary); font-weight: 600; font-size: 0.8rem; text-transform: uppercase; }
+        .damping-table td { padding: 0.6rem 1rem; border-bottom: 1px solid var(--color-border); font-size: 0.9rem; }
+        .damping-table td:last-child { color: var(--color-text-secondary); font-style: italic; }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="breadcrumb">
+            <a href="https://cjlkaiser-cpu.github.io/eigenlab/_portal/index.html">EigenLab</a> /
+            <a href="../index.html">Physics Visual Lab</a> /
+            <span>Guía: Oscilador Forzado</span>
+        </nav>
+        <h1>Oscilador Forzado</h1>
+        <p class="subtitle">Resonancia: cuando el sistema y la fuerza laten al mismo ritmo</p>
+    </header>
+
+    <p class="intro">
+        Todo oscilador tiene una frecuencia natural: la velocidad a la que vibra libremente. Si una fuerza externa
+        le empuja a esa misma frecuencia, la energía se acumula sin freno y la amplitud crece sin control. Este
+        fenómeno —la resonancia— está detrás del colapso del puente Tacoma Narrows, de los cristales que explotan
+        con una nota precisa, y de la sintonización de una radio.
+    </p>
+
+    <h2>La Ecuación</h2>
+
+    <div class="equation-block">
+        <div class="equation">mẍ + bẋ + kx = F₀ cos(ωt)</div>
+        <div class="equation-label">Oscilador armónico amortiguado forzado</div>
+    </div>
+
+    <p>Cada término tiene un significado físico preciso:</p>
+
+    <div class="concept-grid">
+        <div class="concept-card">
+            <h4>mẍ — inercia</h4>
+            <p>Resistencia al cambio de velocidad. La masa m multiplica la aceleración. Un sistema más pesado reacciona más lentamente a la fuerza forzada.</p>
+        </div>
+        <div class="concept-card">
+            <h4>bẋ — amortiguamiento</h4>
+            <p>Fricción viscosa proporcional a la velocidad. Disipa energía y limita la amplitud de resonancia. Sin él (b = 0), la amplitud sería infinita.</p>
+        </div>
+        <div class="concept-card">
+            <h4>kx — fuerza restauradora</h4>
+            <p>El resorte empuja hacia el equilibrio con fuerza proporcional al desplazamiento. Define la frecuencia natural ω₀ = √(k/m).</p>
+        </div>
+        <div class="concept-card">
+            <h4>F₀ cos(ωt) — fuerza forzada</h4>
+            <p>Perturbación externa periódica de amplitud F₀ y frecuencia ω. Es la "mano invisible" que empuja el sistema rítmicamente.</p>
+        </div>
+    </div>
+
+    <h2>La Solución en Estado Estacionario</h2>
+
+    <p>Después de un transitorio inicial, el sistema oscila a la frecuencia de la fuerza forzada (no a su frecuencia natural). La amplitud y la fase dependen de qué tan cerca estés de la resonancia:</p>
+
+    <div class="equation-block">
+        <div class="equation">A = F₀ / √[(k − mω²)² + (bω)²]</div>
+        <div class="equation-label">Amplitud en estado estacionario (la simulación la mide en tiempo real)</div>
+    </div>
+
+    <div class="equation-block">
+        <div class="equation">φ = arctan[bω / (k − mω²)]</div>
+        <div class="equation-label">Desfase entre la fuerza y el desplazamiento</div>
+    </div>
+
+    <h3>La condición de resonancia</h3>
+
+    <div class="equation-block resonance">
+        <div class="equation purple">ω_res = ω₀ √(1 − 2ζ²) ≈ ω₀  (para ζ pequeño)</div>
+        <div class="equation-label">La resonancia ocurre cuando ω ≈ ω₀. Con amortiguamiento bajo, prácticamente en ω = ω₀.</div>
+    </div>
+
+    <div class="resonance-insight">
+        <strong>La fase cambia de signo en la resonancia.</strong> Para ω &lt; ω₀, el desplazamiento sigue a la fuerza (en fase, φ ≈ 0°). En resonancia exacta, el desfase es −90°: la <em>velocidad</em> está en fase con la fuerza, no el desplazamiento. Para ω &gt; ω₀, el desplazamiento se opone a la fuerza (φ ≈ −180°). Este cambio de fase es tan diagnóstico de la resonancia como la amplitud máxima.
+    </div>
+
+    <h2>El Factor Q</h2>
+
+    <p>El <em>factor de calidad</em> Q caracteriza cuán "aguda" es la resonancia:</p>
+
+    <div class="equation-block">
+        <div class="equation">Q = ω₀ m / b = ω₀ / Δω</div>
+        <div class="equation-label">Q es la razón entre la frecuencia central y el ancho de banda a media potencia</div>
+    </div>
+
+    <ul>
+        <li><strong>Q alto</strong> (b bajo): resonancia muy aguda, la amplitud colapsa rápidamente fuera de ω₀. Un cristal de cuarzo tiene Q ≈ 10⁶.</li>
+        <li><strong>Q bajo</strong> (b alto): resonancia ancha y difusa. Un amortiguador automotriz tiene Q ≈ 0.5.</li>
+        <li><strong>Q = 0.5</strong>: amortiguamiento crítico, no hay oscilación. El sistema vuelve al equilibrio lo más rápido posible sin oscilar.</li>
+    </ul>
+
+    <h2>Los Cuatro Regímenes de Amortiguamiento</h2>
+
+    <table class="damping-table">
+        <thead>
+            <tr>
+                <th>Régimen</th>
+                <th>Condición</th>
+                <th>b en la sim.</th>
+                <th>Comportamiento</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td>Subamortiguado</td><td>b &lt; 2√(km)</td><td>Bajo (0.2)</td><td>Oscila con amplitud decreciente; hay resonancia visible</td></tr>
+            <tr><td>Críticamente amortiguado</td><td>b = 2√(km)</td><td>Crítico (7)</td><td>Vuelve al equilibrio más rápido posible sin oscilar</td></tr>
+            <tr><td>Sobreaamortiguado</td><td>b &gt; 2√(km)</td><td>Alto (3)+</td><td>Vuelve al equilibrio lentamente, sin oscilar nunca</td></tr>
+            <tr><td>Sin amortiguamiento</td><td>b = 0</td><td>—</td><td>Amplitud infinita en resonancia (modelo teórico)</td></tr>
+        </tbody>
+    </table>
+
+    <h2>La Curva de Respuesta en Frecuencia</h2>
+
+    <p>El canvas inferior muestra la amplitud estacionaria A(ω) para todos los valores posibles de ω, con una línea vertical que indica la frecuencia actual. Esta curva —la <em>función de transferencia</em>— tiene forma de campana centrada en ω₀, más estrecha con menor amortiguamiento.</p>
+
+    <div class="key-insight">
+        <strong>Leer la curva:</strong> El pico de la curva indica dónde está la resonancia. El ancho a la mitad de la altura es Δω = b/m = ω₀/Q. Al mover el slider de ω, la línea vertical se desplaza y el oscilador en la parte superior muestra el comportamiento correspondiente.
+    </div>
+
+    <h2>Controles de la Simulación</h2>
+
+    <ul>
+        <li><strong>ω₀ (1–10 rad/s)</strong> — Frecuencia natural del sistema. Cambia k = mω₀² internamente.</li>
+        <li><strong>ω (0.5–15 rad/s)</strong> — Frecuencia de la fuerza externa. El punto clave es hacer ω → ω₀.</li>
+        <li><strong>Amortiguamiento</strong> — Botones preestablecidos (Bajo/Medio/Alto/Crítico) + slider fino del coeficiente b.</li>
+        <li><strong>F₀ (0.5–5)</strong> — Amplitud de la fuerza. Escala linealmente la amplitud de respuesta (A ∝ F₀).</li>
+    </ul>
+
+    <p>Los indicadores muestran en tiempo real: amplitud medida, desfase, razón ω/ω₀, y factor Q.</p>
+
+    <h2>Experimentos Guiados</h2>
+
+    <div class="experiment-block">
+        <h4>Experimento 1 — Encontrar la resonancia</h4>
+        <ol>
+            <li>Selecciona amortiguamiento Bajo (b = 0.2). Fija ω₀ = 5.0 rad/s.</li>
+            <li>Inicia la simulación con ω = 3.0 (lejos de la resonancia). Observa la amplitud pequeña.</li>
+            <li>Aumenta ω lentamente hacia 5.0. Observa cómo la amplitud crece y el indicador de resonancia cambia de gris a amarillo a rojo.</li>
+            <li>Con ω = 5.0, la amplitud es máxima. Esto es resonancia.</li>
+            <li>Continúa aumentando ω más allá de 5.0. La amplitud cae nuevamente.</li>
+            <li>Observa el desfase: pasa de ~0° a −90° en la resonancia, y a −180° fuera de ella.</li>
+        </ol>
+    </div>
+
+    <div class="experiment-block">
+        <h4>Experimento 2 — El papel del amortiguamiento</h4>
+        <ol>
+            <li>Ajusta ω = ω₀ = 5.0 (en resonancia exacta).</li>
+            <li>Cambia entre los cuatro regímenes de amortiguamiento y anota la amplitud máxima en cada caso.</li>
+            <li>Verifica que con amortiguamiento Bajo, la amplitud es mucho mayor que con Alto.</li>
+            <li>Con Crítico, la curva de respuesta ya no tiene pico definido: Q &lt; 1.</li>
+            <li>Observa también cómo el ancho de la campana en la curva inferior cambia con b.</li>
+        </ol>
+    </div>
+
+    <div class="experiment-block">
+        <h4>Experimento 3 — El transitorio inicial</h4>
+        <ol>
+            <li>Fija ω = ω₀ = 5.0, amortiguamiento Bajo.</li>
+            <li>Reinicia la simulación. Durante los primeros segundos, la amplitud oscila antes de estabilizarse.</li>
+            <li>Este es el <em>transitorio</em>: el sistema parte desde cero y la solución general es la superposición de la respuesta forzada y la respuesta libre amortiguada.</li>
+            <li>Después de unos ciclos, la respuesta libre decae y solo queda la respuesta estacionaria.</li>
+            <li>Compara este tiempo de estabilización entre amortiguamiento Bajo y Alto: más amortiguamiento → transitorio más corto.</li>
+        </ol>
+    </div>
+
+    <h2>Ejemplos Reales</h2>
+
+    <div class="concept-grid">
+        <div class="concept-card">
+            <h4>Puente Tacoma Narrows (1940)</h4>
+            <p>El viento creó vórtices alternados a una frecuencia cercana a la resonancia torsional del puente. Aunque el mecanismo no es amortiguamiento viscoso simple, la resonancia fue la causa del colapso catastrófico.</p>
+        </div>
+        <div class="concept-card">
+            <h4>MRI (imagen por resonancia magnética)</h4>
+            <p>Los protones de hidrógeno tienen una frecuencia de precesión (Larmor) en un campo magnético. Un pulso de radio a exactamente esa frecuencia los excita. La resonancia es el principio físico central del diagnóstico médico por imagen.</p>
+        </div>
+        <div class="concept-card">
+            <h4>Absorción de microondas</h4>
+            <p>Las moléculas de agua tienen frecuencias de rotación en el rango de microondas (~2.45 GHz). Un horno microondas opera a esa frecuencia, transfiriendo energía por resonancia rotacional a las moléculas de agua.</p>
+        </div>
+        <div class="concept-card">
+            <h4>Oscilador de cuarzo</h4>
+            <p>Los relojes de cuarzo usan la resonancia piezoeléctrica de un cristal cortado con precisión (32,768 Hz). El Q altísimo (~10⁶) garantiza que la frecuencia se mantenga estable durante años.</p>
+        </div>
+    </div>
+
+    <h2>Limitaciones del Modelo</h2>
+
+    <div class="warning-box">
+        <strong>Linealidad:</strong> El modelo asume que la fuerza restauradora es perfectamente proporcional al desplazamiento (k·x). Para oscilaciones grandes, los resortes reales se vuelven no lineales y la resonancia se desplaza con la amplitud (resonancia de Duffing). En la simulación, la amplitud puede crecer indefinidamente, lo que no ocurriría en un sistema real con no-linealidades.
+    </div>
+
+    <div class="warning-box">
+        <strong>Modelo de masa-resorte:</strong> La simulación muestra un oscilador de un grado de libertad. Los sistemas reales (puentes, aviones, edificios) tienen muchos modos de vibración simultáneos, cada uno con su propio ω₀ y Q. La resonancia en un modo no afecta los demás.
+    </div>
+
+    <h2>Conexiones</h2>
+
+    <div class="connections-grid">
+        <a href="../pendulo-simple.html" class="connection-item">
+            <span class="connection-icon">🕰</span>
+            <div class="connection-text"><strong>Péndulo Simple</strong><br>Oscilador libre (F₀ = 0)</div>
+        </a>
+        <a href="../ondas-mecanicas.html" class="connection-item">
+            <span class="connection-icon">🌊</span>
+            <div class="connection-text"><strong>Ondas Mecánicas</strong><br>Resonancias estacionarias</div>
+        </a>
+        <a href="../fourier.html" class="connection-item">
+            <span class="connection-icon">📊</span>
+            <div class="connection-text"><strong>Transformada de Fourier</strong><br>Respuesta en frecuencia vista desde otro ángulo</div>
+        </a>
+        <a href="../circuito-rlc.html" class="connection-item">
+            <span class="connection-icon">⚡</span>
+            <div class="connection-text"><strong>Circuito RLC</strong><br>Resonancia eléctrica: misma ecuación</div>
+        </a>
+    </div>
+
+    <footer>
+        <a href="../oscilador-forzado.html" class="btn-launch">
+            Abrir simulación →
+        </a>
+    </footer>
+</body>
+</html>

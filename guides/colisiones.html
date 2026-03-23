@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guía: Colisiones 2D | Physics Visual Lab</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-bg: #0a0a0a;
+            --color-surface: #141414;
+            --color-surface-elevated: #1a1a1a;
+            --color-border: #262626;
+            --color-text: #e5e5e5;
+            --color-text-secondary: #a3a3a3;
+            --color-accent: #22c55e;
+            --color-accent-dim: rgba(34, 197, 94, 0.1);
+            --font-serif: 'Crimson Pro', Georgia, serif;
+            --font-sans: 'Inter', system-ui, sans-serif;
+            --font-mono: 'Fira Code', monospace;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: var(--font-serif); font-size: 19px; line-height: 1.7; color: var(--color-text); background-color: var(--color-bg); padding: 2rem; max-width: 900px; margin: 0 auto; }
+        header { margin-bottom: 3rem; padding-bottom: 2rem; border-bottom: 1px solid var(--color-border); }
+        .breadcrumb { font-family: var(--font-sans); font-size: 0.85rem; color: var(--color-text-secondary); margin-bottom: 1rem; }
+        .breadcrumb a { color: var(--color-accent); text-decoration: none; }
+        .breadcrumb a:hover { text-decoration: underline; }
+        h1 { font-family: var(--font-serif); font-size: 2.5rem; font-weight: 600; margin-bottom: 0.5rem; letter-spacing: -0.02em; }
+        .subtitle { font-size: 1.25rem; color: var(--color-text-secondary); font-style: italic; }
+        h2 { font-family: var(--font-sans); font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--color-accent); margin-top: 3rem; margin-bottom: 1.25rem; }
+        h3 { font-family: var(--font-serif); font-size: 1.4rem; font-weight: 600; margin-top: 2rem; margin-bottom: 0.75rem; }
+        p { margin-bottom: 1.25rem; }
+        .intro { font-size: 1.15rem; color: var(--color-text-secondary); border-left: 3px solid var(--color-accent); padding-left: 1.5rem; margin: 2rem 0; }
+        .equation-block { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 8px; padding: 2rem; margin: 1.5rem 0; text-align: center; }
+        .equation { font-family: var(--font-mono); font-size: 1.2rem; color: var(--color-accent); margin-bottom: 0.5rem; }
+        .equation-label { font-family: var(--font-sans); font-size: 0.85rem; color: var(--color-text-secondary); }
+        .concept-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin: 1.5rem 0; }
+        .concept-card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 8px; padding: 1.5rem; }
+        .concept-card h4 { font-family: var(--font-sans); font-size: 1rem; font-weight: 600; margin-bottom: 0.75rem; color: var(--color-accent); }
+        .concept-card p { font-size: 0.95rem; margin-bottom: 0; color: var(--color-text-secondary); }
+        .key-insight { background: var(--color-accent-dim); border: 1px solid var(--color-accent); border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0; }
+        .key-insight strong { color: var(--color-accent); }
+        .experiment-block { background: var(--color-surface-elevated); border-radius: 8px; padding: 1.75rem; margin: 1.5rem 0; border-left: 3px solid var(--color-accent); }
+        .experiment-block h4 { font-family: var(--font-sans); font-weight: 600; margin-bottom: 1rem; }
+        .experiment-block ol { margin-left: 1.25rem; color: var(--color-text-secondary); }
+        .experiment-block li { margin-bottom: 0.5rem; }
+        .connections-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 1.5rem 0; }
+        .connection-item { display: flex; align-items: center; gap: 0.75rem; padding: 1rem; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 8px; text-decoration: none; color: var(--color-text); transition: border-color 0.2s; }
+        .connection-item:hover { border-color: var(--color-accent); background: var(--color-surface-elevated); }
+        .connection-icon { font-size: 1.5rem; }
+        .connection-text { font-family: var(--font-sans); font-size: 0.9rem; }
+        ul { margin-left: 1.25rem; margin-bottom: 1.25rem; }
+        li { margin-bottom: 0.5rem; }
+        footer { margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--color-border); text-align: center; }
+        .btn-launch { display: inline-flex; align-items: center; gap: 0.5rem; font-family: var(--font-sans); font-size: 1rem; font-weight: 500; padding: 1rem 2rem; background: var(--color-accent); color: #030712; border-radius: 8px; text-decoration: none; transition: opacity 0.2s; }
+        .btn-launch:hover { opacity: 0.9; }
+        .comparison-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin: 1.5rem 0; }
+        .comparison-card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 8px; padding: 1.5rem; }
+        .comparison-card.elastic { border-top: 3px solid #22c55e; }
+        .comparison-card.inelastic { border-top: 3px solid #f59e0b; }
+        .comparison-card h4 { font-family: var(--font-sans); font-weight: 600; margin-bottom: 0.75rem; }
+        .comparison-card.elastic h4 { color: #22c55e; }
+        .comparison-card.inelastic h4 { color: #f59e0b; }
+        .comparison-card p { font-size: 0.95rem; color: var(--color-text-secondary); margin-bottom: 0.5rem; }
+        @media (max-width: 600px) { .comparison-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="breadcrumb">
+            <a href="https://cjlkaiser-cpu.github.io/eigenlab/_portal/index.html">EigenLab</a> /
+            <a href="../index.html">Physics Visual Lab</a> /
+            <span>Guía: Colisiones 2D</span>
+        </nav>
+        <h1>Colisiones 2D</h1>
+        <p class="subtitle">Lo que siempre se conserva — y lo que a veces no</p>
+    </header>
+
+    <main>
+        <p class="intro">
+            Cada colisión, desde electrones en un acelerador hasta bolas de billar en una mesa, está
+            gobernada por las mismas leyes de conservación. El momento lineal nunca se pierde. La energía
+            cinética, a veces sí. Esa diferencia define los dos grandes tipos de colisión.
+        </p>
+
+        <h2>La Ley que Nunca Falla</h2>
+
+        <p>
+            La conservación del momento lineal es consecuencia directa de la Tercera Ley de Newton:
+            la fuerza que ejerce el cuerpo 1 sobre el 2 es igual y opuesta a la que ejerce el 2 sobre el 1.
+            Si no hay fuerzas externas, el momento total del sistema es constante:
+        </p>
+
+        <div class="equation-block">
+            <div class="equation">p⃗_total = m₁v⃗₁ + m₂v⃗₂ = constante</div>
+            <div class="equation-label">El momento total se conserva en toda colisión, elástica o no, en 1D y en 2D.</div>
+        </div>
+
+        <p>
+            En 2D, esto significa que el momento se conserva <em>por separado</em> en x e y. Son dos
+            ecuaciones independientes. La simulación verifica esto en tiempo real con las barras de momento.
+        </p>
+
+        <h2>Elástica vs. Inelástica</h2>
+
+        <div class="comparison-grid">
+            <div class="comparison-card elastic">
+                <h4>Colisión Elástica</h4>
+                <p>El momento total se conserva.</p>
+                <p>La energía cinética total también se conserva.</p>
+                <p>Los objetos rebotan sin deformarse ni calentarse.</p>
+                <p><em>Ejemplos:</em> bolas de billar, colisiones entre átomos de gas ideal, bolas de acero templado.</p>
+            </div>
+            <div class="comparison-card inelastic">
+                <h4>Colisión Inelástica</h4>
+                <p>El momento total se conserva.</p>
+                <p>La energía cinética <em>no</em> se conserva — parte se convierte en calor, sonido, deformación.</p>
+                <p><em>Ejemplos:</em> choque de automóviles, pelota de arcilla, toda colisión real macroscópica.</p>
+            </div>
+        </div>
+
+        <h2>Las Fórmulas de Velocidad Final</h2>
+
+        <h3>Colisión elástica en 1D</h3>
+
+        <p>
+            Para dos objetos que chocan frontalmente, la conservación simultánea de momento y energía
+            cinética da soluciones exactas:
+        </p>
+
+        <div class="equation-block">
+            <div class="equation">v₁' = (m₁−m₂)v₁ + 2m₂v₂) / (m₁+m₂)</div>
+            <div class="equation">v₂' = (m₂−m₁)v₂ + 2m₁v₁) / (m₁+m₂)</div>
+            <div class="equation-label">Velocidades finales en colisión elástica 1D. Verifícalas con masas iguales: v₁' = v₂ y v₂' = v₁ (intercambio perfecto).</div>
+        </div>
+
+        <h3>Colisión perfectamente inelástica</h3>
+
+        <p>
+            Cuando los objetos quedan pegados (e = 0), solo hay una velocidad final. Es el máximo de
+            energía cinética perdida compatible con la conservación de momento:
+        </p>
+
+        <div class="equation-block">
+            <div class="equation">v_f = (m₁v₁ + m₂v₂) / (m₁+m₂)</div>
+            <div class="equation-label">Colisión perfectamente inelástica. La pérdida de KE es: ΔKE = ½μ(v₁−v₂)² donde μ = m₁m₂/(m₁+m₂) es la masa reducida.</div>
+        </div>
+
+        <h2>Casos Especiales que Vale la Pena Ver</h2>
+
+        <div class="concept-grid">
+            <div class="concept-card">
+                <h4>Masas iguales (elástica)</h4>
+                <p>El objeto en movimiento se detiene completamente y el estático toma su velocidad. El fenómeno de las bolas de Newton. Transferencia perfecta de energía.</p>
+            </div>
+            <div class="concept-card">
+                <h4>m₁ &gt;&gt; m₂ (elástica)</h4>
+                <p>La masa grande apenas cambia de velocidad; la pequeña rebota con el doble de la velocidad de la grande. Como una pelota de tenis contra una bola de bolos.</p>
+            </div>
+            <div class="concept-card">
+                <h4>m₁ &lt;&lt; m₂ (elástica)</h4>
+                <p>La masa pequeña rebota casi con la misma rapidez pero en dirección contraria. La grande apenas se mueve. Pelota de goma contra una pared.</p>
+            </div>
+        </div>
+
+        <h2>Experimentos Guiados</h2>
+
+        <div class="experiment-block">
+            <h4>1. Masas iguales — el intercambio perfecto</h4>
+            <ol>
+                <li>Pon m₁ = m₂ = 1 kg, colisión <strong>elástica</strong>.</li>
+                <li>v₁ = 5 m/s, θ₁ = 0°. v₂ = 3 m/s, θ₂ = 180° (vienen de frente).</li>
+                <li>Después de la colisión, ¿qué velocidad tiene cada uno?</li>
+                <li>Ahora prueba v₂ = 0 (la segunda bola está quieta). El objeto 1 se detiene completamente y el 2 toma su velocidad.</li>
+            </ol>
+        </div>
+
+        <div class="experiment-block">
+            <h4>2. Elástica vs. inelástica — el momento siempre gana</h4>
+            <ol>
+                <li>m₁ = 2 kg, v₁ = 5 m/s, θ₁ = 0°. m₂ = 1 kg, v₂ = 0, quieta.</li>
+                <li>Observa las barras de momento antes y después. ¿Cambian?</li>
+                <li>Cambia a colisión <strong>inelástica</strong>. El momento sigue igual, pero las barras de energía cinética muestran pérdida.</li>
+                <li>Calcula cuánta KE se perdió: KE_inicial − KE_final.</li>
+            </ol>
+        </div>
+
+        <div class="experiment-block">
+            <h4>3. Colisión oblicua en 2D</h4>
+            <ol>
+                <li>m₁ = m₂ = 1 kg, colisión elástica.</li>
+                <li>v₁ = 5 m/s, θ₁ = 30°. v₂ = 5 m/s, θ₂ = 210° (opuesto).</li>
+                <li>Las velocidades finales no son colineales. Verifica que el momento en x y en y se conservan por separado.</li>
+            </ol>
+        </div>
+
+        <div class="key-insight">
+            <strong>La regla fundamental:</strong> El momento se conserva siempre que no haya fuerzas externas
+            netas. La energía cinética solo se conserva en colisiones elásticas ideales. En cualquier colisión
+            real macroscópica siempre hay alguna pérdida de KE — la pregunta es cuánta.
+        </div>
+
+        <h2>Limitaciones del Modelo</h2>
+
+        <ul>
+            <li><strong>Objetos puntuales:</strong> La simulación trata las masas como partículas. En la realidad, la forma y el momento de inercia importan (spin tras el choque).</li>
+            <li><strong>Sin deformación:</strong> Los cuerpos reales se deforman. La cantidad de deformación determina cuánta KE se pierde como energía interna.</li>
+            <li><strong>Colisión instantánea:</strong> En la realidad, las colisiones duran un tiempo finito con fuerzas que varían (impulso).</li>
+            <li><strong>Solo 2 objetos:</strong> Las colisiones múltiples simultáneas (3 o más cuerpos) son más complejas y no siempre tienen solución única.</li>
+        </ul>
+
+        <h2>Conexiones Interdisciplinarias</h2>
+
+        <div class="connections-grid">
+            <a href="../proyectil.html" class="connection-item">
+                <span class="connection-icon">🚀</span>
+                <span class="connection-text">Movimiento Proyectil<br><small>Cinemática antes del impacto</small></span>
+            </a>
+            <a href="../termodinamica.html" class="connection-item">
+                <span class="connection-icon">🌡️</span>
+                <span class="connection-text">Termodinámica<br><small>Gas ideal = colisiones elásticas masivas</small></span>
+            </a>
+            <a href="../../Chemistry Visual Lab/cinetica-colisiones.html" class="connection-item">
+                <span class="connection-icon">⚗️</span>
+                <span class="connection-text">Cinética de Colisiones<br><small>Reacciones como colisiones moleculares</small></span>
+            </a>
+        </div>
+
+        <h2>Para Explorar Más</h2>
+        <ul>
+            <li><strong>Cradle de Newton:</strong> Cinco bolas colgantes que demuestran la conservación simultánea de momento y energía — el número de bolas que salen debe ser igual al que entra.</li>
+            <li><strong>Colisiones relativistas:</strong> A velocidades cercanas a c, el momento se redefine como p = γmv y la masa en reposo no se conserva (puede convertirse en energía).</li>
+            <li><strong>Dispersión de Rutherford:</strong> Colisiones entre partículas alfa y núcleos de oro que reveló la estructura del átomo en 1911.</li>
+            <li><strong>Colisionadores de partículas:</strong> El LHC del CERN hace colisionar protones a casi la velocidad de la luz para crear partículas nuevas con E = mc².</li>
+        </ul>
+    </main>
+
+    <footer>
+        <a href="../colisiones.html" class="btn-launch">Abrir Simulación</a>
+    </footer>
+</body>
+</html>
