@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guía: Difusión del Calor | Physics Visual Lab</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-bg: #0a0a0a; --color-surface: #141414; --color-surface-elevated: #1a1a1a;
+            --color-border: #262626; --color-text: #e5e5e5; --color-text-secondary: #a3a3a3;
+            --color-accent: #22c55e; --color-accent-dim: rgba(34,197,94,0.1);
+            --font-serif: 'Crimson Pro', Georgia, serif; --font-sans: 'Inter', system-ui, sans-serif;
+            --font-mono: 'Fira Code', monospace;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: var(--font-serif); font-size: 19px; line-height: 1.7; color: var(--color-text); background-color: var(--color-bg); padding: 2rem; max-width: 900px; margin: 0 auto; }
+        header { margin-bottom: 3rem; padding-bottom: 2rem; border-bottom: 1px solid var(--color-border); }
+        .breadcrumb { font-family: var(--font-sans); font-size: 0.85rem; color: var(--color-text-secondary); margin-bottom: 1rem; }
+        .breadcrumb a { color: var(--color-accent); text-decoration: none; }
+        .breadcrumb a:hover { text-decoration: underline; }
+        h1 { font-family: var(--font-serif); font-size: 2.5rem; font-weight: 600; margin-bottom: 0.5rem; letter-spacing: -0.02em; }
+        .subtitle { font-size: 1.25rem; color: var(--color-text-secondary); font-style: italic; }
+        h2 { font-family: var(--font-sans); font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--color-accent); margin-top: 3rem; margin-bottom: 1.25rem; }
+        h3 { font-family: var(--font-serif); font-size: 1.4rem; font-weight: 600; margin-top: 2rem; margin-bottom: 0.75rem; }
+        p { margin-bottom: 1.25rem; }
+        .intro { font-size: 1.15rem; color: var(--color-text-secondary); border-left: 3px solid var(--color-accent); padding-left: 1.5rem; margin: 2rem 0; }
+        .equation-block { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 8px; padding: 2rem; margin: 1.5rem 0; text-align: center; }
+        .equation { font-family: var(--font-mono); font-size: 1.4rem; color: var(--color-accent); margin-bottom: 0.75rem; }
+        .equation-label { font-family: var(--font-sans); font-size: 0.85rem; color: var(--color-text-secondary); }
+        .concept-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin: 1.5rem 0; }
+        .concept-card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 8px; padding: 1.5rem; }
+        .concept-card h4 { font-family: var(--font-sans); font-size: 1rem; font-weight: 600; margin-bottom: 0.75rem; color: var(--color-accent); }
+        .concept-card p { font-size: 0.95rem; margin-bottom: 0; color: var(--color-text-secondary); }
+        .key-insight { background: var(--color-accent-dim); border: 1px solid var(--color-accent); border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0; }
+        .key-insight strong { color: var(--color-accent); }
+        .experiment-block { background: var(--color-surface-elevated); border-radius: 8px; padding: 1.75rem; margin: 1.5rem 0; border-left: 3px solid var(--color-accent); }
+        .experiment-block h4 { font-family: var(--font-sans); font-weight: 600; margin-bottom: 1rem; }
+        .experiment-block ol { margin-left: 1.25rem; color: var(--color-text-secondary); }
+        .experiment-block li { margin-bottom: 0.5rem; }
+        .connections-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 1.5rem 0; }
+        .connection-item { display: flex; align-items: center; gap: 0.75rem; padding: 1rem; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 8px; text-decoration: none; color: var(--color-text); transition: border-color 0.2s; }
+        .connection-item:hover { border-color: var(--color-accent); background: var(--color-surface-elevated); }
+        .connection-icon { font-size: 1.5rem; }
+        .connection-text { font-family: var(--font-sans); font-size: 0.9rem; }
+        ul { margin-left: 1.25rem; margin-bottom: 1.25rem; }
+        li { margin-bottom: 0.5rem; }
+        footer { margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--color-border); text-align: center; }
+        .btn-launch { display: inline-flex; align-items: center; gap: 0.5rem; font-family: var(--font-sans); font-size: 1rem; font-weight: 500; padding: 1rem 2rem; background: var(--color-accent); color: #030712; border-radius: 8px; text-decoration: none; transition: opacity 0.2s; }
+        .btn-launch:hover { opacity: 0.9; }
+        .btn-secondary { display: inline-flex; align-items: center; gap: 0.5rem; font-family: var(--font-sans); font-size: 0.9rem; font-weight: 500; padding: 0.75rem 1.5rem; background: transparent; color: var(--color-accent); border: 1px solid var(--color-accent); border-radius: 8px; text-decoration: none; transition: opacity 0.2s; margin-left: 1rem; }
+        .btn-secondary:hover { opacity: 0.8; }
+        .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin: 1.5rem 0; }
+        @media (max-width: 600px) { .two-col { grid-template-columns: 1fr; } }
+        .alpha-table { width: 100%; border-collapse: collapse; font-family: var(--font-sans); font-size: 0.9rem; margin: 1.5rem 0; }
+        .alpha-table th { text-align: left; padding: 0.6rem 1rem; background: var(--color-surface); border-bottom: 1px solid var(--color-border); color: var(--color-text-secondary); font-weight: 600; font-size: 0.8rem; text-transform: uppercase; }
+        .alpha-table td { padding: 0.6rem 1rem; border-bottom: 1px solid var(--color-border); }
+        .alpha-table td:nth-child(2) { font-family: var(--font-mono); color: var(--color-accent); font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="breadcrumb">
+            <a href="https://cjlkaiser-cpu.github.io/eigenlab/_portal/index.html">EigenLab</a> /
+            <a href="../index.html">Physics Visual Lab</a> /
+            <span>Guía: Difusión del Calor</span>
+        </nav>
+        <h1>Difusión del Calor</h1>
+        <p class="subtitle">La ecuación que describe cómo fluye la energía térmica a través de los materiales</p>
+    </header>
+
+    <p class="intro">
+        El calor fluye espontáneamente de lo caliente a lo frío hasta que todo el sistema alcanza
+        el equilibrio. La ecuación de difusión describe este proceso con precisión: dado el campo
+        de temperatura T(x,y) en un instante, predice exactamente cómo evolucionará.
+    </p>
+
+    <h2>La Ecuación del Calor</h2>
+
+    <div class="equation-block">
+        <div class="equation">∂T/∂t = α · ∇²T</div>
+        <div class="equation-label">α = difusividad térmica (m²/s) · ∇²T = Laplaciano de temperatura (curvatura del campo)</div>
+    </div>
+
+    <p>El Laplaciano ∇²T mide cuánto difiere la temperatura en un punto de su entorno inmediato. Si un punto está más caliente que sus vecinos, ∇²T &lt; 0 y la temperatura en ese punto baja. Si está más frío, ∇²T &gt; 0 y la temperatura sube. El calor siempre fluye "cuesta abajo" en el campo de temperatura.</p>
+
+    <div class="equation-block">
+        <div class="equation">∇²T = ∂²T/∂x² + ∂²T/∂y²</div>
+        <div class="equation-label">En 2D, la segunda derivada espacial en cada dirección</div>
+    </div>
+
+    <h2>La Difusividad Térmica α</h2>
+
+    <p>α combina la conductividad, la densidad y el calor específico del material:</p>
+
+    <div class="equation-block">
+        <div class="equation">α = k / (ρ · cₚ)</div>
+        <div class="equation-label">k = conductividad térmica · ρ = densidad · cₚ = calor específico</div>
+    </div>
+
+    <table class="alpha-table">
+        <thead>
+            <tr><th>Material</th><th>α (m²/s)</th><th>Cómo se percibe</th></tr>
+        </thead>
+        <tbody>
+            <tr><td>Plata</td><td>1.66 × 10⁻⁴</td><td>Conductora perfecta: se entibia rápido</td></tr>
+            <tr><td>Cobre</td><td>1.17 × 10⁻⁴</td><td>Cacerolas: distribuye calor uniformemente</td></tr>
+            <tr><td>Acero</td><td>1.2 × 10⁻⁵</td><td>Paredes metálicas: conducción moderada</td></tr>
+            <tr><td>Ladrillo</td><td>5.2 × 10⁻⁷</td><td>Construcción: aísla bien el calor</td></tr>
+            <tr><td>Madera</td><td>8 × 10⁻⁸</td><td>Mango de madera: no quema la mano</td></tr>
+        </tbody>
+    </table>
+
+    <h2>El Modelo de Habitación</h2>
+
+    <p>La simulación modela el corte transversal de una habitación con:</p>
+
+    <ul>
+        <li><strong>Radiador</strong> — fuente de calor en una pared (T_hot = 40–100 °C)</li>
+        <li><strong>Ventana fría</strong> — sumidero de calor en otra zona (T_cold = −10–20 °C)</li>
+        <li><strong>Temperatura ambiente</strong> — condición inicial del aire (0–40 °C)</li>
+        <li><strong>Fuentes adicionales</strong> — puedes activar fuentes de calor extra</li>
+    </ul>
+
+    <p>El mapa de color va de azul (frío) a rojo (caliente), pasando por verde en las temperaturas intermedias. Activando "Mostrar flujo de calor" aparecen flechas que indican la dirección e intensidad del flujo: siempre perpendiculares a las isotermas, apuntando de caliente a frío.</p>
+
+    <h2>Condiciones de Contorno</h2>
+
+    <p>La solución de la ecuación del calor depende crucialmente de las condiciones en los bordes. La simulación usa condiciones mixtas:</p>
+
+    <div class="two-col">
+        <div class="concept-card">
+            <h4>Dirichlet (temperatura fija)</h4>
+            <p>El radiador y la ventana tienen temperatura constante. El campo se calcula de forma que T en esos puntos nunca cambia, forzando gradientes permanentes.</p>
+        </div>
+        <div class="concept-card">
+            <h4>Neumann (flujo nulo)</h4>
+            <p>Las paredes opacas tienen flujo nulo: ∂T/∂n = 0. El calor no puede "escapar" por esas paredes, simulando aislamiento térmico perfecto.</p>
+        </div>
+    </div>
+
+    <div class="key-insight">
+        <strong>El estado estacionario.</strong> Con el tiempo, el campo T(x,y) deja de cambiar (∂T/∂t = 0) y se satisface la ecuación de Laplace: ∇²T = 0. En ese estado, la temperatura en cada punto es exactamente el promedio de sus vecinos. El calor sigue fluyendo continuamente del radiador a la ventana, pero el campo es estable.
+    </div>
+
+    <h2>Experimentos Guiados</h2>
+
+    <div class="experiment-block">
+        <h4>Experimento 1 — Observar la difusión temporal</h4>
+        <ol>
+            <li>Reinicia la simulación. Al inicio, el campo es uniforme (temperatura ambiente).</li>
+            <li>Observa cómo el calor del radiador "avanza" lentamente por la habitación como un frente de onda.</li>
+            <li>El frente se mueve una distancia ∝ √(αt): la difusión es lenta. Duplicar el tiempo, el frente avanza √2 veces más, no el doble.</li>
+            <li>Después de mucho tiempo, el campo se estabiliza: estado estacionario con gradiente continuo del radiador a la ventana.</li>
+        </ol>
+    </div>
+
+    <div class="experiment-block">
+        <h4>Experimento 2 — El papel de α</h4>
+        <ol>
+            <li>Ajusta α al mínimo (0.05). La difusión es muy lenta: el calor apenas penetra.</li>
+            <li>Sube α al máximo (0.5). El calor se distribuye casi instantáneamente.</li>
+            <li>En materiales reales, esto es la diferencia entre insertar un dedo en agua caliente (α bajo, quemadura localizada) o tocar acero caliente (α alto, calor se distribuye rápido).</li>
+        </ol>
+    </div>
+
+    <div class="experiment-block">
+        <h4>Experimento 3 — Flujo de calor y gradiente</h4>
+        <ol>
+            <li>Activa "Mostrar flujo de calor". Las flechas apuntan siempre del radiador hacia la ventana fría.</li>
+            <li>Observa que las flechas son perpendiculares a las líneas de igual temperatura (isotermas). La ley de Fourier: q = −k∇T.</li>
+            <li>Donde las isotermas están más juntas (gradiente grande), las flechas son más largas: mayor flujo de calor.</li>
+            <li>Mueve la posición del radiador o la ventana y observa cómo se reorganiza el patrón de flujo.</li>
+        </ol>
+    </div>
+
+    <h2>Conexiones</h2>
+
+    <div class="connections-grid">
+        <a href="../difusion-calor-wasm.html" class="connection-item">
+            <span class="connection-icon">⚡</span>
+            <div class="connection-text"><strong>Difusión Calor WASM</strong><br>Grillas 500×500 en tiempo real</div>
+        </a>
+        <a href="../gas-ideal.html" class="connection-item">
+            <span class="connection-icon">💨</span>
+            <div class="connection-text"><strong>Gas Ideal</strong><br>El calor como energía cinética</div>
+        </a>
+        <a href="../entropia.html" class="connection-item">
+            <span class="connection-icon">📈</span>
+            <div class="connection-text"><strong>Entropía</strong><br>La difusión siempre aumenta S</div>
+        </a>
+        <a href="../termodinamica.html" class="connection-item">
+            <span class="connection-icon">🔄</span>
+            <div class="connection-text"><strong>Ciclos Termodinámicos</strong><br>Calor como trabajo útil</div>
+        </a>
+    </div>
+
+    <footer>
+        <a href="../difusion-calor.html" class="btn-launch">Abrir simulación →</a>
+        <a href="../difusion-calor-wasm.html" class="btn-secondary">Versión WASM →</a>
+    </footer>
+</body>
+</html>
