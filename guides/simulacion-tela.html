@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guía: Simulación de Tela | Physics Visual Lab</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-bg: #0a0a0a; --color-surface: #141414; --color-surface-elevated: #1a1a1a;
+            --color-border: #262626; --color-text: #e5e5e5; --color-text-secondary: #a3a3a3;
+            --color-accent: #22c55e; --color-accent-dim: rgba(34,197,94,0.1);
+            --font-serif: 'Crimson Pro', Georgia, serif; --font-sans: 'Inter', system-ui, sans-serif;
+            --font-mono: 'Fira Code', monospace;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: var(--font-serif); font-size: 19px; line-height: 1.7; color: var(--color-text); background-color: var(--color-bg); padding: 2rem; max-width: 900px; margin: 0 auto; }
+        header { margin-bottom: 3rem; padding-bottom: 2rem; border-bottom: 1px solid var(--color-border); }
+        .breadcrumb { font-family: var(--font-sans); font-size: 0.85rem; color: var(--color-text-secondary); margin-bottom: 1rem; }
+        .breadcrumb a { color: var(--color-accent); text-decoration: none; }
+        .breadcrumb a:hover { text-decoration: underline; }
+        h1 { font-family: var(--font-serif); font-size: 2.5rem; font-weight: 600; margin-bottom: 0.5rem; letter-spacing: -0.02em; }
+        .subtitle { font-size: 1.25rem; color: var(--color-text-secondary); font-style: italic; }
+        h2 { font-family: var(--font-sans); font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--color-accent); margin-top: 3rem; margin-bottom: 1.25rem; }
+        p { margin-bottom: 1.25rem; }
+        .intro { font-size: 1.15rem; color: var(--color-text-secondary); border-left: 3px solid var(--color-accent); padding-left: 1.5rem; margin: 2rem 0; }
+        .equation-block { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 8px; padding: 2rem; margin: 1.5rem 0; text-align: center; }
+        .equation { font-family: var(--font-mono); font-size: 1.15rem; color: var(--color-accent); margin-bottom: 0.75rem; }
+        .equation-label { font-family: var(--font-sans); font-size: 0.85rem; color: var(--color-text-secondary); }
+        .concept-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin: 1.5rem 0; }
+        .concept-card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 8px; padding: 1.5rem; }
+        .concept-card h4 { font-family: var(--font-sans); font-size: 1rem; font-weight: 600; margin-bottom: 0.75rem; color: var(--color-accent); }
+        .concept-card p { font-size: 0.95rem; margin-bottom: 0; color: var(--color-text-secondary); }
+        .key-insight { background: var(--color-accent-dim); border: 1px solid var(--color-accent); border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0; }
+        .key-insight strong { color: var(--color-accent); }
+        .experiment-block { background: var(--color-surface-elevated); border-radius: 8px; padding: 1.75rem; margin: 1.5rem 0; border-left: 3px solid var(--color-accent); }
+        .experiment-block h4 { font-family: var(--font-sans); font-weight: 600; margin-bottom: 1rem; }
+        .experiment-block ol { margin-left: 1.25rem; color: var(--color-text-secondary); }
+        .experiment-block li { margin-bottom: 0.5rem; }
+        .connections-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 1.5rem 0; }
+        .connection-item { display: flex; align-items: center; gap: 0.75rem; padding: 1rem; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 8px; text-decoration: none; color: var(--color-text); transition: border-color 0.2s; }
+        .connection-item:hover { border-color: var(--color-accent); background: var(--color-surface-elevated); }
+        .connection-icon { font-size: 1.5rem; }
+        .connection-text { font-family: var(--font-sans); font-size: 0.9rem; }
+        ul { margin-left: 1.25rem; margin-bottom: 1.25rem; }
+        li { margin-bottom: 0.5rem; }
+        footer { margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--color-border); text-align: center; }
+        .btn-launch { display: inline-flex; align-items: center; gap: 0.5rem; font-family: var(--font-sans); font-size: 1rem; font-weight: 500; padding: 1rem 2rem; background: var(--color-accent); color: #030712; border-radius: 8px; text-decoration: none; transition: opacity 0.2s; }
+        .btn-launch:hover { opacity: 0.9; }
+        .spring-table { width: 100%; border-collapse: collapse; font-family: var(--font-sans); font-size: 0.85rem; margin: 1.5rem 0; }
+        .spring-table th { text-align: left; padding: 0.6rem 0.75rem; background: var(--color-surface); border-bottom: 1px solid var(--color-border); color: var(--color-text-secondary); font-weight: 600; font-size: 0.75rem; text-transform: uppercase; }
+        .spring-table td { padding: 0.55rem 0.75rem; border-bottom: 1px solid var(--color-border); }
+        .spring-table td:first-child { font-weight: 500; color: var(--color-accent); font-family: var(--font-sans); }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="breadcrumb">
+            <a href="https://cjlkaiser-cpu.github.io/eigenlab/_portal/index.html">EigenLab</a> /
+            <a href="../index.html">Physics Visual Lab</a> /
+            <span>Guía: Simulación de Tela</span>
+        </nav>
+        <h1>Simulación de Tela</h1>
+        <p class="subtitle">Position Based Dynamics, integración de Verlet y restricciones de distancia</p>
+    </header>
+
+    <p class="intro">
+        Una tela es un sistema de miles de partículas conectadas por restricciones de distancia.
+        Simularlo parece requerir resolver un enorme sistema de ecuaciones diferenciales acopladas.
+        El método de <em>Position Based Dynamics</em> (PBD) de Müller et al. (2007) resuelve el
+        problema directamente en el espacio de posiciones: en lugar de calcular fuerzas,
+        mueve las partículas para satisfacer las restricciones iterativamente. El resultado es
+        estable, interactivo, y la base de la física de tela en todos los videojuegos modernos.
+    </p>
+
+    <h2>Integración de Verlet</h2>
+
+    <p>El PBD usa integración de Verlet para actualizar las posiciones. A diferencia de Euler — que almacena posición y velocidad explícitamente — Verlet extrae la velocidad implícita de la diferencia entre dos posiciones consecutivas:</p>
+
+    <div class="equation-block">
+        <div class="equation">x_new = 2·x_actual − x_anterior + a·dt²</div>
+        <div class="equation-label">La velocidad está implícita: v ≈ (x_actual − x_anterior)/dt. No hay error de acumulación en la velocidad. Conserva mejor la energía que Euler y es más estable para sistemas de restricciones.</div>
+    </div>
+
+    <p>La aceleración a incluye la gravedad y cualquier fuerza externa (viento). Después de este paso de integración, todas las restricciones de distancia se satisfacen iterativamente.</p>
+
+    <h2>Los Tres Tipos de Resortes</h2>
+
+    <p>La malla de la tela contiene tres tipos de resortes, cada uno resistiendo un modo de deformación diferente:</p>
+
+    <table class="spring-table">
+        <thead>
+            <tr><th>Tipo</th><th>Conecta</th><th>Resiste</th><th>Rigidez típica</th></tr>
+        </thead>
+        <tbody>
+            <tr><td>Estructural</td><td>Vecinos directos H/V</td><td>Estiramiento / compresión</td><td>1.0 (máxima)</td></tr>
+            <tr><td>Corte (Shear)</td><td>Vecinos diagonales</td><td>Deformación angular (cizalla)</td><td>0.7–0.8</td></tr>
+            <tr><td>Flexión (Bend)</td><td>Vecinos a dos saltos</td><td>Doblado fuera del plano</td><td>0.1–0.9 (según material)</td></tr>
+        </tbody>
+    </table>
+
+    <h2>Satisfacción de Restricciones</h2>
+
+    <p>Cada resorte impone una restricción: mantener la distancia entre sus dos extremos igual a la distancia de reposo d₀. El algoritmo proyecta ambas partículas para satisfacer la restricción:</p>
+
+    <div class="equation-block">
+        <div class="equation">δ = (d − d₀)/d · 0.5 · k &nbsp;&nbsp;&nbsp; x_A += δ·n̂ &nbsp;&nbsp;&nbsp; x_B −= δ·n̂</div>
+        <div class="equation-label">d = distancia actual, d₀ = distancia de reposo, k = rigidez, n̂ = vector unitario A→B. Ambas partículas se mueven simétricamente. Una sola pasada no resuelve todas las restricciones — se necesitan múltiples iteraciones.</div>
+    </div>
+
+    <div class="concept-grid">
+        <div class="concept-card">
+            <h4>Iteraciones y rigidez efectiva</h4>
+            <p>Una sola pasada por todos los resortes satisface parcialmente las restricciones. Con 4–6 iteraciones: tela elástica. Con 12–20 iteraciones: tela casi inextensible. Más iteraciones = más costoso pero más rígido — el balance correcto depende del material.</p>
+        </div>
+        <div class="concept-card">
+            <h4>Partículas fijadas (pinned)</h4>
+            <p>Algunas partículas tienen masa infinita efectiva: no se mueven durante la corrección de restricciones, absorben toda la corrección de los resortes que las conectan. Los puntos de colgado de la tela son siempre partículas fijadas.</p>
+        </div>
+        <div class="concept-card">
+            <h4>Desgarro</h4>
+            <p>Si un resorte se estira más allá de un umbral (distancia actual > d₀·(1 + umbral)), se desactiva permanentemente. El desgarro emerge de forma natural: no requiere ninguna lógica especial, solo dejar de aplicar la restricción.</p>
+        </div>
+        <div class="concept-card">
+            <h4>Colisión con esfera</h4>
+            <p>Después de la corrección de resortes, cada partícula se verifica respecto a la esfera. Si está dentro, se empuja al exterior: x = centro + radio·normalize(x − centro). Simple, eficiente, sin resolver sistemas lineales.</p>
+        </div>
+    </div>
+
+    <div class="key-insight">
+        <strong>Position Based Dynamics es el estándar de la industria para física de tela en videojuegos y animación.</strong> Nvidia PhysX, Havok Cloth, y los motores de animación de Pixar y DreamWorks usan variantes de PBD. Su ventaja no es la precisión física (hay métodos más rigurosos), sino la estabilidad incondicional y el control artístico: si los parámetros dan un resultado no deseado, se pueden ajustar intuitivamente sin riesgo de divergencia. El paper original de Müller et al. (2007) tiene más de 3,000 citas.
+    </div>
+
+    <h2>Presets de Materiales</h2>
+
+    <ul>
+        <li><strong>Seda</strong> — Baja gravedad, alta vorticidad de viento. Ligera y fluida, ondea con turbulencia baja. Rigidez de flexión mínima: se dobla libremente.</li>
+        <li><strong>Mezclilla (Denim)</strong> — Alta gravedad, máxima rigidez y flexión. Cae pesada y rígidamente sin viento. Pocas iteraciones de desgarro (material muy resistente).</li>
+        <li><strong>Goma (Rubber)</strong> — Rigidez baja, alta elasticidad. Se estira mucho antes de resistir. El efecto de rebote es visible con gravedad alta.</li>
+        <li><strong>Bandera</strong> — Gravedad baja, fuerza de viento alta con turbulencia. Los bordes laterales libres ondean caóticamente mientras el borde izquierdo permanece fijo.</li>
+        <li><strong>Red</strong> — Solo resortes estructurales visibles (corte y flexión desactivados). La red se deforma angularmente al colgar pero mantiene la estructura cuadrada.</li>
+    </ul>
+
+    <h2>Experimentos Guiados</h2>
+
+    <div class="experiment-block">
+        <h4>Experimento 1 — Comparar materiales: Seda vs Denim</h4>
+        <ol>
+            <li>Selecciona «Seda». Observa cómo la tela cae lentamente y ondea con el viento. El punto de colgado superior actúa como partícula fijada. La tela casi no resiste el doblado: cae en pliegues suaves.</li>
+            <li>Cambia a «Denim» sin resetear la posición. La tela colapsa rápidamente por la alta gravedad y se queda rígida. Los pliegues son angulosos y escasos — la rigidez de flexión los previene.</li>
+            <li>Ambos presets usan exactamente el mismo algoritmo PBD. La diferencia es solo en los parámetros: gravedad, rigidez, iteraciones. El material emerge de los números, no del código.</li>
+        </ol>
+    </div>
+
+    <div class="experiment-block">
+        <h4>Experimento 2 — Desgarro</h4>
+        <ol>
+            <li>Activa el desgarro con umbral bajo (~0.3). Arrastra la tela con el ratón con fuerza. Los resortes que superen el 30% de su longitud de reposo se rompen — el agujero se propaga siguiendo la dirección del esfuerzo.</li>
+            <li>Observa que el desgarro no está programado explícitamente: emerge de la desactivación de restricciones individuales. Los bordes del agujero quedan libres y se comportan como bordes de tela normales.</li>
+            <li>Prueba el preset «Telaraña» (alta fragilidad): la red se rompe con casi cualquier perturbación y los fragmentos caen de forma realista.</li>
+        </ol>
+    </div>
+
+    <div class="experiment-block">
+        <h4>Experimento 3 — Iteraciones y rigidez efectiva</h4>
+        <ol>
+            <li>Reduce el número de iteraciones a 2–3. La tela se vuelve notablemente más elástica: los resortes no se satisfacen completamente y la tela se estira más. Este es el régimen de «tela elástica».</li>
+            <li>Aumenta a 15–20 iteraciones. La tela parece casi inextensible: los resortes se satisfacen casi exactamente en cada frame. Pero el rendimiento cae proporcionalmente.</li>
+            <li>Con iteraciones = 1 y rigidez baja: la tela se comporta como gelatina — el sistema de restricciones insatisfecho genera oscilaciones amortiguadas lentas en lugar de movimiento rígido.</li>
+        </ol>
+    </div>
+
+    <h2>Conexiones</h2>
+
+    <div class="connections-grid">
+        <a href="../pendulos-desacoplados.html" class="connection-item">
+            <span class="connection-icon">🔗</span>
+            <div class="connection-text"><strong>Péndulos Desacoplados</strong><br>Restricciones de longitud: el mismo principio</div>
+        </a>
+        <a href="../oscilador-forzado.html" class="connection-item">
+            <span class="connection-icon">〰</span>
+            <div class="connection-text"><strong>Oscilador Forzado</strong><br>Resonancia: el viento a frecuencia natural</div>
+        </a>
+        <a href="../fluidos-2d.html" class="connection-item">
+            <span class="connection-icon">🌊</span>
+            <div class="connection-text"><strong>Fluidos 2D</strong><br>Otro sistema de partículas interactuantes</div>
+        </a>
+        <a href="../../../Biology/Biology Visual Lab/boids-masivo.html" class="connection-item">
+            <span class="connection-icon">🐟</span>
+            <div class="connection-text"><strong>Boids Masivo</strong><br>Comportamiento emergente de agentes simples</div>
+        </a>
+    </div>
+
+    <footer>
+        <a href="../simulacion-tela.html" class="btn-launch">Abrir simulación →</a>
+    </footer>
+</body>
+</html>

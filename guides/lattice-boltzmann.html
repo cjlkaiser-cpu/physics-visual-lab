@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guía: Lattice Boltzmann | Physics Visual Lab</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-bg: #0a0a0a; --color-surface: #141414; --color-surface-elevated: #1a1a1a;
+            --color-border: #262626; --color-text: #e5e5e5; --color-text-secondary: #a3a3a3;
+            --color-accent: #22c55e; --color-accent-dim: rgba(34,197,94,0.1);
+            --font-serif: 'Crimson Pro', Georgia, serif; --font-sans: 'Inter', system-ui, sans-serif;
+            --font-mono: 'Fira Code', monospace;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: var(--font-serif); font-size: 19px; line-height: 1.7; color: var(--color-text); background-color: var(--color-bg); padding: 2rem; max-width: 900px; margin: 0 auto; }
+        header { margin-bottom: 3rem; padding-bottom: 2rem; border-bottom: 1px solid var(--color-border); }
+        .breadcrumb { font-family: var(--font-sans); font-size: 0.85rem; color: var(--color-text-secondary); margin-bottom: 1rem; }
+        .breadcrumb a { color: var(--color-accent); text-decoration: none; }
+        .breadcrumb a:hover { text-decoration: underline; }
+        h1 { font-family: var(--font-serif); font-size: 2.5rem; font-weight: 600; margin-bottom: 0.5rem; letter-spacing: -0.02em; }
+        .subtitle { font-size: 1.25rem; color: var(--color-text-secondary); font-style: italic; }
+        h2 { font-family: var(--font-sans); font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--color-accent); margin-top: 3rem; margin-bottom: 1.25rem; }
+        p { margin-bottom: 1.25rem; }
+        .intro { font-size: 1.15rem; color: var(--color-text-secondary); border-left: 3px solid var(--color-accent); padding-left: 1.5rem; margin: 2rem 0; }
+        .equation-block { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 8px; padding: 2rem; margin: 1.5rem 0; text-align: center; }
+        .equation { font-family: var(--font-mono); font-size: 1.15rem; color: var(--color-accent); margin-bottom: 0.75rem; }
+        .equation-label { font-family: var(--font-sans); font-size: 0.85rem; color: var(--color-text-secondary); }
+        .concept-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin: 1.5rem 0; }
+        .concept-card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 8px; padding: 1.5rem; }
+        .concept-card h4 { font-family: var(--font-sans); font-size: 1rem; font-weight: 600; margin-bottom: 0.75rem; color: var(--color-accent); }
+        .concept-card p { font-size: 0.95rem; margin-bottom: 0; color: var(--color-text-secondary); }
+        .key-insight { background: var(--color-accent-dim); border: 1px solid var(--color-accent); border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0; }
+        .key-insight strong { color: var(--color-accent); }
+        .experiment-block { background: var(--color-surface-elevated); border-radius: 8px; padding: 1.75rem; margin: 1.5rem 0; border-left: 3px solid var(--color-accent); }
+        .experiment-block h4 { font-family: var(--font-sans); font-weight: 600; margin-bottom: 1rem; }
+        .experiment-block ol { margin-left: 1.25rem; color: var(--color-text-secondary); }
+        .experiment-block li { margin-bottom: 0.5rem; }
+        .connections-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 1.5rem 0; }
+        .connection-item { display: flex; align-items: center; gap: 0.75rem; padding: 1rem; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 8px; text-decoration: none; color: var(--color-text); transition: border-color 0.2s; }
+        .connection-item:hover { border-color: var(--color-accent); background: var(--color-surface-elevated); }
+        .connection-icon { font-size: 1.5rem; }
+        .connection-text { font-family: var(--font-sans); font-size: 0.9rem; }
+        ul { margin-left: 1.25rem; margin-bottom: 1.25rem; }
+        li { margin-bottom: 0.5rem; }
+        footer { margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--color-border); text-align: center; }
+        .btn-launch { display: inline-flex; align-items: center; gap: 0.5rem; font-family: var(--font-sans); font-size: 1rem; font-weight: 500; padding: 1rem 2rem; background: var(--color-accent); color: #030712; border-radius: 8px; text-decoration: none; transition: opacity 0.2s; }
+        .btn-launch:hover { opacity: 0.9; }
+        .velocity-table { width: 100%; border-collapse: collapse; font-family: var(--font-sans); font-size: 0.85rem; margin: 1.5rem 0; }
+        .velocity-table th { text-align: left; padding: 0.6rem 0.75rem; background: var(--color-surface); border-bottom: 1px solid var(--color-border); color: var(--color-text-secondary); font-weight: 600; font-size: 0.75rem; text-transform: uppercase; }
+        .velocity-table td { padding: 0.55rem 0.75rem; border-bottom: 1px solid var(--color-border); font-family: var(--font-mono); font-size: 0.82rem; color: var(--color-accent); }
+        .velocity-table td:first-child { color: var(--color-text); font-family: var(--font-sans); }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="breadcrumb">
+            <a href="https://cjlkaiser-cpu.github.io/eigenlab/_portal/index.html">EigenLab</a> /
+            <a href="../index.html">Physics Visual Lab</a> /
+            <span>Guía: Lattice Boltzmann</span>
+        </nav>
+        <h1>Lattice Boltzmann</h1>
+        <p class="subtitle">Dinámica de fluidos mesoscópica, número de Reynolds y el vórtice de Kármán</p>
+    </header>
+
+    <p class="intro">
+        Las ecuaciones de Navier-Stokes describen fluidos a escala macroscópica, pero resolverlas
+        numéricamente es costoso computacionalmente. El método Lattice Boltzmann (LBM) aborda el
+        problema desde una escala intermedia — la escala cinética — y resulta ser más paralelo,
+        más estable y más natural para geometrías complejas que los métodos tradicionales de
+        diferencias finitas. Esta simulación corre el método D2Q9 en WebAssembly: una cuadrícula
+        de miles de celdas a 60 FPS.
+    </p>
+
+    <h2>La Ecuación de Boltzmann Discreta</h2>
+
+    <p>En lugar de rastrear la posición y velocidad de cada molécula (imposible a escala real), LBM trabaja con <em>distribuciones de probabilidad</em> de velocidades en cada celda. En el modelo D2Q9 («2 dimensiones, 9 velocidades»), cada celda tiene 9 distribuciones f_i correspondientes a 9 direcciones de velocidad discreta:</p>
+
+    <div class="equation-block">
+        <div class="equation">f_i(x + c_i·Δt, t + Δt) = f_i(x, t) − (f_i − f_i^eq) / τ</div>
+        <div class="equation-label">Ecuación BGK (Bhatnagar-Gross-Krook): streaming + colisión. τ es el tiempo de relajación. El término (f_i − f_i^eq)/τ relaja la distribución hacia el equilibrio local.</div>
+    </div>
+
+    <p>El lado izquierdo es el <em>streaming</em>: cada distribución f_i se propaga en la dirección c_i. El lado derecho es la <em>colisión</em>: la distribución se relaja hacia el equilibrio. La belleza del método es que estos dos pasos se pueden ejecutar completamente en paralelo sobre toda la cuadrícula.</p>
+
+    <h2>Distribución de Equilibrio y Conservación</h2>
+
+    <p>La distribución de equilibrio f_i^eq reproduce las ecuaciones de Navier-Stokes en el límite macroscópico (expansión de Chapman-Enskog). Depende solo de la densidad ρ y la velocidad macroscópica u locales:</p>
+
+    <div class="equation-block">
+        <div class="equation">f_i^eq = ρ·w_i · [1 + (c_i·u)/c_s² + (c_i·u)²/(2c_s⁴) − u²/(2c_s²)]</div>
+        <div class="equation-label">w_i son pesos según dirección (centro: 4/9, lados: 1/9, diagonales: 1/36). c_s = 1/√3 es la velocidad del sonido en la red. ρ y u se recuperan como momentos de f_i.</div>
+    </div>
+
+    <table class="velocity-table">
+        <thead>
+            <tr><th>Dirección i</th><th>Vector c_i</th><th>Peso w_i</th></tr>
+        </thead>
+        <tbody>
+            <tr><td>Centro (i=0)</td><td>(0, 0)</td><td>4/9</td></tr>
+            <tr><td>E, N, W, S (i=1–4)</td><td>(±1,0), (0,±1)</td><td>1/9</td></tr>
+            <tr><td>NE, NW, SW, SE (i=5–8)</td><td>(±1,±1)</td><td>1/36</td></tr>
+        </tbody>
+    </table>
+
+    <h2>Viscosidad y Número de Reynolds</h2>
+
+    <p>La viscosidad cinemática emerge directamente del tiempo de relajación τ. A su vez, τ determina el número de Reynolds — la razón entre fuerzas inerciales y viscosas que decide si el flujo es laminar o turbulento:</p>
+
+    <div class="equation-block">
+        <div class="equation">ν = c_s² · (τ − 0.5) · Δt &nbsp;&nbsp;&nbsp; Re = U·L / ν</div>
+        <div class="equation-label">ν = viscosidad cinemática. U = velocidad del flujo, L = tamaño del obstáculo. Re &lt; 100: laminar estable. Re ≈ 100–200: calle de Kármán. Re &gt; 1000: turbulento.</div>
+    </div>
+
+    <div class="concept-grid">
+        <div class="concept-card">
+            <h4>Calle de vórtices de Kármán</h4>
+            <p>A Re ≈ 100–300, el flujo alrededor de un cilindro se vuelve periódicamente inestable: vórtices se desprenden alternadamente por arriba y abajo, formando la «calle de Kármán». La frecuencia de desprendimiento sigue el número de Strouhal: St = f·L/U ≈ 0.2.</p>
+        </div>
+        <div class="concept-card">
+            <h4>Flujo laminar vs turbulento</h4>
+            <p>A Re bajo (alto τ), las capas de fluido se deslizan sin mezclarse — flujo laminar. Al aumentar Re, aparecen inestabilidades que se amplifican hasta producir turbulencia: el flujo se mezcla caóticamente. La transición es un ejemplo de bifurcación de Hopf.</p>
+        </div>
+        <div class="concept-card">
+            <h4>Condiciones de contorno</h4>
+            <p>Las paredes sólidas usan condiciones «bounce-back»: f_i que llegan a una pared rebotan en la dirección opuesta, imponiendo velocidad cero en la pared (no-slip). Es una de las grandes ventajas del LBM frente a métodos tradicionales: geometrías complejas son triviales.</p>
+        </div>
+        <div class="concept-card">
+            <h4>Ventajas del LBM vs CFD clásico</h4>
+            <p>Los métodos de diferencias finitas para Navier-Stokes requieren un paso de Poisson costoso para imponer incompresibilidad. LBM no: la incompresibilidad emerge automáticamente a bajo número de Mach. Además, el algoritmo es completamente local → ideal para GPU y WebAssembly.</p>
+        </div>
+    </div>
+
+    <div class="key-insight">
+        <strong>El LBM emerge de la física estadística, no de la mecánica de fluidos clásica.</strong> La ecuación de Boltzmann describe la evolución de la función de distribución de partículas en un gas. Al discretizar el espacio de velocidades (9 direcciones en 2D) y demostrar que los momentos de f reproducen las ecuaciones de Navier-Stokes (expansión de Chapman-Enskog), se obtiene un método numérico para fluidos que viene de primeros principios. LBM es el único método de CFD que puede derivarse directamente de la física cinética sin aproximaciones ad hoc.
+    </div>
+
+    <h2>Modos de Visualización</h2>
+
+    <ul>
+        <li><strong>Velocidad</strong> — Color por magnitud |u|. Azul = lento, rojo = rápido. Revela la capa límite alrededor del obstáculo y los jets en la estela.</li>
+        <li><strong>Vorticidad</strong> — Rotacional del campo de velocidades: ω = ∂u_y/∂x − ∂u_x/∂y. Rojo = giro antihorario, azul = horario. Hace visibles los vórtices individuales de la calle de Kármán.</li>
+        <li><strong>Densidad</strong> — Pequeñas variaciones de densidad (≈ 1 ± 0.01). En un fluido perfectamente incompresible serían cero; aquí son proporcionales a la presión local.</li>
+    </ul>
+
+    <h2>Experimentos Guiados</h2>
+
+    <div class="experiment-block">
+        <h4>Experimento 1 — Transición laminar → calle de Kármán</h4>
+        <ol>
+            <li>Empieza con Re bajo (τ ≈ 1.8, flujo lento): el flujo laminar rodea el cilindro simétricamente. Las líneas de corriente son estables.</li>
+            <li>Aumenta gradualmente la velocidad del flujo (o reduce τ hacia 0.6) para subir Re. En algún punto entre Re ≈ 50–100, la simetría se rompe espontáneamente y empiezan a desprenderse vórtices alternos.</li>
+            <li>Cambia a vista de vorticidad: verás la «calle» clásica de parches alternantes rojo-azul convectándose aguas abajo. Esta es la inestabilidad de Kármán descrita por Theodor von Kármán en 1911.</li>
+        </ol>
+    </div>
+
+    <div class="experiment-block">
+        <h4>Experimento 2 — Geometría del obstáculo y aerodinámica</h4>
+        <ol>
+            <li>Dibuja un obstáculo circular (cilindro): alta resistencia aerodinámica (C_d ≈ 1.2 a Re medio).</li>
+            <li>Dibuja un perfil aerodinámico (airfoil) orientado horizontalmente: el flujo se adhiere más tiempo a la superficie, la estela es más pequeña y la resistencia cae drásticamente.</li>
+            <li>Inclina el airfoil (ángulo de ataque): aparece sustentación (lift) — presión menor en la cara superior, mayor en la inferior. Esto es la base del vuelo de todo avión.</li>
+        </ol>
+    </div>
+
+    <div class="experiment-block">
+        <h4>Experimento 3 — Flujo entre paredes y perfil de Poiseuille</h4>
+        <ol>
+            <li>Sin ningún obstáculo, el flujo entre paredes paralelas (canal) debería desarrollar un perfil de velocidad parabólico: u(y) = U_max·[1 − (y/H)²] — el flujo de Poiseuille.</li>
+            <li>Coloca obstáculos en fila y observa cómo interactúan las estelas. Dos cilindros en tándem pueden amplificar o suprimir mutuamente sus vórtices según la separación.</li>
+            <li>Mide el número de Reynolds efectivo comparando la longitud de la estela con el diámetro del obstáculo: la relación es directamente proporcional a Re.</li>
+        </ol>
+    </div>
+
+    <h2>Conexiones</h2>
+
+    <div class="connections-grid">
+        <a href="../fluidos-2d.html" class="connection-item">
+            <span class="connection-icon">🌊</span>
+            <div class="connection-text"><strong>Fluidos 2D</strong><br>Navier-Stokes por método de Stable Fluids</div>
+        </a>
+        <a href="../difusion-calor.html" class="connection-item">
+            <span class="connection-icon">🌡</span>
+            <div class="connection-text"><strong>Difusión del Calor</strong><br>Ecuaciones de difusión similares al streaming</div>
+        </a>
+        <a href="../gas-ideal.html" class="connection-item">
+            <span class="connection-icon">💨</span>
+            <div class="connection-text"><strong>Gas Ideal</strong><br>La física cinética que da origen al LBM</div>
+        </a>
+        <a href="../entropia.html" class="connection-item">
+            <span class="connection-icon">🔀</span>
+            <div class="connection-text"><strong>Entropía</strong><br>La función H de Boltzmann y la irreversibilidad</div>
+        </a>
+    </div>
+
+    <footer>
+        <a href="../lattice-boltzmann.html" class="btn-launch">Abrir simulación →</a>
+    </footer>
+</body>
+</html>

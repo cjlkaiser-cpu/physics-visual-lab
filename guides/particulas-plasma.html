@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guía: Partículas de Plasma | Physics Visual Lab</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-bg: #0a0a0a; --color-surface: #141414; --color-surface-elevated: #1a1a1a;
+            --color-border: #262626; --color-text: #e5e5e5; --color-text-secondary: #a3a3a3;
+            --color-accent: #22c55e; --color-accent-dim: rgba(34,197,94,0.1);
+            --font-serif: 'Crimson Pro', Georgia, serif; --font-sans: 'Inter', system-ui, sans-serif;
+            --font-mono: 'Fira Code', monospace;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: var(--font-serif); font-size: 19px; line-height: 1.7; color: var(--color-text); background-color: var(--color-bg); padding: 2rem; max-width: 900px; margin: 0 auto; }
+        header { margin-bottom: 3rem; padding-bottom: 2rem; border-bottom: 1px solid var(--color-border); }
+        .breadcrumb { font-family: var(--font-sans); font-size: 0.85rem; color: var(--color-text-secondary); margin-bottom: 1rem; }
+        .breadcrumb a { color: var(--color-accent); text-decoration: none; }
+        .breadcrumb a:hover { text-decoration: underline; }
+        h1 { font-family: var(--font-serif); font-size: 2.5rem; font-weight: 600; margin-bottom: 0.5rem; letter-spacing: -0.02em; }
+        .subtitle { font-size: 1.25rem; color: var(--color-text-secondary); font-style: italic; }
+        h2 { font-family: var(--font-sans); font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--color-accent); margin-top: 3rem; margin-bottom: 1.25rem; }
+        p { margin-bottom: 1.25rem; }
+        .intro { font-size: 1.15rem; color: var(--color-text-secondary); border-left: 3px solid var(--color-accent); padding-left: 1.5rem; margin: 2rem 0; }
+        .equation-block { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 8px; padding: 2rem; margin: 1.5rem 0; text-align: center; }
+        .equation { font-family: var(--font-mono); font-size: 1.25rem; color: var(--color-accent); margin-bottom: 0.75rem; }
+        .equation-label { font-family: var(--font-sans); font-size: 0.85rem; color: var(--color-text-secondary); }
+        .concept-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin: 1.5rem 0; }
+        .concept-card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 8px; padding: 1.5rem; }
+        .concept-card h4 { font-family: var(--font-sans); font-size: 1rem; font-weight: 600; margin-bottom: 0.75rem; color: var(--color-accent); }
+        .concept-card p { font-size: 0.95rem; margin-bottom: 0; color: var(--color-text-secondary); }
+        .key-insight { background: var(--color-accent-dim); border: 1px solid var(--color-accent); border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0; }
+        .key-insight strong { color: var(--color-accent); }
+        .experiment-block { background: var(--color-surface-elevated); border-radius: 8px; padding: 1.75rem; margin: 1.5rem 0; border-left: 3px solid var(--color-accent); }
+        .experiment-block h4 { font-family: var(--font-sans); font-weight: 600; margin-bottom: 1rem; }
+        .experiment-block ol { margin-left: 1.25rem; color: var(--color-text-secondary); }
+        .experiment-block li { margin-bottom: 0.5rem; }
+        .connections-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 1.5rem 0; }
+        .connection-item { display: flex; align-items: center; gap: 0.75rem; padding: 1rem; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 8px; text-decoration: none; color: var(--color-text); transition: border-color 0.2s; }
+        .connection-item:hover { border-color: var(--color-accent); background: var(--color-surface-elevated); }
+        .connection-icon { font-size: 1.5rem; }
+        .connection-text { font-family: var(--font-sans); font-size: 0.9rem; }
+        ul { margin-left: 1.25rem; margin-bottom: 1.25rem; }
+        li { margin-bottom: 0.5rem; }
+        footer { margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--color-border); text-align: center; }
+        .btn-launch { display: inline-flex; align-items: center; gap: 0.5rem; font-family: var(--font-sans); font-size: 1rem; font-weight: 500; padding: 1rem 2rem; background: var(--color-accent); color: #030712; border-radius: 8px; text-decoration: none; transition: opacity 0.2s; }
+        .btn-launch:hover { opacity: 0.9; }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="breadcrumb">
+            <a href="https://cjlkaiser-cpu.github.io/eigenlab/_portal/index.html">EigenLab</a> /
+            <a href="../index.html">Physics Visual Lab</a> /
+            <span>Guía: Partículas de Plasma</span>
+        </nav>
+        <h1>Partículas de Plasma</h1>
+        <p class="subtitle">Fuerza de Lorentz, apantallamiento de Debye y colectividad del cuarto estado</p>
+    </header>
+
+    <p class="intro">
+        El plasma es el cuarto estado de la materia — y el más abundante del universo visible:
+        el Sol, las estrellas, los relámpagos y el viento solar son plasma. A diferencia de
+        un gas neutro, el plasma contiene electrones e iones libres que se mueven bajo la influencia
+        de campos eléctricos y magnéticos, y que a su vez <em>generan</em> esos campos. Esta
+        retroalimentación hace que el plasma exhiba comportamientos colectivos imposibles en un gas ordinario.
+    </p>
+
+    <h2>La Fuerza de Lorentz</h2>
+
+    <p>Cada partícula cargada (electrón o ion) experimenta la fuerza de Lorentz, suma de la fuerza eléctrica y la fuerza magnética:</p>
+
+    <div class="equation-block">
+        <div class="equation">F = q(E + v × B)</div>
+        <div class="equation-label">q = carga (−e para electrones, +e para iones). E = campo eléctrico. v × B = producto vectorial de velocidad y campo magnético. La fuerza magnética siempre es perpendicular a la velocidad: no hace trabajo.</div>
+    </div>
+
+    <p>La fuerza magnética cambia la dirección del movimiento sin cambiar la energía cinética. Esto produce el movimiento ciclotrón: las partículas giran en círculos alrededor de las líneas de campo magnético con el <em>radio de Larmor</em> r_L = mv/(qB). Los electrones, siendo más ligeros, tienen radios de Larmor mucho menores que los iones y giran mucho más rápido (frecuencia de ciclotrón ω_c = qB/m).</p>
+
+    <h2>Movimiento en Campos Combinados</h2>
+
+    <div class="equation-block">
+        <div class="equation">v_drift = (E × B) / B² &nbsp;&nbsp;&nbsp; r_L = mv_⊥ / (qB)</div>
+        <div class="equation-label">Deriva E×B: ambas cargas (+ y −) derivan en la misma dirección perpendicular a E y B. Radio de Larmor: proporcional a la velocidad perpendicular al campo. Electrón vs protón: r_L^e / r_L^p = m_e/m_p ≈ 1/1836.</div>
+    </div>
+
+    <div class="concept-grid">
+        <div class="concept-card">
+            <h4>Movimiento ciclotrón</h4>
+            <p>Con solo campo B: la partícula describe una hélice alrededor de las líneas de campo. La componente paralela a B es constante (sin fuerza en esa dirección); la perpendicular produce el movimiento circular con frecuencia ω_c = qB/m.</p>
+        </div>
+        <div class="concept-card">
+            <h4>Deriva E×B</h4>
+            <p>Con E y B perpendiculares entre sí, el centro guía (centro de la órbita ciclotrón) deriva en la dirección E×B, independientemente de la carga y la masa. Esta deriva es igual para electrones e iones: no genera corriente neta.</p>
+        </div>
+        <div class="concept-card">
+            <h4>Apantallamiento de Debye</h4>
+            <p>Un exceso de carga en el plasma es apantallado por las cargas opuestas a su alrededor. La perturbación decae exponencialmente con longitud característica λ_D = √(ε₀kT/ne²). A escala λ_D, el plasma es cuasi-neutro: n_e ≈ n_i.</p>
+        </div>
+        <div class="concept-card">
+            <h4>Oscilaciones de Langmuir</h4>
+            <p>Si se desplazan los electrones respecto a los iones, la fuerza eléctrica restauradora genera oscilaciones colectivas a la frecuencia de plasma: ω_p = √(ne²/ε₀m_e). Son las «oscilaciones propias» del plasma. Para el viento solar: ω_p ≈ 10⁵ rad/s.</p>
+        </div>
+    </div>
+
+    <h2>Temperatura y Distribución de Velocidades</h2>
+
+    <p>La temperatura del plasma mide la energía cinética media de las partículas. A diferencia de los sólidos, en un plasma los electrones pueden tener temperaturas muy diferentes a las de los iones: un plasma puede tener T_e ≫ T_i (habitual en plasmas de laboratorio) o T_e ≈ T_i (equilibrio termal, como en el Sol).</p>
+
+    <div class="equation-block">
+        <div class="equation">f(v) = (m/2πkT)^(3/2) · exp(−mv²/2kT) &nbsp;&nbsp;&nbsp; ⟨KE⟩ = 3kT/2</div>
+        <div class="equation-label">Distribución de Maxwell-Boltzmann. Las velocidades iniciales de la simulación se muestrean de esta distribución a la temperatura T. Electrones vs iones: misma T → electrones ~43× más rápidos (m_p/m_e = 1836).</div>
+    </div>
+
+    <div class="key-insight">
+        <strong>El plasma no es simplemente un gas de partículas cargadas: es un medio colectivo.</strong> En un gas neutro, cada molécula solo interactúa con su vecina inmediata (colisiones de corto alcance). En un plasma, la fuerza de Coulomb es de largo alcance: una perturbación en un punto puede afectar a partículas a cientos de longitudes de Debye de distancia. Por eso el plasma puede soportar ondas (ondas de plasma, ondas de Alfvén, ondas iónicas acústicas) que no existen en un gas neutro, y por eso exhibe comportamientos colectivos espectaculares como inestabilidades, filamentación, y fenómenos de reconexión magnética.
+    </div>
+
+    <h2>Experimentos Guiados</h2>
+
+    <div class="experiment-block">
+        <h4>Experimento 1 — Movimiento ciclotrón: electrones vs iones</h4>
+        <ol>
+            <li>Activa solo campo B (E = 0). Observa cómo electrones e iones giran en sentidos opuestos: los electrones (negativos) en sentido horario si B apunta hacia ti, los iones en antihorario.</li>
+            <li>Aumenta B: los radios de Larmor disminuyen — las partículas quedan más «atrapadas» en las líneas de campo. Este es el principio de confinamiento magnético en tokamaks.</li>
+            <li>Observa la diferencia de radio entre electrones e iones a la misma temperatura. Los iones (masa ≈ 1836 m_e) tienen radios mucho mayores — en un tokamak real los iones pueden «escapar» más fácilmente que los electrones.</li>
+        </ol>
+    </div>
+
+    <div class="experiment-block">
+        <h4>Experimento 2 — Deriva E×B y separación de cargas</h4>
+        <ol>
+            <li>Activa E y B simultáneamente (perpendiculares). Observa la deriva E×B: ambas especies se mueven juntas en la dirección E×B.</li>
+            <li>Varía el ángulo de B respecto a E. Cuando B tiene componente paralela a E, los iones y electrones derivan de manera diferente, generando corrientes eléctricas que a su vez modifican el campo.</li>
+            <li>A temperaturas altas, los electrones se mueven tan rápido que pueden escalar la montaña de potencial eléctrico — el potencial no puede confinarlos — mientras los iones lentos sí quedan atrapados. Esta separación de cargas es la base de la vaina de plasma (Debye sheath).</li>
+        </ol>
+    </div>
+
+    <div class="experiment-block">
+        <h4>Experimento 3 — Temperatura y distribución de velocidades</h4>
+        <ol>
+            <li>Con T baja (100 K): las partículas se mueven lentamente y el movimiento ciclotrón es visible claramente — radios pequeños y bien definidos.</li>
+            <li>Sube T a 10,000–20,000 K: las velocidades térmicas superan cualquier deriva organizada. El plasma se vuelve caótico — la energía térmica domina sobre el confinamiento magnético.</li>
+            <li>Observa que los electrones siempre se mueven mucho más rápido que los iones a la misma temperatura: la distribución de velocidades electrónica tiene una anchura mucho mayor. Los electrones son la especie «caliente» aunque T sea igual.</li>
+        </ol>
+    </div>
+
+    <h2>Conexiones</h2>
+
+    <div class="connections-grid">
+        <a href="../campo-electrico.html" class="connection-item">
+            <span class="connection-icon">⚡</span>
+            <div class="connection-text"><strong>Campo Eléctrico</strong><br>Los campos que mueven las partículas del plasma</div>
+        </a>
+        <a href="../gas-ideal.html" class="connection-item">
+            <span class="connection-icon">💨</span>
+            <div class="connection-text"><strong>Gas Ideal</strong><br>Maxwell-Boltzmann: la distribución de velocidades</div>
+        </a>
+        <a href="../circuitos.html" class="connection-item">
+            <span class="connection-icon">🔌</span>
+            <div class="connection-text"><strong>Circuitos RLC</strong><br>Las corrientes de plasma generan campos B</div>
+        </a>
+        <a href="../../../Astronomy/Astronomy Visual Lab/nucleosintesis.html" class="connection-item">
+            <span class="connection-icon">⭐</span>
+            <div class="connection-text"><strong>Nucleosíntesis</strong><br>El interior estelar: plasma a 10⁷ K</div>
+        </a>
+    </div>
+
+    <footer>
+        <a href="../particulas-plasma.html" class="btn-launch">Abrir simulación →</a>
+    </footer>
+</body>
+</html>

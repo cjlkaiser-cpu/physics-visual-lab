@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guía: Fluidos 2D | Physics Visual Lab</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-bg: #0a0a0a; --color-surface: #141414; --color-surface-elevated: #1a1a1a;
+            --color-border: #262626; --color-text: #e5e5e5; --color-text-secondary: #a3a3a3;
+            --color-accent: #22c55e; --color-accent-dim: rgba(34,197,94,0.1);
+            --font-serif: 'Crimson Pro', Georgia, serif; --font-sans: 'Inter', system-ui, sans-serif;
+            --font-mono: 'Fira Code', monospace;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: var(--font-serif); font-size: 19px; line-height: 1.7; color: var(--color-text); background-color: var(--color-bg); padding: 2rem; max-width: 900px; margin: 0 auto; }
+        header { margin-bottom: 3rem; padding-bottom: 2rem; border-bottom: 1px solid var(--color-border); }
+        .breadcrumb { font-family: var(--font-sans); font-size: 0.85rem; color: var(--color-text-secondary); margin-bottom: 1rem; }
+        .breadcrumb a { color: var(--color-accent); text-decoration: none; }
+        .breadcrumb a:hover { text-decoration: underline; }
+        h1 { font-family: var(--font-serif); font-size: 2.5rem; font-weight: 600; margin-bottom: 0.5rem; letter-spacing: -0.02em; }
+        .subtitle { font-size: 1.25rem; color: var(--color-text-secondary); font-style: italic; }
+        h2 { font-family: var(--font-sans); font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--color-accent); margin-top: 3rem; margin-bottom: 1.25rem; }
+        p { margin-bottom: 1.25rem; }
+        .intro { font-size: 1.15rem; color: var(--color-text-secondary); border-left: 3px solid var(--color-accent); padding-left: 1.5rem; margin: 2rem 0; }
+        .equation-block { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 8px; padding: 2rem; margin: 1.5rem 0; text-align: center; }
+        .equation { font-family: var(--font-mono); font-size: 1.15rem; color: var(--color-accent); margin-bottom: 0.75rem; }
+        .equation-label { font-family: var(--font-sans); font-size: 0.85rem; color: var(--color-text-secondary); }
+        .concept-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin: 1.5rem 0; }
+        .concept-card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 8px; padding: 1.5rem; }
+        .concept-card h4 { font-family: var(--font-sans); font-size: 1rem; font-weight: 600; margin-bottom: 0.75rem; color: var(--color-accent); }
+        .concept-card p { font-size: 0.95rem; margin-bottom: 0; color: var(--color-text-secondary); }
+        .key-insight { background: var(--color-accent-dim); border: 1px solid var(--color-accent); border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0; }
+        .key-insight strong { color: var(--color-accent); }
+        .experiment-block { background: var(--color-surface-elevated); border-radius: 8px; padding: 1.75rem; margin: 1.5rem 0; border-left: 3px solid var(--color-accent); }
+        .experiment-block h4 { font-family: var(--font-sans); font-weight: 600; margin-bottom: 1rem; }
+        .experiment-block ol { margin-left: 1.25rem; color: var(--color-text-secondary); }
+        .experiment-block li { margin-bottom: 0.5rem; }
+        .connections-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 1.5rem 0; }
+        .connection-item { display: flex; align-items: center; gap: 0.75rem; padding: 1rem; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 8px; text-decoration: none; color: var(--color-text); transition: border-color 0.2s; }
+        .connection-item:hover { border-color: var(--color-accent); background: var(--color-surface-elevated); }
+        .connection-icon { font-size: 1.5rem; }
+        .connection-text { font-family: var(--font-sans); font-size: 0.9rem; }
+        ul { margin-left: 1.25rem; margin-bottom: 1.25rem; }
+        li { margin-bottom: 0.5rem; }
+        footer { margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--color-border); text-align: center; }
+        .btn-launch { display: inline-flex; align-items: center; gap: 0.5rem; font-family: var(--font-sans); font-size: 1rem; font-weight: 500; padding: 1rem 2rem; background: var(--color-accent); color: #030712; border-radius: 8px; text-decoration: none; transition: opacity 0.2s; }
+        .btn-launch:hover { opacity: 0.9; }
+        .preset-table { width: 100%; border-collapse: collapse; font-family: var(--font-sans); font-size: 0.85rem; margin: 1.5rem 0; }
+        .preset-table th { text-align: left; padding: 0.6rem 0.75rem; background: var(--color-surface); border-bottom: 1px solid var(--color-border); color: var(--color-text-secondary); font-weight: 600; font-size: 0.75rem; text-transform: uppercase; }
+        .preset-table td { padding: 0.55rem 0.75rem; border-bottom: 1px solid var(--color-border); }
+        .preset-table td:first-child { font-weight: 500; color: var(--color-accent); font-family: var(--font-sans); }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="breadcrumb">
+            <a href="https://cjlkaiser-cpu.github.io/eigenlab/_portal/index.html">EigenLab</a> /
+            <a href="../index.html">Physics Visual Lab</a> /
+            <span>Guía: Fluidos 2D</span>
+        </nav>
+        <h1>Fluidos 2D</h1>
+        <p class="subtitle">Navier-Stokes, Stable Fluids de Stam y vorticidad en tiempo real</p>
+    </header>
+
+    <p class="intro">
+        Las ecuaciones de Navier-Stokes gobiernan el movimiento de todos los fluidos viscosos: desde
+        el humo de una vela hasta la atmósfera de un planeta. Resolverlas numéricamente de forma
+        estable y eficiente en tiempo real fue un problema abierto hasta que Jos Stam publicó
+        «Stable Fluids» en SIGGRAPH 1999 — un algoritmo semi-Lagrangiano que garantiza estabilidad
+        incondicional sin importar el tamaño del paso de tiempo.
+    </p>
+
+    <h2>Las Ecuaciones de Navier-Stokes</h2>
+
+    <p>Para un fluido incompresible y viscoso, el campo de velocidades u(x,t) satisface:</p>
+
+    <div class="equation-block">
+        <div class="equation">∂u/∂t = −(u·∇)u − (1/ρ)∇p + ν∇²u + f &nbsp;&nbsp;&nbsp; ∇·u = 0</div>
+        <div class="equation-label">u = campo de velocidad. p = presión. ρ = densidad. ν = viscosidad cinemática. f = fuerzas externas (input del usuario). ∇·u = 0 impone incompresibilidad: el fluido no se comprime ni expande.</div>
+    </div>
+
+    <p>Cada término tiene un significado físico claro: el término de advección (u·∇)u transporta el fluido consigo mismo — es el responsable de la no-linealidad y de la turbulencia. El término de difusión ν∇²u suaviza las velocidades — es la viscosidad. El gradiente de presión −∇p/ρ empuja el fluido de zonas de alta presión a baja presión.</p>
+
+    <h2>El Método de Stable Fluids (Stam, 1999)</h2>
+
+    <p>Stam descompuso el paso de tiempo en cuatro etapas secuenciales, cada una tratable de forma estable:</p>
+
+    <div class="concept-grid">
+        <div class="concept-card">
+            <h4>1. Fuerzas externas</h4>
+            <p>Añade las fuerzas f al campo de velocidad: u += f·dt. En la simulación, el arrastre del ratón inyecta velocidad en una región circular. Simple Euler explícito — estable porque las fuerzas son pequeñas.</p>
+        </div>
+        <div class="concept-card">
+            <h4>2. Advección semi-Lagrangiana</h4>
+            <p>Rastrea hacia atrás: para cada celda x, la nueva velocidad es u_old(x − u·dt). En lugar de mover el fluido hacia adelante (inestable), se mira desde dónde vino. Estabilidad incondicional para cualquier dt.</p>
+        </div>
+        <div class="concept-card">
+            <h4>3. Difusión</h4>
+            <p>Resuelve ∂u/∂t = ν∇²u con un esquema implícito (solver de Gauss-Seidel). La solución implícita garantiza estabilidad aunque ν sea grande. A ν = 0, este paso se omite (fluido ideal).</p>
+        </div>
+        <div class="concept-card">
+            <h4>4. Proyección de presión</h4>
+            <p>Resuelve la ecuación de Poisson ∇²p = ∇·u y corrige u = u − ∇p. Este paso es el más costoso pero imprescindible: impone la incompresibilidad ∇·u = 0 en cada paso de tiempo.</p>
+        </div>
+    </div>
+
+    <div class="equation-block">
+        <div class="equation">u_adv(x) = u_old(x − u·dt) &nbsp;&nbsp;&nbsp; ∇²p = ∇·u_diff &nbsp;&nbsp;&nbsp; u_final = u_diff − ∇p</div>
+        <div class="equation-label">Advección (rastrea hacia atrás para estabilidad), proyección de Helmholtz-Hodge (descomposición única de cualquier campo vectorial en una parte solenodial + gradiente).</div>
+    </div>
+
+    <h2>Vorticidad y Confinamiento</h2>
+
+    <p>La vorticidad ω = ∇×u mide la rotación local del fluido. En 2D es un escalar: ω = ∂u_y/∂x − ∂u_x/∂y. Positivo = giro antihorario, negativo = horario. Los vórtices visibles en el modo de visualización de vorticidad son regiones compactas de ω alto.</p>
+
+    <div class="equation-block">
+        <div class="equation">f_vort = ε · (N × ω) &nbsp;&nbsp;&nbsp; N = ∇|ω| / |∇|ω||</div>
+        <div class="equation-label">Confinamiento de vorticidad de Fedkiw et al. (2001). Añade pequeños remolinos que la difusión numérica eliminaría — necesario para simular humo y fuego con detalles finos. ε controla la intensidad.</div>
+    </div>
+
+    <h2>Presets y Comportamientos</h2>
+
+    <table class="preset-table">
+        <thead>
+            <tr><th>Preset</th><th>Viscosidad ν</th><th>Vorticidad ε</th><th>Comportamiento</th></tr>
+        </thead>
+        <tbody>
+            <tr><td>Humo</td><td>Muy baja (≈ 0)</td><td>Alta</td><td>Remolinos finos, columnas ascendentes inestables. El fluido «recuerda» los vórtices durante mucho tiempo.</td></tr>
+            <tr><td>Agua</td><td>Media</td><td>Baja</td><td>Flujo más suave y persistente. Los vórtices son más grandes y viven más tiempo.</td></tr>
+            <tr><td>Fuego</td><td>Casi cero</td><td>Muy alta</td><td>Inestabilidades rápidas y caóticas. La densidad se disipa rápidamente — simulación de llamas.</td></tr>
+            <tr><td>Tinta</td><td>Media-baja</td><td>Media</td><td>Balance entre detalle y persistencia. Ideal para ver estructuras de flujo claras.</td></tr>
+            <tr><td>Turbulento</td><td>Mínima</td><td>Máxima</td><td>Turbulencia total: las estructuras de flujo cambian caóticamente frame a frame.</td></tr>
+        </tbody>
+    </table>
+
+    <div class="key-insight">
+        <strong>Las ecuaciones de Navier-Stokes en 3D son uno de los siete Problemas del Milenio del Clay Mathematics Institute (premio: 1 millón de dólares).</strong> El problema abierto es demostrar la existencia y suavidad de soluciones en 3D para todo tiempo futuro — o encontrar una singularidad (un punto donde la velocidad del fluido diverge en tiempo finito). En 2D el problema está resuelto: las soluciones existen y son suaves siempre. Esta simulación corre en 2D — donde la matemática está bajo control — pero la física es cualitativamente la misma.
+    </div>
+
+    <h2>Experimentos Guiados</h2>
+
+    <div class="experiment-block">
+        <h4>Experimento 1 — Vórtice de von Kármán</h4>
+        <ol>
+            <li>Selecciona preset «Humo». Dibuja un obstáculo circular en el centro del dominio. Arrastra el ratón de izquierda a derecha continuamente para crear un flujo sostenido.</li>
+            <li>Con Re suficiente (velocidad media, baja viscosidad), verás cómo los vórtices se desprenden alternadamente por arriba y abajo del obstáculo — la calle de Kármán visible en densidad de tinte.</li>
+            <li>Cambia al modo «Vorticidad»: los vórtices alternan entre rojo (antihorario) y azul (horario) formando una calle regular. Compara con la simulación de Lattice Boltzmann para ver la misma física por dos métodos diferentes.</li>
+        </ol>
+    </div>
+
+    <div class="experiment-block">
+        <h4>Experimento 2 — Flujo laminar vs turbulento</h4>
+        <ol>
+            <li>Con preset «Agua» (alta viscosidad), arrastra el ratón en línea recta suavemente. El flujo es laminar: capas paralelas que se deslizan sin mezclarse. Inyecta dos colores y observa que permanecen separados.</li>
+            <li>Aumenta drásticamente la velocidad de arrastre o activa el preset «Turbulento». Los mismos dos colores se mezclan caóticamente en segundos. El número de Reynolds Re = UL/ν ha cruzado el umbral de transición.</li>
+            <li>Esto es irreversible: una vez mezclados, los dos colores no se separan espontáneamente — la segunda ley de la termodinámica en acción. La entropía del fluido ha aumentado.</li>
+        </ol>
+    </div>
+
+    <div class="experiment-block">
+        <h4>Experimento 3 — Modos de visualización</h4>
+        <ol>
+            <li>Arrastra el ratón en espiral para crear un vórtice grande. En modo «Color», ves el tinte inyectado siguiendo las líneas de flujo.</li>
+            <li>Cambia a «Velocidad»: azul = zonas lentas (centro del vórtice, bordes), rojo = zonas rápidas (flancos donde el fluido gira más). El centro del vórtice tiene velocidad cero pero máxima vorticidad.</li>
+            <li>Cambia a «Vorticidad»: el vórtice aparece como un parche de color sólido. A su alrededor, vorticidad de signo opuesto generada por el cizallamiento. Esta estructura — vórtice rodeado de capa de cizalla — es universal en fluidos reales.</li>
+        </ol>
+    </div>
+
+    <h2>Conexiones</h2>
+
+    <div class="connections-grid">
+        <a href="../lattice-boltzmann.html" class="connection-item">
+            <span class="connection-icon">🌊</span>
+            <div class="connection-text"><strong>Lattice Boltzmann</strong><br>Navier-Stokes desde la física cinética</div>
+        </a>
+        <a href="../difusion-calor.html" class="connection-item">
+            <span class="connection-icon">🌡</span>
+            <div class="connection-text"><strong>Difusión del Calor</strong><br>Ecuación de difusión: caso lineal de NS</div>
+        </a>
+        <a href="../entropia.html" class="connection-item">
+            <span class="connection-icon">🔀</span>
+            <div class="connection-text"><strong>Entropía</strong><br>La mezcla turbulenta aumenta la entropía</div>
+        </a>
+        <a href="../../../Geology/Geology Visual Lab/erosion-hidraulica.html" class="connection-item">
+            <span class="connection-icon">🌊</span>
+            <div class="connection-text"><strong>Erosión Hidráulica</strong><br>Fluidos que modelan paisajes geológicos</div>
+        </a>
+    </div>
+
+    <footer>
+        <a href="../fluidos-2d.html" class="btn-launch">Abrir simulación →</a>
+    </footer>
+</body>
+</html>

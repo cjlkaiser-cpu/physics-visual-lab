@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guía: Orbifold Walker 3D | Physics Visual Lab</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-bg: #0a0a0a; --color-surface: #141414; --color-surface-elevated: #1a1a1a;
+            --color-border: #262626; --color-text: #e5e5e5; --color-text-secondary: #a3a3a3;
+            --color-accent: #22c55e; --color-accent-dim: rgba(34,197,94,0.1);
+            --font-serif: 'Crimson Pro', Georgia, serif; --font-sans: 'Inter', system-ui, sans-serif;
+            --font-mono: 'Fira Code', monospace;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: var(--font-serif); font-size: 19px; line-height: 1.7; color: var(--color-text); background-color: var(--color-bg); padding: 2rem; max-width: 900px; margin: 0 auto; }
+        header { margin-bottom: 3rem; padding-bottom: 2rem; border-bottom: 1px solid var(--color-border); }
+        .breadcrumb { font-family: var(--font-sans); font-size: 0.85rem; color: var(--color-text-secondary); margin-bottom: 1rem; }
+        .breadcrumb a { color: var(--color-accent); text-decoration: none; }
+        .breadcrumb a:hover { text-decoration: underline; }
+        h1 { font-family: var(--font-serif); font-size: 2.5rem; font-weight: 600; margin-bottom: 0.5rem; letter-spacing: -0.02em; }
+        .subtitle { font-size: 1.25rem; color: var(--color-text-secondary); font-style: italic; }
+        h2 { font-family: var(--font-sans); font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--color-accent); margin-top: 3rem; margin-bottom: 1.25rem; }
+        p { margin-bottom: 1.25rem; }
+        .intro { font-size: 1.15rem; color: var(--color-text-secondary); border-left: 3px solid var(--color-accent); padding-left: 1.5rem; margin: 2rem 0; }
+        .equation-block { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 8px; padding: 2rem; margin: 1.5rem 0; text-align: center; }
+        .equation { font-family: var(--font-mono); font-size: 1.25rem; color: var(--color-accent); margin-bottom: 0.75rem; }
+        .equation-label { font-family: var(--font-sans); font-size: 0.85rem; color: var(--color-text-secondary); }
+        .concept-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin: 1.5rem 0; }
+        .concept-card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 8px; padding: 1.5rem; }
+        .concept-card h4 { font-family: var(--font-sans); font-size: 1rem; font-weight: 600; margin-bottom: 0.75rem; color: var(--color-accent); }
+        .concept-card p { font-size: 0.95rem; margin-bottom: 0; color: var(--color-text-secondary); }
+        .key-insight { background: var(--color-accent-dim); border: 1px solid var(--color-accent); border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0; }
+        .key-insight strong { color: var(--color-accent); }
+        .experiment-block { background: var(--color-surface-elevated); border-radius: 8px; padding: 1.75rem; margin: 1.5rem 0; border-left: 3px solid var(--color-accent); }
+        .experiment-block h4 { font-family: var(--font-sans); font-weight: 600; margin-bottom: 1rem; }
+        .experiment-block ol { margin-left: 1.25rem; color: var(--color-text-secondary); }
+        .experiment-block li { margin-bottom: 0.5rem; }
+        .connections-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 1.5rem 0; }
+        .connection-item { display: flex; align-items: center; gap: 0.75rem; padding: 1rem; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 8px; text-decoration: none; color: var(--color-text); transition: border-color 0.2s; }
+        .connection-item:hover { border-color: var(--color-accent); background: var(--color-surface-elevated); }
+        .connection-icon { font-size: 1.5rem; }
+        .connection-text { font-family: var(--font-sans); font-size: 0.9rem; }
+        ul { margin-left: 1.25rem; margin-bottom: 1.25rem; }
+        li { margin-bottom: 0.5rem; }
+        footer { margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--color-border); text-align: center; }
+        .btn-launch { display: inline-flex; align-items: center; gap: 0.5rem; font-family: var(--font-sans); font-size: 1rem; font-weight: 500; padding: 1rem 2rem; background: var(--color-accent); color: #030712; border-radius: 8px; text-decoration: none; transition: opacity 0.2s; }
+        .btn-launch:hover { opacity: 0.9; }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="breadcrumb">
+            <a href="https://cjlkaiser-cpu.github.io/eigenlab/_portal/index.html">EigenLab</a> /
+            <a href="../index.html">Physics Visual Lab</a> /
+            <span>Guía: Orbifold Walker 3D</span>
+        </nav>
+        <h1>Orbifold Walker 3D</h1>
+        <p class="subtitle">Geometría topológica del espacio de acordes y dinámica en variedades</p>
+    </header>
+
+    <p class="intro">
+        Un orbifold es una variedad geométrica con singularidades de simetría: puntos donde el espacio
+        «se dobla» sobre sí mismo. Dmitri Tymoczko demostró en 2006 que el espacio de todos los acordes
+        musicales tiene exactamente esta estructura: un prisma 3D con identificaciones en los bordes.
+        Esta simulación lanza una partícula dinámica a través de ese espacio — cada posición corresponde
+        a un acorde, y el movimiento genera una melodía continua de cambios armónicos.
+    </p>
+
+    <h2>El Espacio de Acordes de Tymoczko</h2>
+
+    <p>Un acorde de tres notas puede representarse como un punto en un espacio tridimensional donde cada eje representa la altura de una nota (en semitonos). Pero los acordes tienen dos simetrías que reducen este espacio:</p>
+
+    <ul>
+        <li><strong>Permutación</strong> — {C, E, G} y {E, G, C} son el mismo acorde. Se divide por el grupo simétrico S₃ (6 permutaciones de 3 elementos).</li>
+        <li><strong>Equivalencia de octava</strong> — Las notas se repiten cada 12 semitonos. El espacio se «enrolla» en un toroide.</li>
+    </ul>
+
+    <p>El resultado es un <em>orbifold</em>: un prisma triangular donde las caras están identificadas con posibles reflexiones y rotaciones. Los puntos singulares (vértices, aristas) corresponden a acordes especiales con alta simetría interna — los acordes aumentados (arista superior del prisma) y los acordes disminuidos (aristas laterales).</p>
+
+    <div class="equation-block">
+        <div class="equation">Chord space = T³ / S₃ &nbsp;&nbsp;&nbsp; (toroide 3D dividido por el grupo simétrico)</div>
+        <div class="equation-label">Cada punto del orbifold representa un conjunto de tres alturas de notas módulo octava, sin orden. Las singularidades del orbifold corresponden a acordes con alturas repetidas o con simetría interna alta.</div>
+    </div>
+
+    <h2>Dinámica de la Partícula: Movimiento en la Variedad</h2>
+
+    <p>La partícula (el «Walker») se mueve bajo la influencia de una fuerza atractiva hacia los acordes consonantes cercanos, con fricción y velocidad inicial. Los parámetros de la simulación controlan la física de este movimiento:</p>
+
+    <div class="equation-block">
+        <div class="equation">F = −K · ∇V(chord) &nbsp;&nbsp;&nbsp; ma + γv = F &nbsp;&nbsp;&nbsp; V(d) ∝ d^(−n)</div>
+        <div class="equation-label">K = fuerza (intensidad de atracción hacia acordes consonantes). γ = fricción (amortiguamiento del movimiento). n = exponente de la ley de potencia. El potencial V depende de la distancia al acorde consonante más cercano.</div>
+    </div>
+
+    <div class="concept-grid">
+        <div class="concept-card">
+            <h4>Consonancia como potencial</h4>
+            <p>Los acordes perfectamente consonantes (mayor, menor, aumentado, disminuido) corresponden a mínimos de energía potencial en el espacio de acordes. La partícula tiende a «caer» hacia ellos — física y musicalmente, el movimiento armónico busca la resolución.</p>
+        </div>
+        <div class="concept-card">
+            <h4>Voice leading óptimo</h4>
+            <p>Las trayectorias más cortas en el espacio de acordes corresponden al voice leading más eficiente: mover cada voz el mínimo semitono posible. Tymoczko mostró que los mejores compositores intuitivamente minimizan estas distancias en el orbifold.</p>
+        </div>
+        <div class="concept-card">
+            <h4>Singularidades y acordes especiales</h4>
+            <p>Los puntos singulares del orbifold (donde el espacio se «pincha») son los acordes con máxima simetría. El acorde aumentado {C, E, G#} tiene simetría de orden 3 — rotarlo por tercias mayores lo deja invariante. Físicamente, la partícula se comporta de forma especial cerca de estas singularidades.</p>
+        </div>
+        <div class="concept-card">
+            <h4>Caos y armonía</h4>
+            <p>Con fricción alta (γ grande), la partícula converge a un acorde consonante estable — armonía «resuelta». Con fricción baja, el movimiento se vuelve caótico: trayectorias largas en el espacio de acordes, cambios armónicos impredecibles, exploración libre del espacio tonal.</p>
+        </div>
+    </div>
+
+    <h2>Los Parámetros</h2>
+
+    <ul>
+        <li><strong>Fuerza (K)</strong> — Intensidad de la atracción hacia acordes consonantes. Alto K → progresiones armónicas fuertes, movimientos amplios. Bajo K → deriva casi libre, acordes casi aleatorios.</li>
+        <li><strong>Fricción (γ)</strong> — Amortiguamiento. Alto γ → la partícula converge a un mínimo local (acorde estable) y se queda. Bajo γ → movimiento perpetuo, exploración del espacio completo.</li>
+        <li><strong>Exponente (n)</strong> — Perfil del potencial. n = 2 (cuadrático): potencial suave, como un muelle. n = 3: más pronunciado cerca de los mínimos. n = 4: el potencial cae más rápidamente fuera de los mínimos.</li>
+        <li><strong>Velocidad inicial</strong> — Energía cinética inicial de la partícula. Alta velocidad → explora regiones lejanas del espacio de acordes antes de asentarse.</li>
+    </ul>
+
+    <div class="key-insight">
+        <strong>El libro de Tymoczko «A Geometry of Music» (2011) fue el primero en formalizar matemáticamente la relación entre topología y armonía.</strong> El teorema central es que el voice leading eficiente es equivalente a trayectorias cortas en un orbifold. Esto explica por qué los grandes compositores (Bach, Mozart, Beethoven) instintivamente usaban las mismas progresiones de acordes: estaban navegando eficientemente el mismo espacio geométrico, sin saberlo. La simulación te permite explorar ese espacio como físico: lanzar una partícula y escuchar la música que genera su trayectoria.
+    </div>
+
+    <h2>Experimentos Guiados</h2>
+
+    <div class="experiment-block">
+        <h4>Experimento 1 — Fricción alta: resolución armónica</h4>
+        <ol>
+            <li>Sube γ (fricción) al máximo. Lanza la partícula con velocidad inicial media. Observa cómo el trail se acorta rápidamente — la partícula pierde energía y se asienta en el acorde consonante más cercano.</li>
+            <li>El nombre del acorde cambia en el panel superior: escucha cómo la armonía «resolve» hacia un acorde estable. Esta es la física de la cadencia: V → I en armonía funcional.</li>
+            <li>Lanza desde diferentes posiciones iniciales: los acordes de llegada serán diferentes (diferentes cuencas de atracción), pero cada trayectoria converge — como una pelota en un cuenco.</li>
+        </ol>
+    </div>
+
+    <div class="experiment-block">
+        <h4>Experimento 2 — Fricción baja: exploración caótica</h4>
+        <ol>
+            <li>Baja γ a casi 0. La partícula conserva su energía y explora el espacio de acordes indefinidamente — una «composición aleatoria» que navega todo el universo armónico.</li>
+            <li>Aumenta el exponente n a 4: el potencial es más «puntiagudo» cerca de los mínimos. La partícula oscila más rápidamente alrededor de los acordes consonantes antes de escapar hacia el siguiente.</li>
+            <li>Con K alto y γ bajo: trayectorias largas con paradas periódicas en acordes consonantes — análogo a una órbita caótica que pasa cerca de puntos fijos periódicamente (cuasi-periodicidad).</li>
+        </ol>
+    </div>
+
+    <div class="experiment-block">
+        <h4>Experimento 3 — Voice leading y distancias en el orbifold</h4>
+        <ol>
+            <li>Activa «Mostrar prisma» para ver la geometría 3D del espacio de acordes. Los vértices del prisma son los acordes con simetría máxima.</li>
+            <li>Observa la longitud del trail: cuanto más largo, más ha viajado la partícula — más «dissonante» fue el camino armónico. Una modulación directa (Do mayor → La♭ mayor) requiere un camino largo en el orbifold.</li>
+            <li>Compara trayectorias entre acordes vecinos (p.ej. C mayor → G mayor) vs acordes lejanos (C mayor → F# mayor). Los primeros tienen trails cortos — voice leading eficiente; los segundos, trails largos — cambios bruscos.</li>
+        </ol>
+    </div>
+
+    <h2>Conexiones</h2>
+
+    <div class="connections-grid">
+        <a href="../../../Music/Music Theory Lab/armonizador-aureo.html" class="connection-item">
+            <span class="connection-icon">🎵</span>
+            <div class="connection-text"><strong>Armonizador Áureo</strong><br>Otro espacio armónico: el sistema φ</div>
+        </a>
+        <a href="../atractor-multicuerpo.html" class="connection-item">
+            <span class="connection-icon">🌀</span>
+            <div class="connection-text"><strong>Atractor Multicuerpo</strong><br>Dinámica caótica en espacio de fase</div>
+        </a>
+        <a href="../mecanica-lagrangiana.html" class="connection-item">
+            <span class="connection-icon">⚙</span>
+            <div class="connection-text"><strong>Mecánica Lagrangiana</strong><br>Movimiento en espacios de configuración</div>
+        </a>
+        <a href="../../../Mathematics/Math Visual Lab/topologia.html" class="connection-item">
+            <span class="connection-icon">🔵</span>
+            <div class="connection-text"><strong>Topología</strong><br>Variedades y espacios no euclidianos</div>
+        </a>
+    </div>
+
+    <footer>
+        <a href="../orbifold-3d.html" class="btn-launch">Abrir simulación →</a>
+    </footer>
+</body>
+</html>
