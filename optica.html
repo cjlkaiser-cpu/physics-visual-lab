@@ -18,6 +18,7 @@
     <meta name="theme-color" content="#030712">
     <!-- /eigenlab:meta -->
     <style>
+        canvas { touch-action: none; } /* arrastrar con el dedo interactúa con la simulación en lugar de desplazar la página */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Inter', system-ui, sans-serif;
@@ -484,10 +485,10 @@
 
         // Mouse drag to change angle
         let dragging = false;
-        canvas.onmousedown = () => dragging = true;
-        canvas.onmouseup = () => dragging = false;
-        canvas.onmouseleave = () => dragging = false;
-        canvas.onmousemove = function(e) {
+        canvas.onpointerdown = () => dragging = true;
+        canvas.onpointerup = () => dragging = false;
+        canvas.onpointerleave = () => dragging = false;
+        canvas.onpointermove = function(e) {
             if (!dragging) return;
             const rect = canvas.getBoundingClientRect();
             const x = e.clientX - rect.left - W / 2;

@@ -19,6 +19,7 @@
     <!-- /eigenlab:meta -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
+        canvas { touch-action: none; } /* arrastrar con el dedo interactúa con la simulación en lugar de desplazar la página */
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
@@ -812,7 +813,7 @@
         });
 
         // Mouse interaction
-        canvas.addEventListener('mousedown', (e) => {
+        canvas.addEventListener('pointerdown', (e) => {
             const rect = canvas.getBoundingClientRect();
             const scaleX = W / rect.width;
             const scaleY = H / rect.height;
@@ -852,7 +853,7 @@
             }
         });
 
-        canvas.addEventListener('mousemove', (e) => {
+        canvas.addEventListener('pointermove', (e) => {
             if (!isDragging || !dragTarget) return;
             const rect = canvas.getBoundingClientRect();
             const scaleX = W / rect.width;
@@ -861,12 +862,12 @@
             dragTarget.y = (e.clientY - rect.top) * scaleY;
         });
 
-        canvas.addEventListener('mouseup', () => {
+        canvas.addEventListener('pointerup', () => {
             isDragging = false;
             dragTarget = null;
         });
 
-        canvas.addEventListener('mouseleave', () => {
+        canvas.addEventListener('pointerleave', () => {
             isDragging = false;
             dragTarget = null;
         });

@@ -19,6 +19,7 @@
     <!-- /eigenlab:meta -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        canvas { touch-action: none; } /* arrastrar con el dedo interactúa con la simulación en lugar de desplazar la página */
         :root {
             --bg-primary: #030712;
             --bg-secondary: #0f172a;
@@ -852,10 +853,10 @@
             });
 
             // Canvas interaction
-            canvas.addEventListener('mousedown', onMouseDown);
-            canvas.addEventListener('mousemove', onMouseMove);
-            canvas.addEventListener('mouseup', onMouseUp);
-            canvas.addEventListener('mouseleave', onMouseUp);
+            canvas.addEventListener('pointerdown', onMouseDown);
+            canvas.addEventListener('pointermove', onMouseMove);
+            canvas.addEventListener('pointerup', onMouseUp);
+            canvas.addEventListener('pointerleave', onMouseUp);
         }
 
         function setupSlider(id, callback, formatter = v => Math.round(v).toString()) {

@@ -19,6 +19,7 @@
     <!-- /eigenlab:meta -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
+        canvas { touch-action: pan-y pinch-zoom; } /* canvas casi a pantalla completa: el gesto vertical desplaza la página hasta los controles; el resto interactúa */
         :root {
             --bg-primary: #030712;
             --bg-secondary: #0f172a;
@@ -936,7 +937,7 @@
 
         function setupEventListeners() {
             // Canvas interactions
-            canvas.addEventListener('mousedown', (e) => {
+            canvas.addEventListener('pointerdown', (e) => {
                 const pos = canvasToGrid(e.clientX, e.clientY);
 
                 if (e.shiftKey || currentTool === 'obstacle') {
@@ -956,13 +957,13 @@
                 }
             });
 
-            canvas.addEventListener('mousemove', (e) => {
+            canvas.addEventListener('pointermove', (e) => {
                 if (isDragging && currentTool === 'line') {
                     // Could draw preview line here
                 }
             });
 
-            canvas.addEventListener('mouseup', (e) => {
+            canvas.addEventListener('pointerup', (e) => {
                 if (isDragging && currentTool === 'line') {
                     const pos = canvasToGrid(e.clientX, e.clientY);
                     if (solver) {
@@ -972,7 +973,7 @@
                 isDragging = false;
             });
 
-            canvas.addEventListener('mouseleave', () => {
+            canvas.addEventListener('pointerleave', () => {
                 isDragging = false;
             });
 

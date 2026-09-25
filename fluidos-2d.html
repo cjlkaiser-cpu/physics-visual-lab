@@ -19,6 +19,7 @@
     <!-- /eigenlab:meta -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        canvas { touch-action: none; } /* arrastrar con el dedo interactúa con la simulación en lugar de desplazar la página */
         :root {
             --bg-primary: #030712;
             --bg-secondary: #0f172a;
@@ -721,23 +722,23 @@
         // ================================================================
 
         function setupMouse() {
-            canvas.addEventListener('mousedown', (e) => {
+            canvas.addEventListener('pointerdown', (e) => {
                 if (e.button === 0) mouseDown = true;
                 if (e.button === 2) rightMouseDown = true;
                 lastMouse = getMousePos(e);
             });
 
-            canvas.addEventListener('mouseup', (e) => {
+            canvas.addEventListener('pointerup', (e) => {
                 if (e.button === 0) mouseDown = false;
                 if (e.button === 2) rightMouseDown = false;
             });
 
-            canvas.addEventListener('mouseleave', () => {
+            canvas.addEventListener('pointerleave', () => {
                 mouseDown = false;
                 rightMouseDown = false;
             });
 
-            canvas.addEventListener('mousemove', (e) => {
+            canvas.addEventListener('pointermove', (e) => {
                 const pos = getMousePos(e);
                 const dx = pos.x - lastMouse.x;
                 const dy = pos.y - lastMouse.y;
