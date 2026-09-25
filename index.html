@@ -497,6 +497,119 @@
 
         </section>
 
+        <!-- Alto rendimiento (motor WASM): tarjetas añadidas para que todas las simulaciones del lab sean accesibles -->
+        <section id="wasm" class="mb-16">
+            <h2 class="text-2xl font-light mb-2">⚡ Alto rendimiento · Motor WASM</h2>
+            <p class="text-gray-500 text-sm mb-6">Simulaciones con el motor C++ de EigenLab compilado a WebAssembly: miles de partículas en tiempo real, en el navegador.</p>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <a href="fluidos-2d.html" class="card-link">
+                    <div class="card relative bg-gray-950 border border-gray-900 rounded-2xl overflow-hidden">
+                        <div class="card-border"></div>
+                        <div class="p-4">
+                            <img src="thumbs/fluidos-2d.webp" alt="" loading="lazy" class="preview-canvas w-full h-40 object-cover bg-black mb-4 rounded-lg">
+                            <span class="category-tag bg-green-500/20 text-green-400">Navier-Stokes</span> <span class="text-xs text-gray-500 ml-1">WASM</span>
+                            <h3 class="text-lg font-medium mb-1 mt-2">Fluidos 2D</h3>
+                            <p class="text-gray-500 text-sm mb-3">Simulación Navier-Stokes en tiempo real. Advección, difusión, presión.</p>
+                            <div class="equation text-green-400/70 text-sm mb-4">∂u/∂t + (u·∇)u = −∇p + ν∇²u</div>
+                            <span class="block w-full text-center py-2 bg-green-500/10 text-green-400 rounded-lg hover:bg-green-500/20 transition text-sm font-medium">
+                                Remover →
+                            </span>
+                        </div>
+                    </div>
+                </a>
+                <a href="lattice-boltzmann.html" class="card-link">
+                    <div class="card relative bg-gray-950 border border-gray-900 rounded-2xl overflow-hidden">
+                        <div class="card-border"></div>
+                        <div class="p-4">
+                            <img src="thumbs/lattice-boltzmann.webp" alt="" loading="lazy" class="preview-canvas w-full h-40 object-cover bg-black mb-4 rounded-lg">
+                            <span class="category-tag bg-green-500/20 text-green-400">Túnel de viento</span> <span class="text-xs text-gray-500 ml-1">WASM</span>
+                            <h3 class="text-lg font-medium mb-1 mt-2">Lattice Boltzmann</h3>
+                            <p class="text-gray-500 text-sm mb-3">Tunel de viento D2Q9, vortices de Karman, obstaculos interactivos, perfil alar.</p>
+                            <div class="equation text-green-400/70 text-sm mb-4">f<sub>i</sub>(x+c<sub>i</sub>, t+1) = f<sub>i</sub> − (f<sub>i</sub> − f<sub>i</sub><sup>eq</sup>)/τ</div>
+                            <span class="block w-full text-center py-2 bg-green-500/10 text-green-400 rounded-lg hover:bg-green-500/20 transition text-sm font-medium">
+                                Soplar →
+                            </span>
+                        </div>
+                    </div>
+                </a>
+                <a href="particulas-plasma.html" class="card-link">
+                    <div class="card relative bg-gray-950 border border-gray-900 rounded-2xl overflow-hidden">
+                        <div class="card-border"></div>
+                        <div class="p-4">
+                            <img src="thumbs/particulas-plasma.webp" alt="" loading="lazy" class="preview-canvas w-full h-40 object-cover bg-black mb-4 rounded-lg">
+                            <span class="category-tag bg-green-500/20 text-green-400">Electromagnetismo</span> <span class="text-xs text-gray-500 ml-1">WASM</span>
+                            <h3 class="text-lg font-medium mb-1 mt-2">Partículas de Plasma</h3>
+                            <p class="text-gray-500 text-sm mb-3">Dinamica de particulas cargadas en campos electromagneticos. Fuerza de Lorentz, giracion, espejo magnetico.</p>
+                            <div class="equation text-green-400/70 text-sm mb-4">F = q(E + v × B)</div>
+                            <span class="block w-full text-center py-2 bg-green-500/10 text-green-400 rounded-lg hover:bg-green-500/20 transition text-sm font-medium">
+                                Ionizar →
+                            </span>
+                        </div>
+                    </div>
+                </a>
+                <a href="simulacion-tela.html" class="card-link">
+                    <div class="card relative bg-gray-950 border border-gray-900 rounded-2xl overflow-hidden">
+                        <div class="card-border"></div>
+                        <div class="p-4">
+                            <img src="thumbs/simulacion-tela.webp" alt="" loading="lazy" class="preview-canvas w-full h-40 object-cover bg-black mb-4 rounded-lg">
+                            <span class="category-tag bg-green-500/20 text-green-400">Masa-resorte</span> <span class="text-xs text-gray-500 ml-1">WASM</span>
+                            <h3 class="text-lg font-medium mb-1 mt-2">Simulación de Tela</h3>
+                            <p class="text-gray-500 text-sm mb-3">Sistema masa-resorte con constraints. Interacción en tiempo real, colisiones.</p>
+                            <div class="equation text-green-400/70 text-sm mb-4">F = −k(|x| − L₀) x̂</div>
+                            <span class="block w-full text-center py-2 bg-green-500/10 text-green-400 rounded-lg hover:bg-green-500/20 transition text-sm font-medium">
+                                Arrastrar →
+                            </span>
+                        </div>
+                    </div>
+                </a>
+                <a href="difusion-calor-wasm.html" class="card-link">
+                    <div class="card relative bg-gray-950 border border-gray-900 rounded-2xl overflow-hidden">
+                        <div class="card-border"></div>
+                        <div class="p-4">
+                            <img src="thumbs/difusion-calor-wasm.webp" alt="" loading="lazy" class="preview-canvas w-full h-40 object-cover bg-black mb-4 rounded-lg">
+                            <span class="category-tag bg-green-500/20 text-green-400">Termodinámica</span> <span class="text-xs text-gray-500 ml-1">WASM</span>
+                            <h3 class="text-lg font-medium mb-1 mt-2">Difusión de Calor · WASM</h3>
+                            <p class="text-gray-500 text-sm mb-3">Ecuación del calor en 2D. Grid de alta resolución, tiempo real.</p>
+                            <div class="equation text-green-400/70 text-sm mb-4">∂T/∂t = α∇²T</div>
+                            <span class="block w-full text-center py-2 bg-green-500/10 text-green-400 rounded-lg hover:bg-green-500/20 transition text-sm font-medium">
+                                Calentar →
+                            </span>
+                        </div>
+                    </div>
+                </a>
+                <a href="gas-ideal-wasm.html" class="card-link">
+                    <div class="card relative bg-gray-950 border border-gray-900 rounded-2xl overflow-hidden">
+                        <div class="card-border"></div>
+                        <div class="p-4">
+                            <img src="thumbs/gas-ideal-wasm.webp" alt="" loading="lazy" class="preview-canvas w-full h-40 object-cover bg-black mb-4 rounded-lg">
+                            <span class="category-tag bg-green-500/20 text-green-400">Termodinámica</span> <span class="text-xs text-gray-500 ml-1">WASM</span>
+                            <h3 class="text-lg font-medium mb-1 mt-2">Gas Ideal · WASM</h3>
+                            <p class="text-gray-500 text-sm mb-3">Miles de partículas con colisiones elásticas. Distribución de Maxwell-Boltzmann.</p>
+                            <div class="equation text-green-400/70 text-sm mb-4">PV = NkT</div>
+                            <span class="block w-full text-center py-2 bg-green-500/10 text-green-400 rounded-lg hover:bg-green-500/20 transition text-sm font-medium">
+                                Comprimir →
+                            </span>
+                        </div>
+                    </div>
+                </a>
+                <a href="ondas-2d-wasm.html" class="card-link">
+                    <div class="card relative bg-gray-950 border border-gray-900 rounded-2xl overflow-hidden">
+                        <div class="card-border"></div>
+                        <div class="p-4">
+                            <img src="thumbs/ondas-2d-wasm.webp" alt="" loading="lazy" class="preview-canvas w-full h-40 object-cover bg-black mb-4 rounded-lg">
+                            <span class="category-tag bg-green-500/20 text-green-400">Ondas</span> <span class="text-xs text-gray-500 ml-1">WASM</span>
+                            <h3 class="text-lg font-medium mb-1 mt-2">Ondas 2D · WASM</h3>
+                            <p class="text-gray-500 text-sm mb-3">Ecuacion de onda 2D con diferencias finitas. Gotas interactivas, obstaculos, doble rendija.</p>
+                            <div class="equation text-green-400/70 text-sm mb-4">∂²u/∂t² = c²∇²u</div>
+                            <span class="block w-full text-center py-2 bg-green-500/10 text-green-400 rounded-lg hover:bg-green-500/20 transition text-sm font-medium">
+                                Salpicar →
+                            </span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </section>
+
         <!-- Tech Stack -->
         <section class="text-center">
             <h3 class="text-lg font-medium mb-4 text-gray-400">Tecnologías</h3>
