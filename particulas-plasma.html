@@ -542,7 +542,25 @@
 
         // === SIMULATION ===
         function createSimulation() {
-            const config = new Module.PlasmaConfig();
+            const config = { // value_object de Embind: objeto literal con todos los campos (valores por defecto de C++)
+                numParticles: 500,
+                domainSize: 10.0,
+                magneticFieldStrength: 1.0,
+                electricFieldStrength: 0.5,
+                magneticFieldAngle: 0.0,
+                electronCharge: -1.0,
+                ionCharge: 1.0,
+                electronMass: 1.0,
+                ionMass: 1836.0,
+                electronRatio: 0.7,
+                temperature: 1000.0,
+                enableCoulomb: false,
+                coulombStrength: 0.01,
+                enableMagneticMirror: false,
+                mirrorRatio: 2.0,
+                dt: 0.01,
+                periodicBoundary: true,
+            };
             config.numParticles = CONFIG.numParticles;
             config.domainSize = CONFIG.domainSize;
             config.magneticFieldStrength = parseFloat(document.getElementById('bField').value);
@@ -556,7 +574,6 @@
 
             if (plasma) plasma.delete();
             plasma = new Module.PlasmaParticles(config);
-            config.delete();
         }
 
         function updateParticles() {
